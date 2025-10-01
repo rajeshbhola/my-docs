@@ -13,12 +13,10 @@ export default function Layout({ children }: LayoutProps<'/'>) {
       <body className="flex flex-col min-h-screen">
         <RootProvider
           search={{
-            links: source.getPages().map((page) => ({
-              id: page.url,
-              title: page.data.title,
-              description: page.data.description ?? '',
-              url: page.url,
-            })),
+            links: source.getPages().map((page) => [
+              page.data.title,
+              page.url,
+            ]),
           }}
         >
           {children}
