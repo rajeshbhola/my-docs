@@ -1,0 +1,318 @@
+---
+title: Java Identifiers and Reserved Words
+---
+
+
+## 1. IDENTIFIERS
+
+### Definition
+A name in a Java program is called an identifier. It is used for identification purposes and can be a class name, method name, variable name, or label name.
+
+### Example
+```java
+class Test {
+    public static void main(String[] args) {
+        int x = 10;
+    }
+}
+```
+
+In this program, there are 5 identifiers:
+1. **Test** - class name
+2. **main** - method name
+3. **String** - predefined Java class name
+4. **args** - array name
+5. **x** - variable name
+
+---
+
+## Rules for Defining Java Identifiers
+
+### Rule 1: Allowed Characters
+The only allowed characters in Java identifiers are:
+- A to Z (uppercase)
+- a to z (lowercase)
+- 0 to 9 (digits)
+- $ (dollar symbol)
+- _ (underscore)
+
+If you use any other character, you will get a compile-time error.
+
+**Examples:**
+- `total_number` - Valid
+- `total#number` - Invalid (hash symbol not allowed)
+
+### Rule 2: Cannot Start with Digit
+Identifiers cannot start with a digit.
+
+**Examples:**
+- `total_123` - Valid
+- `123_total` - Invalid
+
+### Rule 3: Case Sensitive
+Java identifiers are case sensitive. Java language itself is a case-sensitive programming language, so you can differentiate identifiers based on case.
+
+**Example:**
+```java
+class Test {
+    int number = 10;
+    int Number = 20;
+    int NUMBER = 30;
+}
+```
+All three variables are different and valid.
+
+### Rule 4: No Length Limit
+There is no length limit for Java identifiers. However, it is not recommended to use overly lengthy identifiers because it reduces code readability.
+
+**Example:**
+```java
+int xxxxxxxxxxxxxxxxx = 10;
+int yyyyyyyyyyyyyyyyy = 20;
+```
+This is valid but not recommended as it is poor programming practice.
+
+### Rule 5: Cannot Use Reserved Words
+Reserved words cannot be used as identifiers. If you try to use them, you will get a compile-time error.
+
+**Examples:**
+- `int x = 10;` - Valid
+- `int if = 20;` - Invalid (if is a reserved word)
+
+### Rule 6: Predefined Class and Interface Names
+All predefined Java class names and interface names can be used as identifiers.
+
+**Example:**
+```java
+class Test {
+    public static void main(String[] args) {
+        int String = 888;
+        System.out.println(String); // Output: 888
+        
+        int Runnable = 999;
+        System.out.println(Runnable); // Output: 999
+    }
+}
+```
+
+This is valid because String is a predefined class name and Runnable is a predefined interface name, not reserved words. However, it is not good programming practice because it reduces readability and creates confusion.
+
+---
+
+## Practice Question: Valid Java Identifiers
+
+Which of the following are valid Java identifiers?
+
+1. `total_number` - **Valid**
+2. `total#` - **Invalid** (hash symbol not allowed)
+3. `123total` - **Invalid** (starts with digit)
+4. `total123` - **Valid**
+5. `ca$h` - **Valid**
+6. `_$_$_$` - **Valid**
+7. `all@hands` - **Invalid** (@ symbol not allowed)
+8. `java2share` - **Valid**
+9. `Integer` - **Valid** (predefined class name)
+10. `Int` - **Valid** (capital I, not the keyword int)
+11. `int` - **Invalid** (reserved word)
+
+---
+
+## 2. RESERVED WORDS
+
+### Definition
+In any language, some words are reserved to represent specific meaning or functionality. Such words are called reserved words.
+
+**Examples from English:**
+- "cat" - reserved to represent a type of animal
+- "dog" - reserved to represent a type of animal
+- "apple" - reserved to represent a type of fruit
+- "eat" - reserved to represent a type of action
+
+### Total Count
+Java has **53 reserved words**, which consist of:
+- **50 keywords**
+  - 48 used keywords
+  - 2 unused keywords
+- **3 reserved literals**
+
+---
+
+## Reserved Literals (3)
+
+1. **true** - boolean value
+2. **false** - boolean value
+3. **null** - default value for object reference
+
+---
+
+## Keywords Classification
+
+### 1. Keywords for Data Types (8)
+- byte
+- short
+- int
+- long
+- float
+- double
+- boolean
+- char
+
+### 2. Keywords for Flow Control (11)
+- if
+- else
+- switch
+- case
+- default
+- while
+- do
+- for
+- break
+- continue
+- return
+
+### 3. Keywords for Modifiers (11)
+- public
+- private
+- protected
+- static
+- final
+- abstract
+- synchronized
+- native
+- strictfp
+- transient
+- volatile
+
+Note: default is also a modifier but we don't write it explicitly, so only 11 are listed.
+
+### 4. Keywords for Exception Handling (6)
+- try
+- catch
+- finally
+- throw
+- throws
+- assert (added in version 1.4)
+
+### 5. Class Related Keywords (6)
+- class
+- interface
+- extends
+- implements
+- package
+- import
+
+### 6. Object Related Keywords (4)
+- new
+- instanceof
+- super
+- this
+
+Note: There is no delete keyword in Java because destruction of useless objects is the responsibility of the garbage collector.
+
+### 7. Void Return Type Keyword (1)
+- void
+
+In Java, return type is mandatory. If a method does not return anything, it must be declared with void return type.
+
+In C language, return type is optional and the default return type is int.
+
+---
+
+## Unused Keywords (2)
+
+### 1. goto
+Usage of goto created several problems in old languages, so some people banned this keyword in Java. If you try to use it, you will get a compile-time error.
+
+### 2. const
+Use final instead of const. If you try to use const, you will get a compile-time error.
+
+---
+
+## New Keywords in Java
+
+1. **strictfp** - Added in version 1.2
+2. **assert** - Added in version 1.4
+3. **enum** - Added in version 1.5
+
+### Enum Keyword
+We can use enum to define a group of named constants.
+
+**Examples:**
+```java
+enum Month {
+    Jan, Feb, ..., Dec
+}
+
+enum Beer {
+    KF, KO, RC, FO
+}
+```
+
+---
+
+## Important Conclusions About Reserved Words
+
+### Conclusion 1
+All 53 reserved words in Java contain only lowercase alphabet symbols.
+
+### Conclusion 2
+In Java, we have only the new keyword. There is no delete keyword because destruction of useless objects is the responsibility of the garbage collector.
+
+### Conclusion 3
+The following are new keywords in Java:
+- strictfp (version 1.2)
+- assert (version 1.4)
+- enum (version 1.5)
+
+---
+
+## Common Spelling Mistakes to Avoid
+
+- **strictfp** (not strictFP)
+- **instanceof** (not instanceOf - 'o' is lowercase)
+- **synchronized** (not synchronize)
+- **extends** (not extend)
+- **implements** (not implement)
+- **import** (not imports)
+- **const** (not constant)
+
+---
+
+## Practice Questions
+
+### Question 1: Which list contains only Java reserved words?
+
+1. new, delete
+2. goto, constant
+3. break, continue, return, exit
+4. final, finally, finalize
+5. throw, throws, thrown
+6. notify, notifyAll
+7. implements, extends, imports
+8. sizeof, instanceof
+9. byte, short, Int
+10. None of the above
+
+**Answer: None of the above**
+
+**Violations:**
+- delete - not a keyword
+- constant - should be const
+- exit - method, not keyword
+- finalize - method, not keyword
+- thrown - no such keyword
+- notify, notifyAll - methods, not keywords
+- imports - should be import
+- sizeof - not in Java
+- instanceof - 'o' should be lowercase
+- Int - 'I' should be lowercase
+
+### Question 2: Which are Java reserved words?
+
+public, static, void, main, String, args
+
+**Answer: public, static, void**
+
+- main - method name, not reserved word
+- String - predefined class name, not reserved word
+- args - variable name, not reserved word
