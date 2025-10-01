@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps<'/'>) {
             links: source.getPages().map((page) => ({
               id: page.url,
               title: page.data.title,
-              description: page.data.description,
+              description: page.data.description ?? '',
               url: page.url,
             })),
           }}
