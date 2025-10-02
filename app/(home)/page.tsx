@@ -21,7 +21,7 @@ export default function HomePage() {
 
           <div className="flex-1 space-y-4 text-center md:text-left">
             <div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 pb-1">
                 Rajesh Bhola
               </h1>
               <p className="text-xl sm:text-2xl text-fd-muted-foreground font-medium">
