@@ -1,0 +1,364 @@
+---
+title: Data Types
+---
+
+In Java, every variable and every expression has some type. Each and every data type is clearly defined, and every assignment should be checked by the compiler for type compatibility.
+
+Because of these reasons, Java is considered a **strongly typed programming language**, where type checking is very strong and important.
+
+### Java is NOT Pure Object-Oriented
+
+Java is not considered a pure object-oriented programming language because:
+- Several features are not satisfied by Java (like operator overloading and multiple inheritance)
+- Java depends on primitive data types, which are non-objects
+
+If it were pure object-oriented, everything would need to be in terms of objects.
+
+**Interview Tip:** When asked if Java is pure object-oriented, the recommended answer is "No" because you can then explain the reasons, which demonstrates better understanding.
+
+---
+
+## Primitive Data Types Overview
+
+Java has **8 primitive data types** divided into categories:
+
+### Classification
+
+**Numeric Data Types:**
+1. **Integral Types** (numbers without decimal point):
+   - byte
+   - short
+   - int
+   - long
+
+2. **Floating Point Types** (numbers with decimal point):
+   - float
+   - double
+
+**Non-Numeric Data Types:**
+3. **Character Type:**
+   - char
+
+4. **Boolean Type:**
+   - boolean
+
+### Important Point
+Except boolean and char, all remaining data types are considered **signed data types** because they can represent both positive and negative numbers.
+
+---
+
+## 1. BYTE DATA TYPE
+
+### Specifications
+- **Size:** 1 byte (8 bits)
+- **Max Value:** +127
+- **Min Value:** -128
+- **Range:** -128 to +127
+
+### How It Works
+- The most significant bit (MSB) acts as the sign bit
+  - 0 means positive number
+  - 1 means negative number
+- One bit is reserved for sign
+- Remaining 7 bits represent the value
+- Positive numbers are represented directly in memory
+- Negative numbers are represented in two's complement form
+
+### Examples and Compile-Time Errors
+
+```java
+byte b = 10;           // Valid
+byte b = 127;          // Valid
+byte b = 128;          // Invalid - Possible loss of precision
+                       // Error: found int, required byte
+
+byte b = 10.5;         // Invalid - Possible loss of precision
+                       // Error: found double, required byte
+
+byte b = true;         // Invalid - Incompatible types
+                       // Error: found boolean, required byte
+
+byte b = "Durga";      // Invalid - Incompatible types
+                       // Error: found java.lang.String, required byte
+```
+
+### Best Use Case
+Byte is the best choice when handling data in terms of streams, either from files or from networks.
+
+**Reason:** File supported form and network supported form is byte.
+
+**Example:** FileOutputStream contains a write method that takes byte array as argument (not int array or short array) because a sequence of bytes is the file/network supported form.
+
+---
+
+## 2. SHORT DATA TYPE
+
+### Specifications
+- **Size:** 2 bytes (16 bits)
+- **Range:** -2^15 to 2^15-1 (-32,768 to 32,767)
+
+### Important Characteristic
+Short is the **most rarely used data type in Java**. Even experienced developers working for years may never use it in their programs.
+
+### Best Use Case
+Short data type is best suitable for 16-bit processors like 8085. However, these processors are completely outdated, and hence the corresponding short data type is also outdated.
+
+**Historical Context:** When Java came in 1995, 16-bit processors were very popular. Short was efficient for these processors because the instruction length matched (16 bits). But today, 32-bit and 64-bit processors are common, making short obsolete.
+
+### Examples
+
+```java
+short s = 32767;       // Valid
+short s = 32768;       // Invalid - Possible loss of precision
+                       // Error: found int, required short
+
+short s = 10.5;        // Invalid - Possible loss of precision
+                       // Error: found double, required short
+
+short s = true;        // Invalid - Incompatible types
+                       // Error: found boolean, required short
+```
+
+---
+
+## 3. INT DATA TYPE
+
+### Specifications
+- **Size:** 4 bytes (32 bits)
+- **Range:** -2^31 to 2^31-1 (-2,147,483,648 to 2,147,483,647)
+
+### Important Characteristic
+Int is the **most commonly used data type in Java**. Even for small values like 10, developers typically use int.
+
+### Important Rules About Integral Numbers
+
+1. Every integral number (number without decimal point) is by default considered as **int type** by the compiler.
+
+2. Every integral number must be within the int range. If not, you get: **"integer number too large"** compile-time error.
+
+### Examples
+
+```java
+int x = 2147483647;    // Valid (max value)
+int x = 2147483648;    // Invalid - Integer number too large
+
+int x = 2147483648L;   // Invalid - Possible loss of precision
+                       // Error: found long, required int
+                       // (L suffix makes it long type)
+
+int x = true;          // Invalid - Incompatible types
+                       // Error: found boolean, required int
+```
+
+---
+
+## 4. LONG DATA TYPE
+
+### When to Use Long
+Sometimes int range may not be enough to hold big values. Then we should go for long data type.
+
+### Use Cases
+
+**Example 1:** Distance traveled by light in 1000 days
+- Light speed: 186,000 miles per second
+- Calculation: 186,000 × 60 (seconds) × 60 (minutes) × 24 (hours) × 1000 (days)
+- This exceeds int range, so we need long
+
+```java
+long l = 186000 * 60 * 60 * 24 * 1000;
+```
+
+**Example 2:** Number of characters in a big file
+- A file may contain lakhs of pages
+- Each page may contain hundreds of lines
+- Each line may contain hundreds of characters
+- Total characters may exceed int range
+
+This is why the `length()` method in the File class has return type **long** (not int).
+
+```java
+long l = f.length();  // Returns number of characters in file
+```
+
+### Specifications
+- **Size:** 8 bytes (64 bits)
+- **Range:** -2^63 to 2^63-1
+
+---
+
+## Important Note About Integral Types
+
+**Note:** All the above data types (byte, short, int, long) are meant for representing **integral values only** (numbers without decimal point).
+
+If we want to represent **floating point values** (numbers with decimal point), we must use floating point data types.
+
+---
+
+## 5. FLOAT DATA TYPE
+
+### When to Use Float vs Double
+
+The decision is NOT based on small vs big values. It's based on **decimal precision required**:
+
+- **Float:** Use when you need **5 to 6 decimal places of accuracy**
+- **Double:** Use when you need **14 to 15 decimal places of accuracy**
+
+### Precision Types
+- **Float** follows **single precision** (less accuracy)
+- **Double** follows **double precision** (more accuracy)
+
+### Specifications
+- **Size:** 4 bytes
+- **Range:** -3.4e38 to 3.4e38
+  - (e38 means × 10^38 - exponential notation)
+
+---
+
+## 6. DOUBLE DATA TYPE
+
+### Specifications
+- **Size:** 8 bytes
+- **Range:** -1.7e308 to 1.7e308
+  - (e308 means × 10^308 - exponential notation)
+
+### Comparison Table
+
+| Feature | Float | Double |
+|---------|-------|--------|
+| Decimal Precision | 5-6 places | 14-15 places |
+| Precision Type | Single precision | Double precision |
+| Size | 4 bytes | 8 bytes |
+| Range | -3.4e38 to 3.4e38 | -1.7e308 to 1.7e308 |
+
+---
+
+## 7. BOOLEAN DATA TYPE
+
+### Specifications
+- **Size:** Not applicable (virtual machine dependent)
+- **Range:** Not applicable
+- **Allowed Values:** true or false only
+
+### Important Differences from C/C++
+
+In old languages like C/C++:
+- 0 means false
+- Non-zero means true
+- Size is typically 1 bit or 1 byte
+
+In Java:
+- Size is not defined (virtual machine dependent)
+- Only true and false are valid
+- No numeric representation
+
+### Examples
+
+```java
+boolean b = true;      // Valid
+boolean b = false;     // Valid
+
+boolean b = 0;         // Invalid - Incompatible types
+                       // Error: found int, required boolean
+
+boolean b = True;      // Invalid - Cannot find symbol
+                       // Error: variable True not found
+                       // (case sensitive - must be lowercase)
+
+boolean b = "true";    // Invalid - Incompatible types
+                       // Error: found java.lang.String, required boolean
+```
+
+### Java's Strict Boolean Rules
+
+```java
+int x = 0;
+if (x)                 // Invalid in Java (valid in C/C++)
+    System.out.println("hello");
+// Error: Incompatible types, found int, required boolean
+
+while (1)              // Invalid in Java (valid in C/C++)
+    System.out.println("hello");
+// Error: Incompatible types, found int, required boolean
+```
+
+Both examples above are **valid in C/C++** but **invalid in Java** because Java's compiler is very strict about type checking.
+
+---
+
+## 8. CHAR DATA TYPE
+
+### Why Char is 2 Bytes in Java (Instead of 1 Byte)
+
+**Old Languages (C/C++):**
+- ASCII code based
+- Number of different allowed characters ≤ 256
+- To represent 256 characters, 8 bits are enough
+- Size: 1 byte
+
+**Java:**
+- Unicode based
+- Number of different characters: > 256 and ≤ 65,536
+- Can use worldwide alphabet symbols (Telugu, Hindi, Tamil, Chinese, etc.)
+- To represent these many characters, 8 bits are not enough
+- Compulsory need for 16 bits
+- Size: 2 bytes
+
+### Specifications
+- **Size:** 2 bytes (16 bits)
+- **Range:** 0 to 65,535
+
+### Important Points
+- Java programs can use any language's alphabet symbols
+- The first 256 Unicode characters are the same as ASCII characters
+  - Example: 'a' has ASCII code 97 and Unicode value 97
+- Extra characters beyond 256 have only Unicode values (no ASCII equivalent)
+
+---
+
+## Summary Table of All Primitive Data Types
+
+| Data Type | Size | Range | Wrapper Class | Default Value |
+|-----------|------|-------|---------------|---------------|
+| byte | 1 byte | -2^7 to 2^7-1 (-128 to 127) | Byte | 0 |
+| short | 2 bytes | -2^15 to 2^15-1 (-32,768 to 32,767) | Short | 0 |
+| int | 4 bytes | -2^31 to 2^31-1 (-2,147,483,648 to 2,147,483,647) | Integer | 0 |
+| long | 8 bytes | -2^63 to 2^63-1 | Long | 0 |
+| float | 4 bytes | -3.4e38 to 3.4e38 | Float | 0.0 |
+| double | 8 bytes | -1.7e308 to 1.7e308 | Double | 0.0 |
+| boolean | Not applicable | true or false | Boolean | false |
+| char | 2 bytes | 0 to 65,535 | Character | '\u0000' (space) |
+
+### Important Notes About Default Values
+
+- **Integral types:** Default value is 0
+- **Floating point types:** Default value is 0.0
+- **Boolean:** Default value is false (not true like in C++)
+- **Char:** Default value is '\u0000' which represents a space character
+- **Object references:** Default value is **null**
+
+### About null
+
+- **null** is the default value for object references (String, Student, Customer, etc.)
+- null **cannot** be applied to primitives
+- Attempting to use null with primitives causes compile-time error
+
+**Example:**
+```java
+char ch = null;        // Invalid - Incompatible types
+                       // Error: found null type, required char
+```
+
+---
+
+## Key Takeaways
+
+1. Java is strongly typed - type checking is very strict
+2. Java has 8 primitive data types
+3. Except boolean and char, all types are signed (can be positive or negative)
+4. Every integral number is by default int type
+5. Int is the most commonly used data type
+6. Short is the most rarely used data type
+7. Float vs double is about decimal precision, not value size
+8. Boolean in Java only accepts true/false (not 0/1 like C/C++)
+9. Char is 2 bytes in Java because it's Unicode-based
+10. null is for object references only, not primitives

@@ -1,0 +1,380 @@
+---
+title: Command Line Arguments
+---
+
+**Command-line arguments** are the arguments which are passing from command prompt.
+
+### Example
+
+```bash
+java Test A B C
+```
+
+Here, `A`, `B`, and `C` are command-line arguments.
+
+---
+
+## How Command-Line Arguments Work
+
+### Internal Process
+
+When we execute a Java class with command-line arguments:
+
+1. **JVM creates a String array** with these command-line arguments
+2. **JVM passes this array as argument** to the main method
+3. **Main method receives** this array through `String[] args` parameter
+
+### Example Flow
+
+```bash
+java Test A B C
+```
+
+**Internally:**
+- JVM creates: `String[] args = {"A", "B", "C"}`
+- JVM calls: `main(args)`
+
+### Accessing Arguments
+
+```java
+class Test {
+    public static void main(String[] args) {
+        System.out.println(args[0]);  // A
+        System.out.println(args[1]);  // B
+        System.out.println(args[2]);  // C
+        System.out.println(args.length);  // 3
+    }
+}
+```
+
+**Key Points:**
+- First command-line argument: `args[0]` (NOT the class name)
+- Number of arguments: `args.length`
+
+---
+
+## Main Purpose of Command-Line Arguments
+
+**The main objective of command-line arguments is we can customize behavior of the main method.**
+
+### Example 1: Without Command-Line Arguments (Hardcoded)
+
+```java
+class Test {
+    public static void main(String[] args) {
+        // ... some code ...
+        System.out.println("The square of 4 is 16");
+        // ... some code ...
+    }
+}
+```
+
+**Problem:** This program works only for 4 and 16. It's hardcoded.
+
+### Example 2: With Command-Line Arguments (Flexible)
+
+```java
+class Test {
+    public static void main(String[] args) {
+        int n = Integer.parseInt(args[0]);
+        System.out.println("The square of " + n + " is " + (n * n));
+    }
+}
+```
+
+**Execution:**
+```bash
+java Test 4   // Output: The square of 4 is 16
+java Test 5   // Output: The square of 5 is 25
+java Test 10  // Output: The square of 10 is 100
+```
+
+**Advantage:** Based on our provided value, this program will work. Not hardcoded for any specific value.
+
+### Real-World Example: File Merging
+
+**Without command-line arguments:**
+```java
+// Hardcoded to merge A.txt and B.txt into C.txt
+mergeFiles("A.txt", "B.txt", "C.txt");
+```
+
+**Problem:** Can't use for X.txt, Y.txt, Z.txt
+
+**With command-line arguments:**
+```java
+class Test {
+    public static void main(String[] args) {
+        String sourceFile1 = args[0];
+        String sourceFile2 = args[1];
+        String targetFile = args[2];
+        mergeFiles(sourceFile1, sourceFile2, targetFile);
+    }
+}
+```
+
+**Execution:**
+```bash
+java Test A.txt B.txt C.txt  // Works for A, B, C
+java Test X.txt Y.txt Z.txt  // Works for X, Y, Z
+```
+
+---
+
+## Why Command-Line Arguments are Always String Type?
+
+### Two Main Reasons
+
+**1. String is the most commonly used object**
+- In any Java program, most commonly used object is String object
+- Approximately 70% String objects, 30% non-String objects
+- Most commonly used type recommended to keep as argument
+
+**2. String can be converted to any other type**
+- String → int: `Integer.parseInt(str)`
+- String → double: `Double.parseDouble(str)`
+- String → boolean: `Boolean.parseBoolean(str)`
+- String → any type: conversions are already available
+
+From string to any other type, we can convert. That's why some people gave priority for string type.
+
+---
+
+## Important Cases and Examples
+
+### Case 1: Array Index Out of Bounds - Common Mistake
+
+```java
+class Test {
+    public static void main(String[] args) {
+        for (int i = 0; i <= args.length; i++) {  // BUG: <= instead of 
+            System.out.println(args[i]);
+        }
+    }
+}
+```
+
+**Execution:**
+
+| Command | Expected | Actual Result |
+|---------|----------|---------------|
+| `java Test A B C` | A, B, C | A, B, C, then **ArrayIndexOutOfBoundsException** |
+| `java Test A B` | A, B | A, B, then **ArrayIndexOutOfBoundsException** |
+| `java Test` | (no output) | **ArrayIndexOutOfBoundsException** |
+
+**Problem:** `i <= args.length` should be `i < args.length`
+
+**Why?**
+- For 3 arguments (A, B, C): valid indexes are 0, 1, 2
+- Loop tries to access: args[0], args[1], args[2], args[3]
+- args[3] doesn't exist → Exception
+
+**Fix:**
+```java
+for (int i = 0; i < args.length; i++) {  // Correct: < instead of <=
+    System.out.println(args[i]);
+}
+```
+
+**Note:** If we replace `<=` with `<`, then we won't get any runtime exception.
+
+---
+
+### Case 2: Reassigning args Reference
+
+```java
+class Test {
+    public static void main(String[] args) {
+        String[] argh = {"X", "Y", "Z"};
+        args = argh;  // Reassigning args to point to argh
+        
+        for (String s : args) {
+            System.out.println(s);
+        }
+    }
+}
+```
+
+**Execution:**
+
+| Command | Output |
+|---------|--------|
+| `java Test A B C` | X, Y, Z |
+| `java Test A B` | X, Y, Z |
+| `java Test` | X, Y, Z |
+
+**Explanation:**
+- Initially, `args` points to command-line arguments
+- After `args = argh`, args points to {"X", "Y", "Z"}
+- Regardless of what command-line arguments we pass, output is always X, Y, Z
+
+**Key Point:** After the reassignment line, args is always pointing to argh array.
+
+---
+
+### Case 3: String Concatenation vs Addition
+
+```java
+class Test {
+    public static void main(String[] args) {
+        System.out.println(args[0] + args[1]);
+    }
+}
+```
+
+**Execution:**
+```bash
+java Test 10 20
+```
+
+**What's the output?**
+- **NOT** 30
+- **Answer:** 1020
+
+**Why?**
+
+Within main method, command-line arguments are available in **String form**.
+
+- `args[0]` = "10" (String, not int)
+- `args[1]` = "20" (String, not int)
+- String + String = **Concatenation**, not addition
+- Result: "10" + "20" = "1020"
+
+**To get 30 (addition):**
+```java
+class Test {
+    public static void main(String[] args) {
+        int n1 = Integer.parseInt(args[0]);
+        int n2 = Integer.parseInt(args[1]);
+        System.out.println(n1 + n2);  // Output: 30
+    }
+}
+```
+
+---
+
+### Case 4: Command-Line Arguments with Spaces
+
+```java
+class Test {
+    public static void main(String[] args) {
+        System.out.println(args[0]);
+    }
+}
+```
+
+**Execution:**
+
+| Command | Output |
+|---------|--------|
+| `java Test notebook` | notebook |
+| `java Test note book` | note (only first word) |
+| `java Test "note book"` | note book (complete phrase) |
+
+**Explanation:**
+
+**Usually space itself is the separator between command-line arguments.**
+
+If our command-line argument itself contains space, then we have to enclose that command-line argument within double quotes.
+
+**Examples:**
+```bash
+java Test note book          # Two arguments: "note" and "book"
+java Test "note book"        # One argument: "note book"
+java Test "Hello World" Java # Two arguments: "Hello World" and "Java"
+```
+
+---
+
+## Summary of Key Points
+
+### Definition
+The arguments which are passing from command prompt are called **command-line arguments**.
+
+### How It Works
+1. With these command-line arguments, **JVM will create an array**
+2. By passing that array as argument, **JVM will call main method**
+
+### Purpose
+The main objective of command-line arguments is **we can customize behavior of the main method**.
+
+### Why String Type?
+1. String is the most commonly used object (70% of objects)
+2. From String to any other type, we can convert
+
+### Access Pattern
+```java
+args[0]        // First argument
+args[1]        // Second argument
+args.length    // Number of arguments
+```
+
+---
+
+## Common Mistakes to Avoid
+
+| Mistake | Problem | Solution |
+|---------|---------|----------|
+| `i <= args.length` | ArrayIndexOutOfBoundsException | Use `i < args.length` |
+| `args[0] + args[1]` expecting number addition | Gets string concatenation | Use `Integer.parseInt()` first |
+| `java Test note book` expecting "note book" | Gets only "note" | Use `java Test "note book"` |
+| Forgetting args are Strings | Type mismatch errors | Always convert to needed type |
+
+---
+
+## Complete Examples
+
+### Example 1: Basic Command-Line Arguments
+```java
+class Test {
+    public static void main(String[] args) {
+        System.out.println("Number of arguments: " + args.length);
+        for (int i = 0; i < args.length; i++) {
+            System.out.println("Argument " + i + ": " + args[i]);
+        }
+    }
+}
+```
+
+```bash
+java Test A B C
+# Output:
+# Number of arguments: 3
+# Argument 0: A
+# Argument 1: B
+# Argument 2: C
+```
+
+### Example 2: Calculator
+```java
+class Calculator {
+    public static void main(String[] args) {
+        int num1 = Integer.parseInt(args[0]);
+        int num2 = Integer.parseInt(args[1]);
+        
+        System.out.println("Sum: " + (num1 + num2));
+        System.out.println("Product: " + (num1 * num2));
+    }
+}
+```
+
+```bash
+java Calculator 10 20
+# Output:
+# Sum: 30
+# Product: 200
+```
+
+---
+
+## Key Takeaways
+
+1. **Command-line arguments** enable program customization
+2. **Always String type** - must convert if need other types
+3. **Space is separator** - use quotes for arguments with spaces
+4. **args.length** gives count, not args.length()
+5. **Valid indexes:** 0 to args.length - 1
+6. **Main purpose:** Customize behavior without hardcoding values
+7. **JVM creates the array** and passes to main method
+
+Understanding command-line arguments is essential for creating flexible, reusable Java programs!

@@ -1,0 +1,413 @@
+---
+title: Var-args Method
+---
+
+**Var-args** = **Variable number of argument methods**
+
+Introduced in **Java 1.5 version** to provide more flexibility to programmers.
+
+### The Problem Before Java 1.5
+
+**Until 1.4 version:** We can't declare a method with variable number of arguments. If there is a change in number of arguments, compulsory we should go for new method. It increases length of the code and reduces readability.
+
+**Example Problem:**
+```java
+// Sum of 2 numbers
+public static void sum(int a, int b) {
+    System.out.println(a + b);
+}
+
+// Sum of 3 numbers - need new method
+public static void sum(int a, int b, int c) {
+    System.out.println(a + b + c);
+}
+
+// Sum of 4 numbers - need another new method
+public static void sum(int a, int b, int c, int d) {
+    System.out.println(a + b + c + d);
+}
+
+// Many more sum methods needed...
+```
+
+### The Solution: Var-args Methods (1.5+)
+
+**According to var-args, we can declare a method which can take variable number of arguments.** Such type of methods are called **var-args methods**.
+
+**One method can replace all those sum methods:**
+```java
+public static void sum(int... x) {
+    // Can be called with any number of int values
+}
+```
+
+---
+
+## Declaring Var-args Methods
+
+### Syntax
+
+We can declare a var-args method as follows:
+
+```java
+m1(int... x)  // Three dots followed by variable name
+```
+
+**Important:** Exactly **three dots** (not more, not less).
+
+### Calling Var-args Methods
+
+We can call this method by passing **any number of int values including zero number**.
+
+```java
+m1();           // Valid - zero arguments
+m1(10);         // Valid - one argument
+m1(10, 20);     // Valid - two arguments
+m1(10, 20, 30, 40);  // Valid - four arguments
+```
+
+---
+
+## Complete Example
+
+```java
+class Test {
+    public static void m1(int... x) {
+        System.out.println("var-arg method");
+    }
+    
+    public static void main(String[] args) {
+        m1();           // Output: var-arg method
+        m1(10);         // Output: var-arg method
+        m1(10, 20);     // Output: var-arg method
+        m1(10, 20, 30, 40);  // Output: var-arg method
+    }
+}
+```
+
+---
+
+## Internal Conversion to Array
+
+**Internally, var-arg parameter will be converted into one-dimensional array.**
+
+Hence, within the var-arg method we can differentiate values **by using index**.
+
+```java
+public static void m1(int... x) {
+    System.out.println("The number of arguments: " + x.length);
+    // x is treated as one-dimensional int array
+}
+```
+
+**Output:**
+```
+m1();        // The number of arguments: 0
+m1(10);      // The number of arguments: 1
+m1(10, 20);  // The number of arguments: 2
+```
+
+---
+
+## Practical Example: Sum Method
+
+```java
+class Test {
+    public static void sum(int... x) {
+        int total = 0;
+        for (int x1 : x) {
+            total = total + x1;
+        }
+        System.out.println("The sum is " + total);
+    }
+    
+    public static void main(String[] args) {
+        sum();              // Output: The sum is 0
+        sum(10, 20);        // Output: The sum is 30
+        sum(10, 20, 30);    // Output: The sum is 60
+        sum(10, 20, 30, 40); // Output: The sum is 100
+    }
+}
+```
+
+**This single method replaces multiple overloaded sum methods!**
+
+---
+
+## Important Rules and Cases
+
+### Case 1: Valid Syntax for Var-args Declaration
+
+**Which of the following are valid var-arg method declarations?**
+
+```java
+m1(int... x)        // Valid - recommended
+m1(int ...x)        // Valid - space ignored by compiler
+m1(int...x)         // Valid - no space
+m1(int. . .x)       // Invalid - dots separated
+m1(int . . . x)     // Invalid - dots separated
+m1(int x...)        // Invalid - dots should be before variable
+```
+
+**Important:** The three dots are "best friends" - they should **always be together**. You cannot separate them.
+
+---
+
+### Case 2: Mixing Var-args with Normal Parameters
+
+We can mix var-arg parameter with normal parameters.
+
+```java
+m1(int x, int... y)        // Valid
+m1(String s, double... d)  // Valid
+```
+
+**Both are valid declarations.**
+
+---
+
+### Case 3: Var-arg Parameter Must Be Last
+
+If we mix normal parameter with var-arg parameter, then **var-arg parameter should be last parameter**.
+
+```java
+m1(double... d, String s)  // Invalid - var-arg not last
+m1(String s, double... d)  // Valid - var-arg is last
+```
+
+---
+
+### Case 4: Only One Var-arg Parameter Allowed
+
+Inside a method, we can take **only one var-arg parameter**. We can't take more than one var-arg parameter.
+
+```java
+m1(int... x, double... d)  // Invalid - more than one var-arg
+m1(int x, double... d)     // Valid - only one var-arg
+```
+
+---
+
+### Case 5: Var-args vs One-Dimensional Array
+
+Inside a class, we **can't declare var-arg method and the corresponding one-dimensional array method simultaneously**. Otherwise, we will get compile-time error.
+
+```java
+class Test {
+    public static void m1(int... x) {
+        System.out.println("var-arg method");
+    }
+    
+    public static void m1(int[] x) {  // Compile error
+        System.out.println("array method");
+    }
+}
+```
+
+**Compile Error:** `cannot declare both m1(int...) and m1(int[]) in Test`
+
+**Reason:** Internally, var-arg parameter is converted to one-dimensional array. Both methods have the same signature: `m1(int[])`
+
+---
+
+### Case 6: Priority - General Method vs Var-arg Method
+
+In general, **var-arg method will get least priority**. That is, if no other method matched, then only var-arg method will get the chance.
+
+**It is exactly same as default case inside a switch.**
+
+**Example:**
+```java
+class Test {
+    public static void m1(int... x) {
+        System.out.println("var-arg method");
+    }
+    
+    public static void m1(int x) {
+        System.out.println("general method");
+    }
+    
+    public static void main(String[] args) {
+        m1();           // Output: var-arg method (only this matches)
+        m1(10, 20);     // Output: var-arg method (only this matches)
+        m1(10);         // Output: general method (exact match has priority)
+    }
+}
+```
+
+**Why does `m1(10)` call the general method?**
+- Both methods match when we pass one int
+- General method has **19+ years of experience** (since Java 1.0, 1995)
+- Var-arg method is a **fresher** (came in Java 1.5, ~2005)
+- **Experience wins!** Old concept has higher priority than new concept
+
+**Key Principle:** If anywhere there's a fight between old concept and new concept, old concept always wins (for backward compatibility).
+
+---
+
+## Equivalence Between Var-args and One-Dimensional Arrays
+
+### Case 1: Replacing Array with Var-args (Valid)
+
+**Wherever one-dimensional array is present, we can replace with var-arg parameter.**
+
+```java
+// Original method
+m1(int[] x)
+
+// Can be replaced with
+m1(int... x)
+```
+
+**Example: Main Method**
+```java
+// Traditional main method
+public static void main(String[] args)
+
+// Valid from Java 1.5 onwards
+public static void main(String... args)
+```
+
+**Both declarations are valid for main method!**
+
+---
+
+### Case 2: Replacing Var-args with Array (Invalid)
+
+**Wherever var-arg parameter is present, we can't replace with one-dimensional array.**
+
+**Why?** Because this replacement is **invalid**.
+
+```java
+// Var-arg method
+m1(int... x)
+
+// Can be called:
+m1();           // Valid
+m1(10);         // Valid
+m1(10, 20);     // Valid
+m1(new int[]{10, 20, 30});  // Valid - passing array also works
+
+// If we replace with array method
+m1(int[] x)
+
+// Now these won't work:
+m1();           // Invalid - expects array
+m1(10);         // Invalid - expects array
+m1(10, 20);     // Invalid - expects array
+m1(new int[]{10, 20, 30});  // Valid - only this works
+```
+
+**Some combinations won't work, so this is an invalid replacement.**
+
+---
+
+## Understanding Array Dimensions with Var-args
+
+### Important Concept
+
+**A group of values will become an array:**
+
+```java
+// Case 1: Group of int values
+m1(int... x)
+// Calling: m1(10, 20, 30)
+// x becomes: one-dimensional int array
+
+// Case 2: Group of String values
+m1(String... x)
+// Calling: m1("A", "B", "C")
+// x becomes: one-dimensional String array
+
+// Case 3: Group of one-dimensional int arrays
+m1(int[]... x)
+// Calling: m1(array1, array2, array3)
+// x becomes: two-dimensional int array
+
+// Case 4: Group of two-dimensional int arrays
+m1(int[][]... x)
+// Calling: m1(arr2D1, arr2D2)
+// x becomes: three-dimensional int array
+```
+
+### Summary Table
+
+| Method Declaration | What we pass | What x becomes |
+|-------------------|--------------|----------------|
+| `m1(int... x)` | Group of int values | One-dimensional int array |
+| `m1(int[]... x)` | Group of one-dimensional int arrays | Two-dimensional int array |
+| `m1(int[][]... x)` | Group of two-dimensional int arrays | Three-dimensional int array |
+
+---
+
+## Advanced Example
+
+```java
+class Test {
+    public static void main(String[] args) {
+        int[] a = {10, 20, 30};
+        int[] b = {40, 50, 60};
+        
+        m1(a, b);  // Passing two one-dimensional arrays
+    }
+    
+    public static void m1(int[]... x) {
+        // x is two-dimensional array
+        // Base size: 2 (because we passed 2 arrays)
+        // x[0] = {10, 20, 30}
+        // x[1] = {40, 50, 60}
+        
+        for (int[] x1 : x) {  // For each one-dimensional array
+            System.out.println(x1[0]);  // Print first element
+        }
+    }
+}
+```
+
+**Output:**
+```
+10
+40
+```
+
+**Explanation:**
+- We pass 2 one-dimensional arrays (a and b)
+- `x` becomes a two-dimensional array with base size 2
+- Loop iterates through each one-dimensional array
+- Prints first element of each array
+
+---
+
+## Summary of Key Points
+
+1. **Var-args introduced in Java 1.5** to handle variable number of arguments
+2. **Syntax:** `methodName(type... variableName)` - exactly three dots
+3. **Internally converted to array** - can use array operations
+4. **Can mix with normal parameters** - but var-arg must be last
+5. **Only one var-arg per method** allowed
+6. **Can't declare both** var-arg and corresponding array method simultaneously
+7. **Var-arg has least priority** - like default case in switch
+8. **Can replace array with var-arg** but not vice versa
+9. **Group of arrays becomes higher-dimensional array**
+
+---
+
+## Best Practices
+
+1. **Use var-args** when number of arguments is unpredictable
+2. **Place var-arg parameter last** when mixing with normal parameters
+3. **Remember priority rules** when overloading with var-args
+4. **Understand array conversion** for processing arguments inside method
+
+---
+
+## Common Pitfalls
+
+❌ **Don't separate the three dots:** `int. . .x` is invalid  
+❌ **Don't put var-arg before other parameters:** `m1(int... x, String s)` is invalid  
+❌ **Don't use multiple var-args:** `m1(int... x, double... y)` is invalid  
+❌ **Don't confuse with array replacement:** Var-arg → Array is invalid replacement
+
+✅ **Do keep three dots together:** `int... x` is valid  
+✅ **Do put var-arg last:** `m1(String s, int... x)` is valid  
+✅ **Do use for flexible argument counts:** Perfect for sum, max, min, etc.

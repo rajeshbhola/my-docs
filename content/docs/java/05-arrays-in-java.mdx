@@ -1,0 +1,701 @@
+---
+title: Arrays
+---
+
+An **array** is an indexed collection of fixed number of homogeneous data elements.
+
+### Why Use Arrays?
+
+**Problem with individual variables:**
+- To represent one int value: `int x = 10;`
+- To represent two int values: need two variables (x, y)
+- To represent 10,000 values: need 10,000 variables (worst programming practice - reduces readability)
+
+**Solution - Arrays:**
+```java
+int[] x = new int[10000];  // Single variable for 10,000 values
+```
+
+Access elements using index:
+- First value: `x[0]`
+- Second value: `x[1]`
+- 10,000th value: `x[9999]`
+
+### Advantages of Arrays
+
+**Main Advantage:** We can represent huge number of values by using single variable, so that readability of the code will be improved.
+
+### Disadvantages of Arrays
+
+1. **Fixed in size:** Once we create an array with some size, there is no chance of increasing or decreasing the size based on our requirement.
+
+2. **Homogeneous elements only:** Arrays can hold only homogeneous (similar type) data elements.
+
+**Important:** To use arrays concept, compulsory we should know the size in advance, which may not be possible always.
+
+**Note:** To overcome these problems, we should use **Collections** (next level concept).
+
+---
+
+## ARRAY DECLARATION
+
+### One-Dimensional Array Declaration
+
+```java
+int[] x;        // Recommended (name clearly separated from type)
+int []x;        // Valid
+int x[];        // Valid
+```
+
+**Recommended:** First form is recommended because the name is clearly separated from the type.
+
+### Important Rules
+
+**Rule 1:** At the time of declaration, we **cannot** specify the size.
+
+```java
+int[] x;        // Valid
+int[6] x;       // Invalid - compile-time error
+```
+
+**Rule 2:** If we want to specify dimension before the variable, this facility is applicable **only for the first variable** in your declaration.
+
+```java
+int[] a, b;         // Valid - both are 1D arrays
+int[] a, b[];       // Valid - a is 1D, b is 2D
+int[] a, []b;       // Invalid - can't specify dimension before second variable
+```
+
+### Two-Dimensional Array Declaration
+
+```java
+int[][] a;      // Valid
+int [][]a;      // Valid
+int a[][];      // Valid
+int[] []a;      // Valid
+int[] a[];      // Valid
+int []a[];      // Valid
+```
+
+### Three-Dimensional Array Declaration
+
+```java
+int[][][] a;    // Valid
+int [][][]a;    // Valid
+int a[][][];    // Valid
+int[] a[][];    // Valid
+int[][] a[];    // Valid
+// ... and many other combinations
+```
+
+---
+
+## ARRAY CREATION
+
+### Every Array is an Object
+
+Every array in Java is an object. Hence, we can create arrays by using the **new** operator.
+
+```java
+int[] a = new int[3];  // Creates array with size 3
+```
+
+### Array Class Names
+
+For every array type, corresponding classes are available, but these classes are part of Java language and not available to the programmer level.
+
+**Proof:**
+```java
+int[] x = new int[3];
+System.out.println(x.getClass().getName());  // Output: [I
+```
+
+| Array Type | Class Name |
+|------------|------------|
+| int[] | [I |
+| int[][] | [[I |
+| double[] | [D |
+| short[] | [S |
+| byte[] | [B |
+| boolean[] | [Z |
+| long[] | [J |
+
+---
+
+## Array Creation Rules
+
+### Rule 1: Size is Mandatory at Creation Time
+
+At the time of array creation, compulsory we should specify the size. Otherwise, we will get compile-time error.
+
+```java
+int[] x = new int[];    // Invalid - size not specified
+int[] x = new int[6];   // Valid
+```
+
+### Rule 2: Arrays with Zero Size are Legal
+
+It is legal to have an array with size zero in Java.
+
+```java
+int[] x = new int[0];   // Valid
+```
+
+**Example:** When no command-line arguments are passed, `args.length` is 0.
+
+### Rule 3: Negative Size Causes Runtime Exception
+
+If we are trying to specify array size with some negative int value, then we will get runtime exception saying **NegativeArraySizeException**.
+
+```java
+int[] x = new int[-3];  // Compiles fine
+                        // Runtime: NegativeArraySizeException
+```
+
+**Note:** There is no compile-time error - compiler only checks if it's an int value, not whether it's positive or negative.
+
+### Rule 4: Allowed Data Types for Array Size
+
+To specify array size, the allowed data types are: **byte, short, char, int**
+
+If we are trying to specify any other type, we will get compile-time error.
+
+```java
+byte b = 20;
+int[] x = new int[b];   // Valid
+
+short s = 30;
+int[] x = new int[s];   // Valid
+
+char ch = 'a';
+int[] x = new int[ch];  // Valid (uses Unicode value 97)
+
+int[] x = new int[10L]; // Invalid - Possible loss of precision
+                        // Error: found long, required int
+```
+
+### Rule 5: Maximum Array Size
+
+The maximum allowed array size in Java is **2,147,483,647** (which is the maximum value of int data type).
+
+```java
+int[] x = new int[2147483647];   // Valid (but may get OutOfMemoryError)
+int[] x = new int[2147483648];   // Invalid - integer number too large
+```
+
+**Note:** Even in the first case, we may get runtime exception if sufficient heap memory is not available.
+
+---
+
+## TWO-DIMENSIONAL ARRAYS
+
+### Array of Arrays Approach
+
+In Java, two-dimensional arrays are **not** implemented by using matrix style. Java follows **array of arrays** approach for multi-dimensional array creation.
+
+**Main advantage:** Memory utilization will be improved (no wasted space).
+
+### Creating 2D Arrays
+
+**Base size must be specified:**
+```java
+int[][] x = new int[2][];   // Valid - base size specified
+int[][] x = new int[][];    // Invalid - base size not specified
+int[][] x = new int[][4];   // Invalid - can't specify second dimension without first
+```
+
+**Example with variable sizes:**
+```java
+int[][] x = new int[2][];
+x[0] = new int[3];   // First element: array of size 3
+x[1] = new int[2];   // Second element: array of size 2
+```
+
+### Three-Dimensional Arrays
+
+```java
+int[][][] x = new int[2][][];     // Valid
+x[0] = new int[3][];
+x[0][0] = new int[1];
+x[0][1] = new int[2];
+x[0][2] = new int[3];
+x[1] = new int[2][2];
+```
+
+### Valid and Invalid Declarations
+
+```java
+int[][] a = new int[3][];         // Valid
+int[][] a = new int[3][4];        // Valid
+int[][] a = new int[][4];         // Invalid
+int[][] a = new int[3][4][5];     // Invalid
+int[][][] a = new int[3][4][5];   // Valid
+int[][][] a = new int[3][4][];    // Valid
+int[][][] a = new int[3][][5];    // Invalid
+int[][][] a = new int[][4][5];    // Invalid
+```
+
+---
+
+## ARRAY INITIALIZATION
+
+### Default Values
+
+Once we create an array, every array element is by default initialized with **default values**.
+
+**Default values:**
+- int, byte, short, long: 0
+- float, double: 0.0
+- boolean: false
+- char: '\u0000' (space character)
+- Object references: null
+
+```java
+int[] x = new int[3];
+System.out.println(x);       // Output: [I@hashcode
+System.out.println(x[0]);    // Output: 0
+```
+
+### Custom Initialization
+
+If we are not satisfied with the default values, we can override these values with our customized values.
+
+```java
+int[] x = new int[6];
+x[0] = 10;
+x[1] = 20;
+x[2] = 30;
+x[3] = 40;
+x[4] = 50;
+x[5] = 60;
+```
+
+### Array Index Out of Bounds Exception
+
+If we are trying to access array element with out-of-range index (either positive or negative int value), we will get runtime exception saying **ArrayIndexOutOfBoundsException**.
+
+```java
+int[] x = new int[6];  // Valid indexes: 0 to 5
+x[6] = 70;             // Runtime: ArrayIndexOutOfBoundsException
+x[-6] = 80;            // Runtime: ArrayIndexOutOfBoundsException
+x[2.5] = 90;           // Compile error: Possible loss of precision
+                       // Error: found double, required int
+```
+
+---
+
+## TWO-DIMENSIONAL ARRAY INITIALIZATION
+
+### Example with Different Sized Sub-arrays
+
+```java
+int[][] x = new int[2][];
+x[0] = new int[3];
+x[1] = new int[2];
+
+System.out.println(x);       // [[I@hashcode
+System.out.println(x[0]);    // [I@hashcode
+System.out.println(x[0][0]); // 0
+```
+
+### Null References
+
+```java
+int[][] x = new int[2][];    // Second dimension not specified
+
+System.out.println(x);       // [[I@hashcode
+System.out.println(x[0]);    // null
+System.out.println(x[0][0]); // Runtime: NullPointerException
+```
+
+**Important:** If we are trying to perform any operation on null, we will get runtime exception saying **NullPointerException**.
+
+---
+
+## ARRAY DECLARATION, CREATION, AND INITIALIZATION IN A SINGLE LINE
+
+### Shortcut Representation
+
+We can declare, create, and initialize an array in a single line (shortcut representation).
+
+**Traditional way (5 lines):**
+```java
+int[] x;
+x = new int[3];
+x[0] = 10;
+x[1] = 20;
+x[2] = 30;
+```
+
+**Shortcut way (1 line):**
+```java
+int[] x = {10, 20, 30};
+```
+
+### More Examples
+
+```java
+char[] ch = {'a', 'e', 'i', 'o', 'u'};
+String[] s = {"A", "AA", "AAA"};
+```
+
+### For Multi-Dimensional Arrays
+
+We can extend this shortcut for multi-dimensional arrays also.
+
+```java
+int[][] x = {{10, 20}, {30, 40, 50}};
+```
+
+**Memory representation:**
+- Base array of size 2
+- First element: array with {10, 20}
+- Second element: array with {30, 40, 50}
+
+### Important Rule
+
+**If we want to use this shortcut, compulsory we should perform all activities in a single line.**
+
+If we are trying to divide into multiple lines, we will get compile-time error.
+
+```java
+int[] x = {10, 20, 30};  // Valid
+
+int[] x;
+x = {10, 20, 30};        // Invalid - illegal start of expression
+```
+
+---
+
+## LENGTH vs length()
+
+### length Variable
+
+**length** is a final variable applicable for arrays. length variable represents the size of the array.
+
+```java
+int[] x = new int[6];
+System.out.println(x.length);    // Output: 6
+System.out.println(x.length());  // Compile error: cannot find symbol method length()
+```
+
+### length() Method
+
+**length()** is a final method applicable for String objects. length() method returns number of characters present in the string.
+
+```java
+String s = "Durga";
+System.out.println(s.length());  // Output: 5
+System.out.println(s.length);    // Compile error: cannot find symbol variable length
+```
+
+### Summary
+
+| Feature | Arrays | String |
+|---------|--------|--------|
+| Syntax | `length` (variable) | `length()` (method) |
+| Returns | Size of array | Number of characters |
+| Type | final variable | final method |
+
+**Note:**
+- length variable applicable for arrays **but not** for string objects
+- length() method applicable for string objects **but not** for arrays
+
+### Multi-Dimensional Arrays
+
+In multi-dimensional arrays, length variable represents only base size, but not total size.
+
+```java
+int[][] x = new int[6][3];
+System.out.println(x.length);      // Output: 6 (base size)
+System.out.println(x[0].length);   // Output: 3
+```
+
+There is no direct way to find total length of multi-dimensional array, but indirectly we can find as follows:
+
+```java
+x[0].length + x[1].length + x[2].length + ...
+```
+
+---
+
+## ANONYMOUS ARRAYS
+
+### What are Anonymous Arrays?
+
+Sometimes we can declare an array without a name. Such type of nameless arrays are called **anonymous arrays**.
+
+**Main purpose:** Just for instant use (one-time usage).
+
+### Creating Anonymous Arrays
+
+```java
+sum(new int[]{10, 20, 30, 40});  // Anonymous array
+```
+
+**Full example:**
+```java
+class Test {
+    public static void main(String[] args) {
+        sum(new int[]{10, 20, 30, 40});
+    }
+    
+    public static void sum(int[] x) {
+        int total = 0;
+        for (int x1 : x) {
+            total = total + x1;
+        }
+        System.out.println("The sum is " + total);
+    }
+}
+```
+
+### Important Rules
+
+**While creating anonymous arrays, we can't specify the size.**
+
+```java
+new int[]{10, 20, 30};    // Valid
+new int[3]{10, 20, 30};   // Invalid - compile-time error
+```
+
+**We can create multi-dimensional anonymous arrays also.**
+
+```java
+new int[][]{{10, 20}, {30, 40, 50}};  // Valid
+```
+
+### Giving Names to Anonymous Arrays
+
+Based on our requirement, we can give the name for anonymous array. Then it is no longer anonymous.
+
+```java
+int[] x = new int[]{10, 20, 30};  // No longer anonymous
+```
+
+---
+
+## ARRAY ELEMENT ASSIGNMENTS
+
+### Case 1: Primitive Type Arrays
+
+In the case of primitive type arrays, as array elements we can provide any type which can be implicitly promoted to declared type.
+
+```java
+int[] x = new int[10];
+x[0] = 10;       // Valid - int
+x[1] = 'a';      // Valid - char to int (stores 97)
+byte b = 20;
+x[2] = b;        // Valid - byte to int
+short s = 30;
+x[3] = s;        // Valid - short to int
+x[4] = 10L;      // Invalid - Possible loss of precision
+                 // Error: found long, required int
+```
+
+**For int array, allowed types:** byte, short, char, int
+
+**For float array, allowed types:** byte, short, char, int, long, float
+
+### Case 2: Object Type Arrays
+
+In the case of object type arrays, as array elements we can provide either declared type objects or its child class objects.
+
+```java
+Object[] a = new Object[10];
+a[0] = new Object();           // Valid
+a[1] = new String("Durga");    // Valid - String is child of Object
+a[2] = new Integer(10);        // Valid - Integer is child of Object
+```
+
+**Example 2:**
+```java
+Number[] n = new Number[10];
+n[0] = new Integer(10);        // Valid - Integer is child of Number
+n[1] = new Double(10.5);       // Valid - Double is child of Number
+n[2] = new String("Durga");    // Invalid - Incompatible types
+                               // Error: found String, required Number
+```
+
+### Case 3: Interface Type Arrays
+
+For interface type arrays, its implementation class objects are allowed.
+
+```java
+Runnable[] r = new Runnable[10];
+r[0] = new Thread();           // Valid - Thread implements Runnable
+r[1] = new String("Durga");    // Invalid - Incompatible types
+                               // Error: found String, required Runnable
+```
+
+### Summary Table
+
+| Array Type | Allowed Element Types |
+|------------|----------------------|
+| Primitive arrays | Any type which can be implicitly promoted to declared type |
+| Object type arrays | Either declared type or its child class objects |
+| Abstract class type arrays | Its child class objects |
+| Interface type arrays | Its implementation class objects |
+
+---
+
+## ARRAY VARIABLE ASSIGNMENTS
+
+### Case 1: Element Level Promotions NOT Applicable at Array Level
+
+Element level promotions are not applicable at array level.
+
+```java
+int[] a = {10, 20, 30, 40};
+char[] ch = {'a', 'b', 'c', 'd'};
+
+int[] b = a;    // Valid - same type
+int[] c = ch;   // Invalid - Incompatible types
+                // Error: found char[], required int[]
+```
+
+**Important:** char element can be promoted to int type, whereas char array cannot be promoted to int array.
+
+**Reason:** char array is an object of type `[C`, and int array is an object of type `[I`. There is no relation between these two classes.
+
+### Case 2: Internal Elements are NOT Copied
+
+Whenever we are assigning one array to another array, internal elements won't be copied. Just the reference variables will be reassigned.
+
+```java
+int[] a = {10, 20, 30, 40, 50, 60};
+int[] b = {70, 80};
+
+a = b;  // Valid - now 'a' points to {70, 80}
+b = a;  // Valid - both point to same array
+```
+
+**Important:** Sizes are not required to match. But types must be same.
+
+### Case 3: Dimensions Must Match
+
+Whenever we are assigning one array to another array, the dimensions must be matched.
+
+```java
+int[][] a = new int[3][];
+a[0] = new int[4][3];     // Invalid - Incompatible types
+                          // Error: found int[][], required int[]
+
+a[0] = 10;                // Invalid - Incompatible types
+                          // Error: found int, required int[]
+
+a[0] = new int[2];        // Valid - correct dimension
+```
+
+### Case 4: Object Type Arrays - Child to Parent Promotion
+
+In the case of object type arrays, child class type array can be promoted to parent class type array.
+
+```java
+String[] s = {"A", "B", "C"};
+Object[] a = s;  // Valid - String[] to Object[]
+```
+
+**Example from Case 1 Question:**
+
+Which of the following promotions will be performed automatically?
+
+```java
+char to int                    // Valid
+char[] to int[]                // Invalid
+
+int to double                  // Valid
+int[] to double[]              // Invalid
+
+float to int                   // Invalid
+float[] to int[]               // Invalid
+
+String to Object               // Valid
+String[] to Object[]           // Valid - child to parent at array level
+```
+
+### Summary Note
+
+**Whenever we are assigning one array to another array:**
+- Both dimensions and types must be matched
+- But sizes are not required to match
+
+---
+
+## Practice Questions
+
+### Question 1: Command Line Arguments
+
+```java
+class Test {
+    public static void main(String[] args) {
+        for (int i = 0; i <= args.length; i++) {
+            System.out.println(args[i]);
+        }
+    }
+}
+```
+
+**Execution:**
+- `java Test a b c` → Output: a, b, c, then ArrayIndexOutOfBoundsException
+- `java Test a b` → Output: a, b, then ArrayIndexOutOfBoundsException
+- `java Test` → ArrayIndexOutOfBoundsException
+
+**Reason:** Loop condition should be `i < args.length` (not `i <= args.length`)
+
+### Question 2: Reassigning args
+
+```java
+class Test {
+    public static void main(String[] args) {
+        String[] argh = {"X", "Y", "Z"};
+        args = argh;
+        for (String s : args) {
+            System.out.println(s);
+        }
+    }
+}
+```
+
+**Execution:**
+- `java Test A B C` → Output: X, Y, Z
+- `java Test A B` → Output: X, Y, Z
+- `java Test` → Output: X, Y, Z
+
+**Reason:** After `args = argh`, args always points to {"X", "Y", "Z"} regardless of command-line arguments.
+
+### Question 3: Object Creation and GC
+
+```java
+int[][] a = new int[4][3];
+a[0] = new int[4];
+a[1] = new int[2];
+a = new int[3][2];
+```
+
+**Answer:**
+- Total objects created: 11
+- Objects eligible for GC: 7
+
+**Explanation:**
+- `new int[4][3]`: Creates 1 + 4 = 5 objects
+- `a[0] = new int[4]`: Creates 1 object
+- `a[1] = new int[2]`: Creates 1 object
+- `a = new int[3][2]`: Creates 1 + 3 = 4 objects
+- Total: 5 + 1 + 1 + 4 = 11
+- After last line, original 4 objects + overwritten 3 objects = 7 eligible for GC
+
+---
+
+## Key Takeaways
+
+1. **Arrays are objects** in Java, created using `new` operator
+2. **Fixed in size** - once created, size cannot change
+3. **Zero-based indexing** - first element is at index 0
+4. **Default initialization** - all elements get default values
+5. **length is a variable** (arrays), **length() is a method** (String)
+6. **Anonymous arrays** - for one-time use without name
+7. **Element promotions** - not applicable at array level
+8. **Reference assignment** - doesn't copy elements, only reassigns references
+9. **Dimensions must match** - when assigning arrays
+10. **Object arrays** - allow child-to-parent promotion at array level

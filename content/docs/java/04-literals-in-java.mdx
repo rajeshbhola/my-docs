@@ -1,0 +1,523 @@
+---
+title: Literals
+---
+
+A **literal** is a constant value that can be assigned to a variable.
+
+**Example:**
+```java
+int x = 10;
+```
+- `int` - data type (keyword)
+- `x` - name of variable (identifier)
+- `10` - constant value (literal)
+
+---
+
+## INTEGRAL LITERALS
+
+### Ways to Specify Integral Literals
+
+For integral data types (byte, short, int, long), literal values can be specified in **three ways** (until Java 1.6):
+
+#### 1. Decimal Form (Base 10)
+- **Allowed digits:** 0 to 9
+- **Example:** `int x = 10;`
+
+#### 2. Octal Form (Base 8)
+- **Allowed digits:** 0 to 7
+- **Number must be prefixed with:** 0 (zero)
+- **Example:** `int x = 010;` (octal 10 = decimal 8)
+
+#### 3. Hexadecimal Form (Base 16)
+- **Allowed digits:** 0 to 9, A to F
+- For extra digits (A-F), both lowercase and uppercase are allowed
+- This is one of the very few areas where Java is NOT case sensitive
+- **Number must be prefixed with:** 0x or 0X (zero x)
+- **Example:** `int x = 0x10;` (hexadecimal 10 = decimal 16)
+
+### Important Rules
+
+**Rule:** These are the ONLY possible ways to specify literal values for integral data types.
+
+### Examples and Compile-Time Errors
+
+```java
+int x = 10;           // Valid - decimal
+int x = 0777;         // Valid - octal (decimal 511)
+int x = 0786;         // Invalid - digit 8 not allowed in octal
+                      // Error: integer number too large
+
+int x = 0xface;       // Valid - hexadecimal
+int x = 0xbeef;       // Valid - hexadecimal  
+int x = 0xbeer;       // Invalid - 'r' not allowed
+                      // Error: ';' expected
+```
+
+### Output Behavior
+
+**Important:** The programmer can specify values in decimal, octal, or hexadecimal, but **JVM always prints values in decimal form only**.
+
+**Example:**
+```java
+int x = 10;           // decimal
+int y = 010;          // octal
+int z = 0x10;         // hexadecimal
+
+System.out.println(x + "..." + y + "..." + z);
+// Output: 10...8...16
+```
+
+---
+
+## Default Type of Integral Literals
+
+**By default, every integral literal is of int type.**
+
+### Specifying Long Type Explicitly
+
+To specify a literal as long type, suffix it with **small l or capital L**.
+
+**Examples:**
+```java
+int x = 10;           // Valid - int to int
+long l = 10L;         // Valid - long to long
+int x = 10L;          // Invalid - Possible loss of precision
+                      // Error: found long, required int
+long l = 10;          // Valid - int to long (smaller to larger)
+```
+
+### Byte and Short Literals
+
+**There is NO direct way to specify byte and short literals explicitly.**
+
+**Indirect way:** When assigning an integral literal to a byte/short variable, if the value is within range, the compiler automatically treats it as byte/short literal.
+
+**Examples:**
+```java
+byte b = 10;          // Valid - compiler treats as byte
+byte b = 127;         // Valid - max byte value
+byte b = 128;         // Invalid - Possible loss of precision
+                      // Error: found int, required byte
+
+short s = 32767;      // Valid - max short value
+short s = 32768;      // Invalid - Possible loss of precision
+                      // Error: found int, required short
+```
+
+**Note:** The error says "found int" (not "found short") because by default every integral literal is int type.
+
+---
+
+## FLOATING POINT LITERALS
+
+### Default Type
+
+**By default, every floating point literal is of double type.**
+
+### Assignment Rules
+
+```java
+float f = 123.456;    // Invalid - Possible loss of precision
+                      // Error: found double, required float
+
+double d = 123.456;   // Valid - double to double
+```
+
+### Specifying Float Type Explicitly
+
+Suffix the literal with **small f or capital F**.
+
+```java
+float f = 123.456f;   // Valid - explicitly float
+float f = 123.456F;   // Valid - explicitly float
+```
+
+### Specifying Double Type Explicitly
+
+Although not required, you can suffix with **small d or capital D**.
+
+```java
+double d = 123.456d;  // Valid (but not necessary)
+double d = 123.456D;  // Valid (but not necessary)
+
+float f = 123.456d;   // Invalid - Possible loss of precision
+                      // Error: found double, required float
+```
+
+---
+
+## Floating Point Literal Forms
+
+### Important Rule
+
+**Floating point literals can be specified ONLY in decimal form.**
+
+Octal and hexadecimal forms are NOT allowed for floating point literals.
+
+**Examples:**
+```java
+double d = 123.456;   // Valid - decimal
+double d = 0123.456;  // Valid - treated as decimal (NOT octal)
+double d = 0x123.456; // Invalid - Malformed floating point literal
+```
+
+**Proof that 0123.456 is decimal (not octal):**
+```java
+double d = 0123.456;
+System.out.println(d);  // Output: 123.456 (not converted from octal)
+```
+
+---
+
+## Assigning Integral Literals to Floating Point Variables
+
+**You CAN assign integral literals to floating point variables**, and those integral literals can be in decimal, octal, or hexadecimal form.
+
+**Examples:**
+```java
+double d = 10;        // Valid - Output: 10.0
+double d = 0777;      // Valid - octal (Output: 511.0)
+double d = 0xface;    // Valid - hexadecimal (Output: 64206.0)
+
+double d = 0786;      // Invalid - integer number too large (octal issue)
+double d = 0786.0;    // Valid - floating point (Output: 786.0)
+
+double d = 0xface;    // Valid - integral hexadecimal
+double d = 0xface.0;  // Invalid - Malformed floating point literal
+```
+
+### Important Rule
+
+**We CANNOT assign floating point literals to integral types.**
+
+```java
+double d = 10;        // Valid - integral to floating point
+int x = 10.0;         // Invalid - Possible loss of precision
+                      // Error: found double, required int
+```
+
+---
+
+## Exponential Form (Scientific Notation)
+
+Floating point literals can be specified in **exponential form**.
+
+**Format:** `1.2e3` means 1.2 × 10³ = 1.2 × 1000 = 1200.0
+
+**Examples:**
+```java
+double d = 1.2e3;     // Valid - Output: 1200.0
+
+float f = 1.2e3;      // Invalid - Possible loss of precision
+                      // Error: found double, required float
+
+float f = 1.2e3f;     // Valid - Output: 1200.0
+```
+
+---
+
+## BOOLEAN LITERALS
+
+The **only allowed values** for boolean data type are **true** or **false**.
+
+### Examples and Errors
+
+```java
+boolean b = true;     // Valid
+boolean b = false;    // Valid
+
+boolean b = 0;        // Invalid - Incompatible types
+                      // Error: found int, required boolean
+
+boolean b = True;     // Invalid - Cannot find symbol
+                      // Error: variable True not found (case sensitive)
+
+boolean b = "true";   // Invalid - Incompatible types
+                      // Error: found java.lang.String, required boolean
+```
+
+### Java's Strict Boolean Rules
+
+Unlike C/C++, Java does NOT allow numeric values where boolean is expected:
+
+```java
+int x = 0;
+if (x)                // Invalid in Java (valid in C/C++)
+    System.out.println("hello");
+// Error: Incompatible types, found int, required boolean
+
+while (1)             // Invalid in Java (valid in C/C++)
+    System.out.println("hello");
+// Error: Incompatible types, found int, required boolean
+```
+
+---
+
+## CHAR LITERALS
+
+### Four Ways to Specify Char Literals
+
+#### 1. Single Character Within Single Quotes
+
+```java
+char ch = 'a';        // Valid
+```
+
+**Common Errors:**
+```java
+char ch = a;          // Invalid - Cannot find symbol variable a
+char ch = "a";        // Invalid - Incompatible types
+                      // Error: found String, required char
+char ch = 'ab';       // Invalid - Unclosed character literal
+```
+
+#### 2. Integral Literal (Unicode Value)
+
+Any integral literal that represents the Unicode value can be assigned. The integral literal can be in decimal, octal, or hexadecimal form.
+
+**Allowed range:** 0 to 65,535
+
+**Examples:**
+```java
+char ch = 97;         // Valid - Output: a (Unicode 97 = 'a')
+char ch = 0xface;     // Valid - hexadecimal
+char ch = 0777;       // Valid - octal
+char ch = 65535;      // Valid - max value
+char ch = 65536;      // Invalid - Possible loss of precision
+                      // Error: found int, required char
+```
+
+#### 3. Unicode Representation
+
+**Format:** Single quote, backslash u, four-digit hexadecimal number
+
+**Example:**
+```java
+char ch = '\u0061';   // Valid - Output: a
+                      // (0x61 hexadecimal = 97 decimal = 'a')
+char ch = '\u0062';   // Valid - Output: b
+```
+
+#### 4. Escape Characters
+
+Every escape character is a valid char literal.
+
+**Java has 8 escape characters:**
+
+| Escape Character | Description |
+|-----------------|-------------|
+| \n | New line |
+| \t | Horizontal tab |
+| \r | Carriage return |
+| \b | Backspace |
+| \f | Form feed |
+| \' | Single quote |
+| \" | Double quote |
+| \\ | Backslash |
+
+**Examples:**
+```java
+char ch = '\n';       // Valid - new line
+char ch = '\t';       // Valid - tab
+char ch = '\m';       // Invalid - Illegal escape character
+```
+
+### When to Use Escape Characters
+
+**Single quote as symbol:**
+```java
+System.out.println("This is ' symbol");  // Error
+System.out.println("This is \' symbol"); // Valid
+```
+
+**Double quote as symbol:**
+```java
+System.out.println("This is " symbol");  // Error
+System.out.println("This is \" symbol"); // Valid
+```
+
+**Backslash as symbol:**
+```java
+System.out.println("This is \ character"); // Error - Illegal escape character
+System.out.println("This is \\ character"); // Valid
+```
+
+**File path example:**
+```java
+File f = new File("C:\DurgaClasses");    // Error
+File f = new File("C:\\DurgaClasses");   // Valid
+```
+
+---
+
+## Practice Question: Valid Char Literals
+
+```java
+char ch = 65536;      // Invalid - out of range
+char ch = 0xbeef;     // Valid
+char ch = \uface;     // Invalid - missing single quotes
+char ch = '\ubeef';   // Valid
+char ch = '\m';       // Invalid - illegal escape character
+char ch = '\uface';   // Invalid - should be \uface (without 'i')
+```
+
+---
+
+## STRING LITERALS
+
+**Any sequence of characters within double quotes is treated as a string literal.**
+
+**Example:**
+```java
+String s = "Durga";   // Valid
+```
+
+---
+
+## JAVA 1.7 VERSION ENHANCEMENTS
+
+### Enhancement 1: Binary Literals
+
+From Java 1.7 onwards, integral literals can be specified in **binary form**.
+
+**Format:** Number prefixed with **0b or 0B**
+
+**Allowed digits:** 0 and 1
+
+**Example:**
+```java
+int x = 0b1111;       // Valid - binary 1111 = decimal 15
+System.out.println(x); // Output: 15
+```
+
+### Summary of Integral Literal Forms
+
+**Until 1.6 version:**
+1. Decimal form
+2. Octal form
+3. Hexadecimal form
+
+**From 1.7 version onwards:**
+4. Binary form (added)
+
+---
+
+### Enhancement 2: Underscore Symbol in Numeric Literals
+
+From Java 1.7 onwards, we can use underscore symbol **between digits** of numeric literals.
+
+**Main advantage:** Improves readability of code
+
+**Examples:**
+```java
+double d = 123456.789;           // Traditional way
+double d = 123_456.789;          // New way (more readable)
+double d = 1_23_456.789;         // Also valid
+
+int x = 10_11_01_101;            // Valid - easy to read
+                                 // 10 crores, 11 lakhs, 1101
+```
+
+### Rules for Underscore Usage
+
+1. **We can use more than one underscore** between digits:
+```java
+double d = 1__2__3.456;  // Valid
+```
+
+2. **We can use underscore ONLY between digits** (not at beginning, end, or around decimal point):
+```java
+double d = _123.456;     // Invalid
+double d = 123_.456;     // Invalid
+double d = 123._456;     // Invalid
+double d = 123.456_;     // Invalid
+double d = 1_23.456;     // Valid
+```
+
+### Compilation Behavior
+
+**At the time of compilation, these underscore symbols are removed automatically.**
+
+Hence, after compilation, the lines become identical:
+```java
+double d = 123_456.789;  // Source code
+double d = 123456.789;   // After compilation
+```
+
+---
+
+## PRIMITIVE TYPE ASSIGNMENT COMPATIBILITY
+
+### Assignment Flow (Left to Right is Always Valid)
+
+```
+byte → short → int → long → float → double
+         ↓
+       char
+```
+
+**Rules:**
+- Lower data type value can be assigned to higher data type variable
+- All assignments from left to right are valid
+
+**Examples:**
+```java
+byte b = 10;
+short s = b;     // Valid - 1 byte to 2 bytes
+int i = s;       // Valid - 2 bytes to 4 bytes
+long l = i;      // Valid - 4 bytes to 8 bytes
+float f = l;     // Valid - 8 bytes to 4 bytes (see explanation below)
+double d = f;    // Valid - 4 bytes to 8 bytes
+```
+
+### Why 8-byte long to 4-byte float is Valid?
+
+**Answer:** Integral types and floating point types follow **different internal memory representations**.
+
+Even though float is 4 bytes, it can hold 8-byte long values because the way numbers are represented internally is completely different. It's like having fewer chairs but each chair can hold more people.
+
+**Example:**
+```java
+float f = 10L;   // Valid - long to float
+System.out.println(f);  // Output: 10.0
+```
+
+**Important Note:**
+```
+Eight-byte long value can be assigned to four-byte float variable because both follow different memory representations internally.
+```
+
+---
+
+### Char and Short Incompatibility
+
+Even though both char and short are 2 bytes, they are **NOT compatible**:
+
+**Reason:**
+- char is **unsigned** (range: 0 to 65,535)
+- short is **signed** (range: -32,768 to 32,767)
+
+**Examples:**
+```java
+char ch = 65535;     // Valid for char
+short s = ch;        // Invalid - 65535 not in short range
+
+short s = -32768;    // Valid for short
+char ch = s;         // Invalid - negative values not valid for char
+```
+
+---
+
+## Key Takeaways
+
+1. **Integral literals:** Can be decimal, octal, hexadecimal (and binary from 1.7)
+2. **Default types:** Every integral literal is int; every floating point literal is double
+3. **Explicit types:** Use L for long, f/F for float, d/D for double
+4. **Floating point:** Can only be decimal form (no octal/hexadecimal)
+5. **Boolean:** Only true or false (no numeric values)
+6. **Char literals:** Four ways - single character, Unicode value, Unicode representation, escape characters
+7. **Java 1.7:** Added binary literals and underscore in numeric literals
+8. **Assignment:** Lower to higher type is always valid
+9. **Special case:** long (8 bytes) to float (4 bytes) is valid due to different representations
+10. **Char vs Short:** Not compatible despite both being 2 bytes (signed vs unsigned)

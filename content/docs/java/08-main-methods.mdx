@@ -1,0 +1,487 @@
+---
+title: Main Methods
+---
+
+The main method is a **very important topic** for interviews and exams. Understanding the main method requires at least 1.5 to 2 hours of study due to numerous important conclusions.
+
+
+## Compilation vs Runtime Checking
+
+### Key Rule
+
+**Whether class contains main method or not, and whether main method is declared according to requirement or not, these things won't be checked by compiler.**
+
+At runtime, **JVM is responsible** to check these things.
+
+### Example
+
+```java
+class Test {
+    // Empty class - no main method
+}
+```
+
+**Compilation:**
+```bash
+javac Test.java  // Compiles fine - no error
+```
+
+**Execution:**
+```bash
+java Test  // Runtime exception: NoSuchMethodError: main
+```
+
+**If JVM unable to find main method, we will get runtime exception saying "NoSuchMethodError: main".**
+
+---
+
+## Required Main Method Prototype
+
+At runtime, JVM always searches for the main method with the following prototype:
+
+```java
+public static void main(String[] args)
+```
+
+### Why Each Keyword?
+
+**1. public** - To call by JVM from anywhere
+
+**2. static** - Without existing object also, JVM has to call this method
+
+**3. void** - Main method won't return anything to JVM
+
+**4. main** - This is the name which is configured inside JVM
+
+**5. String[] args** - Command line arguments
+
+### Analogy for Understanding
+
+**Story:** Father sends you to find "Subba Rao" at bus stop.
+- Identification: Red shirt, green pant, yellow cap
+- You search only for these colors
+- Why? Because father instructed these are the identification marks
+
+**Similarly:**
+- JVM searches only for `public static void main(String[] args)`
+- Why? Because this prototype is configured inside JVM
+
+**Can we change the name "main"?**
+- Yes, but you have to customize JVM (change JVM's internal configuration)
+- Not in practical scope for regular development
+
+---
+
+## Strict Syntax Rule
+
+**The above syntax is very strict. If we perform any change, we will get runtime exception saying NoSuchMethodError: main.**
+
+### Invalid Examples
+
+```java
+// Missing static
+public void main(String[] args)  // Runtime: NoSuchMethodError: main
+
+// Wrong return type
+public static int main(String[] args)  // Runtime: NoSuchMethodError: main
+
+// Capital M
+public static void Main(String[] args)  // Runtime: NoSuchMethodError: main
+
+// Wrong parameter
+public static void main(String s)  // Runtime: NoSuchMethodError: main
+```
+
+**All compile fine, but all get runtime exception!**
+
+---
+
+## Acceptable Changes
+
+Even though the syntax is very strict, **the following changes are acceptable:**
+
+### 1. Order of Modifiers
+
+Instead of `public static`, we can take `static public`.
+
+**The order of modifiers is not important** in Java.
+
+```java
+static public void main(String[] args)  // Valid
+```
+
+### 2. String Array Declaration Style
+
+We can declare string array in any acceptable form.
+
+```java
+public static void main(String[] args)   // Valid
+public static void main(String args[])   // Valid
+public static void main(String[] args)   // Valid
+```
+
+### 3. Parameter Name
+
+Instead of `args`, we can take any valid Java identifier.
+
+```java
+public static void main(String[] durga)  // Valid
+public static void main(String[] xyz)    // Valid
+```
+
+### 4. Var-args Replacement
+
+We can replace string array with var-arg parameter.
+
+```java
+public static void main(String... args)  // Valid from Java 1.5+
+```
+
+### 5. Additional Modifiers
+
+We can declare main method with the following modifiers:
+- **final**
+- **synchronized**
+- **strictfp**
+
+### Most Complex Valid Main Method
+
+```java
+static final synchronized strictfp public void main(String... durga) {
+    System.out.println("Valid main");
+}
+```
+
+**This is 100% valid!** You'll rarely see this in practice, but it's valid.
+
+---
+
+## Summary of Valid Changes
+
+| Change | Example | Valid? |
+|--------|---------|--------|
+| Order of modifiers | `static public void main` | ✅ |
+| Array declaration | `String args[]` | ✅ |
+| Parameter name | `String[] durga` | ✅ |
+| Var-args | `String... args` | ✅ |
+| final modifier | `public static final void main` | ✅ |
+| synchronized modifier | `public static synchronized void main` | ✅ |
+| strictfp modifier | `public static strictfp void main` | ✅ |
+| Missing static | `public void main` | ❌ Runtime error |
+| Wrong return type | `public static int main` | ❌ Runtime error |
+| Capital M | `public static void Main` | ❌ Runtime error |
+| Wrong parameter | `public static void main(String s)` | ❌ Runtime error |
+
+---
+
+## Exam-Style Question
+
+**Which of the following main method declarations are valid?**
+
+```java
+1. public static void main(String s)
+2. public static void Main(String[] args)
+3. public void main(String[] args)
+4. public static int main(String[] args)
+5. final synchronized strictfp public void main(String[] args)
+6. final synchronized strictfp public static void main(String[] args)
+7. public static void main(String... args)
+```
+
+**Answers:**
+1. ❌ Invalid - String not array
+2. ❌ Invalid - Capital M
+3. ❌ Invalid - missing static
+4. ❌ Invalid - return type int instead of void
+5. ❌ Invalid - missing static
+6. ✅ Valid - has all required keywords
+7. ✅ Valid - var-args acceptable
+
+**Question 2: In which cases will we get compile-time error?**
+
+**Answer:** We won't get compile-time error anywhere. Except last two cases, in remaining we will get runtime exception saying "NoSuchMethodError: main"
+
+---
+
+## Overloading, Inheritance, and Overriding
+
+### Case 1: Overloading of Main Method
+
+**Overloading of the main method is possible.**
+
+```java
+class Test {
+    // JVM-required main method
+    public static void main(String[] args) {
+        System.out.println("String array method");
+    }
+    
+    // Overloaded main method
+    public static void main(int[] args) {
+        System.out.println("Int array method");
+    }
+}
+```
+
+**Output:**
+```
+String array method
+```
+
+**JVM will always call String array argument main method only. The other overloaded method we have to call explicitly like a normal method call.**
+
+---
+
+### Case 2: Inheritance Concept
+
+**Inheritance concept applicable for main method.**
+
+```java
+class P {
+    public static void main(String[] args) {
+        System.out.println("Parent main");
+    }
+}
+
+class C extends P {
+    // No main method in child
+}
+```
+
+**Execution:**
+```bash
+java P  // Output: Parent main
+java C  // Output: Parent main (inherits from parent)
+```
+
+**Hence, while executing child class, if child doesn't contain main method, then parent class main method will be executed.**
+
+---
+
+### Case 3: Method Hiding (Not Overriding)
+
+```java
+class P {
+    public static void main(String[] args) {
+        System.out.println("Parent main");
+    }
+}
+
+class C extends P {
+    public static void main(String[] args) {
+        System.out.println("Child main");
+    }
+}
+```
+
+**Execution:**
+```bash
+java P  // Output: Parent main
+java C  // Output: Child main
+```
+
+**It seems overriding concept applicable for main method, but it is not overriding and it is method hiding.**
+
+(Difference between overriding and method hiding will be discussed in OOPs concept)
+
+---
+
+### Summary Table
+
+| Concept | Applicable for Main Method? |
+|---------|----------------------------|
+| Overloading | ✅ Yes |
+| Inheritance | ✅ Yes |
+| Overriding | ❌ No (Method hiding instead) |
+
+---
+
+## Java 1.7 Version Enhancements
+
+From Java 1.7 version onwards, there is special significance for the main method.
+
+### Enhancement 1: Better Error Messages
+
+**Until 1.6 version:** If class doesn't contain main method, we get runtime exception saying "NoSuchMethodError: main"
+
+**From 1.7 version onwards:** Instead of NoSuchMethodError, we get more elaborated error information.
+
+### Example
+
+```java
+class Test {
+    // Empty class
+}
+```
+
+**Java 1.6:**
+```bash
+javac Test.java  // Compiles fine
+java Test        // Exception: NoSuchMethodError: main
+```
+
+**Java 1.7:**
+```bash
+javac Test.java  // Compiles fine
+java Test        // Error: Main method not found in class Test, 
+                 // please define the main method as:
+                 // public static void main(String[] args)
+```
+
+**Much more user-friendly and informative!**
+
+---
+
+### Enhancement 2: Main Method is Mandatory
+
+**From 1.7 version onwards, main method is mandatory to start program execution.**
+
+**Hence, even though class contains static block, it won't be executed if the class doesn't contain main method.**
+
+### Java 1.6 Behavior
+
+```java
+class Test {
+    static {
+        System.out.println("Static block");
+    }
+}
+```
+
+**Java 1.6:**
+```bash
+java Test  
+// Output: Static block
+// Then: NoSuchMethodError: main
+```
+
+**Static block executes first, then JVM searches for main.**
+
+### Java 1.7 Behavior
+
+```java
+class Test {
+    static {
+        System.out.println("Static block");
+    }
+}
+```
+
+**Java 1.7:**
+```bash
+java Test  
+// Error: Main method not found in class Test
+// Static block does NOT execute
+```
+
+**JVM checks for main method first. If not found, doesn't start execution at all.**
+
+---
+
+### What About System.exit(0)?
+
+**Java 1.6:**
+```java
+class Test {
+    static {
+        System.out.println("Static block");
+        System.exit(0);  // Shutdown JVM
+    }
+}
+```
+
+**Java 1.6:**
+```bash
+java Test  // Output: Static block (program terminates normally)
+```
+
+**Java 1.7:**
+```bash
+java Test  // Error: Main method not found
+           // Static block doesn't execute
+```
+
+---
+
+### When Both Static Block and Main Method Present
+
+```java
+class Test {
+    static {
+        System.out.println("Static block");
+    }
+    
+    public static void main(String[] args) {
+        System.out.println("Main method");
+    }
+}
+```
+
+**Both Java 1.6 and 1.7:**
+```bash
+java Test
+// Output:
+// Static block
+// Main method
+```
+
+**Execution order remains the same, but JVM checks for main method existence first (from 1.7).**
+
+---
+
+## Execution Flow Comparison
+
+### Java 1.6 Execution Flow
+
+1. **Identification of static members**
+2. **Execute static variable assignments and static blocks**
+3. **Check for main method**
+   - If available → Execute main method
+   - If not available → Runtime exception: NoSuchMethodError: main
+
+### Java 1.7 Execution Flow
+
+1. **Check for main method**
+   - If not available → Error: Main method not found in class Test
+   - If available → Continue to step 2
+2. **Identification of static members**
+3. **Execution of static variable assignments and static blocks**
+4. **Execute main method**
+
+**Key Difference:** Java 1.7 checks for main method **before** executing static blocks.
+
+---
+
+## Important Question
+
+**Q: Without writing main method, is it possible to print some statements to the console?**
+
+**Answer:**
+
+Yes, by using static block. But this rule is applicable **until 1.6 version**.
+
+From **1.7 version onwards**, it is impossible to print some statements to the console without writing main method.
+
+---
+
+## Key Takeaways
+
+1. **Compiler doesn't check** for main method - only JVM checks at runtime
+2. **JVM searches for exact prototype:** `public static void main(String[] args)`
+3. **Syntax is strict** but some changes are acceptable (order, var-args, modifiers)
+4. **Overloading is possible**, inheritance works, but it's method hiding not overriding
+5. **Java 1.7 enhancement:** Better error messages and main method is mandatory
+6. **Static blocks don't execute** in 1.7+ without main method
+7. **Additional modifiers allowed:** final, synchronized, strictfp
+
+---
+
+## Why These Rules?
+
+- **public:** JVM can call from anywhere
+- **static:** No object needed to start program
+- **void:** Nothing returned to JVM
+- **main:** Name configured in JVM
+- **String[] args:** For command-line arguments
+
+Understanding the main method thoroughly is crucial for both interviews and practical Java development!

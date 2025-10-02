@@ -1,0 +1,473 @@
+---
+title: Coding Standards
+---
+
+**Whenever we are writing Java code, it is highly recommended to follow coding standards.**
+
+**Benefits:**
+1. **Readability** of the code will be improved
+2. **Maintainability** of the code will be improved
+
+### The Interview Story
+
+**Scenario:** A candidate with 3.6 years experience is asked to write a simple class with a method that takes two int values and returns their sum.
+
+**Ameerpet Style (Non-professional):**
+```java
+class A {
+    public int m1(int x, int y) {
+        return x + y;
+    }
+}
+```
+
+**Problems:**
+- No package statement
+- Non-meaningful names (A, m1, x, y)
+- Not public class
+- Not static method
+
+**High-Tech City Style (Professional):**
+```java
+package com.durgasoft.scjp;
+
+public class Calculator {
+    public static int add(int number1, int number2) {
+        return number1 + number2;
+    }
+}
+```
+
+**Why the difference matters:** Experienced developers recognize professional coding standards. Writing non-standard code reveals lack of real-world experience.
+
+---
+
+## General Principles
+
+### Key Rule
+
+**Whenever we are writing any component, its name should reflect the purpose of that component (functionality).**
+
+### Advantage
+
+The main advantage of this approach is **readability and maintainability of the code will be improved**.
+
+### Real-World Example
+
+**Math class methods:**
+- `Math.sqrt(4)` - Everyone knows it finds square root
+- `Math.max(10, 20)` - Everyone knows it finds maximum value
+- **Why?** Meaningful names!
+
+**Imagine if methods were named:**
+- `Math.m1(4)` - What does this do?
+- `Math.m2(10, 20)` - What does this do?
+
+Nobody would understand without documentation.
+
+---
+
+## Coding Standards for Classes
+
+### Rules
+
+1. **Usually class names are nouns**
+2. **Should start with uppercase character**
+3. **If it contains multiple words, every inner word should start with uppercase character**
+
+### Examples
+
+✅ **Valid:**
+- `String`
+- `StringBuffer`
+- `Account`
+- `Doc`
+- `StudentBean`
+- `FileInputStream`
+
+❌ **Invalid:**
+- `string` (should start with uppercase)
+- `stringbuffer` (inner words should be uppercase)
+- `account` (should start with uppercase)
+
+---
+
+## Coding Standards for Interfaces
+
+### Rules
+
+1. **Usually interface names are adjectives**
+2. **Should start with uppercase character**
+3. **If it contains multiple words, every inner word should start with uppercase character**
+
+### Examples
+
+✅ **Valid:**
+- `Runnable` (adjective)
+- `Serializable` (adjective)
+- `Comparable` (adjective)
+- `RandomAccess` (adjective - R and A capitalized)
+
+❌ **Invalid:**
+- `runnable` (should start with uppercase)
+- `serializable` (should start with uppercase)
+
+---
+
+## Coding Standards for Methods
+
+### Rules
+
+1. **Usually method names are either verbs or verb-noun combinations**
+2. **Should start with lowercase alphabet symbol**
+3. **If it contains multiple words, every inner word should start with uppercase character (Camel Case Convention)**
+
+### Examples
+
+✅ **Valid - Verbs:**
+- `print`
+- `sleep`
+- `run`
+- `eat`
+- `start`
+
+✅ **Valid - Verb-Noun Combinations:**
+- `getName` (get + Name)
+- `setSalary` (set + Salary)
+- `readFile` (read + File)
+- `writeData` (write + Data)
+
+❌ **Invalid:**
+- `Print` (should start with lowercase)
+- `GetName` (should start with lowercase)
+- `m1` (not meaningful)
+
+### Camel Case Convention
+
+**Pattern:** lowercase + Uppercase + lowercase + Uppercase...
+
+**Examples:**
+- `getName` - starts lowercase, inner word uppercase
+- `setStudentName` - starts lowercase, inner words uppercase
+
+---
+
+## Coding Standards for Variables
+
+### Rules
+
+1. **Usually variable names are nouns**
+2. **Should start with lowercase alphabet symbol**
+3. **If it contains multiple words, every inner word should start with uppercase character (Camel Case Convention)**
+
+### Examples
+
+✅ **Valid:**
+- `name`
+- `age`
+- `salary`
+- `mobileNumber` (camel case)
+- `studentName` (camel case)
+
+❌ **Invalid:**
+- `Name` (should start with lowercase)
+- `MobileNumber` (should start with lowercase)
+- `mobile_number` (should use camel case, not underscore)
+
+---
+
+## Coding Standards for Constants
+
+### Rules
+
+1. **Usually constant names are nouns**
+2. **Should contain only uppercase characters**
+3. **If it contains multiple words, these words are separated with underscore symbol**
+
+### Examples
+
+✅ **Valid:**
+- `MAX_VALUE`
+- `MIN_VALUE`
+- `MAX_PRIORITY`
+- `NORM_PRIORITY`
+- `MIN_PRIORITY`
+- `PI`
+
+❌ **Invalid:**
+- `maxValue` (should be all uppercase)
+- `Max_Value` (should be all uppercase)
+- `MAXVALUE` (words should be separated by underscore if multiple)
+
+### How to Declare Constants
+
+**Usually we can declare constants with the public, static, and final modifiers.**
+
+```java
+public static final int MAX_VALUE = 2147483647;
+public static final int MIN_VALUE = -2147483648;
+public static final double PI = 3.14159;
+```
+
+---
+
+## Java Bean Coding Standards
+
+### What is a Java Bean?
+
+**A Java Bean is a simple Java class with private properties and public getter and setter methods.**
+
+### Example
+
+```java
+public class StudentBean {
+    private String name;
+    
+    // Setter method
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    // Getter method
+    public String getName() {
+        return name;
+    }
+}
+```
+
+### Rules
+
+**Every variable should be private**
+**For every property:**
+- Public setter method (void return type, takes argument)
+- Public getter method (non-void return type, no arguments)
+
+---
+
+## Syntax for Setter Method
+
+### Rules
+
+1. **It should be public method**
+2. **The return type should be void**
+3. **Method name should be prefixed with `set`**
+4. **It should take some argument** (i.e., it should not be no-argument method)
+
+### Example
+
+```java
+public void setName(String name) {
+    this.name = name;
+}
+
+public void setSalary(double salary) {
+    this.salary = salary;
+}
+```
+
+---
+
+## Syntax for Getter Method
+
+### Rules
+
+1. **It should be public method**
+2. **The return type should not be void**
+3. **Method name should be prefixed with `get`**
+4. **It should not take any argument**
+
+### Example
+
+```java
+public String getName() {
+    return name;
+}
+
+public double getSalary() {
+    return salary;
+}
+```
+
+---
+
+## Special Rule for Boolean Properties
+
+### Important Exception
+
+**For Boolean properties, getter method name can be prefixed with either `get` or `is`. But recommended to use `is`.**
+
+### Example
+
+```java
+private boolean empty;
+
+// Both are valid:
+public boolean getEmpty() {  // Valid
+    return empty;
+}
+
+public boolean isEmpty() {   // Valid and recommended
+    return empty;
+}
+```
+
+**Why `is` is better?**
+- More meaningful: "Is it empty?" sounds more natural than "Get empty?"
+- Examples in Java API: `isEmpty()`, `isAlive()`, `isDaemon()`
+
+### Exam Note
+
+**In exams, if asked "Which of the following is valid coding standard for Boolean property 'empty'?"**
+- Both `getEmpty()` and `isEmpty()` are **valid**
+- But `isEmpty()` is **recommended**
+
+---
+
+## Bean Naming Convention
+
+### Important Note
+
+**Class name ends with "Bean" is NOT official convention from Sun Microsystems.**
+
+**Examples:**
+- `StudentBean` - commonly used but not mandatory
+- `FormBean` - commonly used but not mandatory
+- `Student` - equally valid
+
+This is a common practice but not required by official standards.
+
+---
+
+## Coding Standards for Listeners
+
+### What is a Listener?
+
+A listener listens to events and performs appropriate action whenever that event occurs.
+
+**Examples:**
+- `MouseListener` - listens to mouse events
+- `ActionListener` - listens to action events
+- `ServletContextListener` - listens to servlet context events
+
+---
+
+## Case 1: To Register a Listener
+
+### Rule
+
+**Method name should be prefixed with `add`**
+
+### Valid Example
+
+```java
+public void addMyActionListener(MyActionListener l)
+```
+
+### Invalid Examples
+
+```java
+// Invalid - should use 'add', not 'register'
+public void registerMyActionListener(MyActionListener l)
+
+// Invalid - parameter type doesn't match method name
+public void addMyActionListener(ActionListener l)  // Should be MyActionListener
+```
+
+**Pattern:** After `add`, the listener name must match the parameter type.
+
+---
+
+## Case 2: To Unregister a Listener
+
+### Rule
+
+**Method name should be prefixed with `remove`**
+
+### Valid Example
+
+```java
+public void removeMyActionListener(MyActionListener l)
+```
+
+### Invalid Examples
+
+```java
+// Invalid - should use 'remove', not 'unregister'
+public void unregisterMyActionListener(MyActionListener l)
+
+// Invalid - should use 'remove', not 'delete'
+public void deleteMyActionListener(MyActionListener l)
+
+// Invalid - parameter type doesn't match method name
+public void removeMyActionListener(ActionListener l)  // Should be MyActionListener
+```
+
+---
+
+## Summary Comparison Table
+
+| Component | Naming Rule | Case | Example |
+|-----------|-------------|------|---------|
+| **Class** | Noun, starts uppercase | PascalCase | `String`, `ArrayList` |
+| **Interface** | Adjective, starts uppercase | PascalCase | `Runnable`, `Serializable` |
+| **Method** | Verb/verb-noun, starts lowercase | camelCase | `getName`, `print` |
+| **Variable** | Noun, starts lowercase | camelCase | `name`, `studentAge` |
+| **Constant** | Noun, all uppercase | UPPER_CASE | `MAX_VALUE`, `PI` |
+
+---
+
+## Professional Code Example
+
+### Non-Professional (Ameerpet Style)
+
+```java
+class A {
+    int x = 10;
+    
+    public int m1(int a, int b) {
+        return a + b;
+    }
+}
+```
+
+### Professional (High-Tech City Style)
+
+```java
+package com.durgasoft.scjp;
+
+/**
+ * Calculator class for basic arithmetic operations
+ */
+public class Calculator {
+    public static final int DEFAULT_VALUE = 0;
+    
+    /**
+     * Adds two numbers and returns the sum
+     * @param number1 First number
+     * @param number2 Second number
+     * @return Sum of number1 and number2
+     */
+    public static int add(int number1, int number2) {
+        return number1 + number2;
+    }
+    
+    public static int multiply(int number1, int number2) {
+        return number1 * number2;
+    }
+}
+```
+
+---
+
+## Key Takeaways
+
+1. **Always use package statements** - every professional class should be in a package
+2. **Meaningful names** - anyone should understand purpose without documentation
+3. **Follow case conventions** - PascalCase for classes/interfaces, camelCase for methods/variables
+4. **Constants are UPPER_CASE** with underscores
+5. **JavaBeans** - private properties + public getters/setters
+6. **Boolean getters** - prefer `is` prefix over `get`
+7. **Listeners** - use `add` to register, `remove` to unregister
+8. **Readability matters** - code is read more often than written
+
+Following these standards makes you recognizable as an experienced professional developer!
