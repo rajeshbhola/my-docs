@@ -1,0 +1,398 @@
+---
+title: Native, Transient, Volatile Modifiers
+---
+
+## Native Modifier
+
+### Where Native Can Be Applied
+
+**Native is a modifier applicable only for methods. And we can't apply anywhere else.**
+
+It is a method-specific modifier.
+
+---
+
+## What is a Native Method?
+
+**The methods which are implemented in non-Java (mostly C/C++) are called native methods or foreign methods.**
+
+Native methods are methods implemented in other languages like C or C++, not in Java.
+
+---
+
+## Why Use Native Methods? (Main Objectives)
+
+Despite Java having many advantages (simple, robust, secure, object-oriented, multithreaded, platform-independent), **there are some areas where Java is not up to the mark.**
+
+### The Main Objectives of Native Keyword:
+
+### 1. **To Improve Performance of the System**
+
+**Performance is the biggest weakness of Java.** Wherever performance is very critical, Java can't provide adequate support.
+
+**Solution:** Implement that performance-critical area in C/C++ and bring that functionality into Java using the native keyword.
+
+### 2. **To Achieve Machine Level or Memory Level Communication**
+
+Java is programmer-friendly but not machine-friendly. **Java can't communicate directly with the machine**, but C can.
+
+**Examples where this is needed:**
+- Device drivers
+- Operating systems
+- Memory-level operations (like generating hashcode based on address)
+
+**Best Example:** `hashCode()` method
+```java
+public native int hashCode();
+```
+
+HashCode is generated based on address. Java has no way to identify the address of an object directly, so this functionality is implemented in C/C++ and made available using the native keyword.
+
+### 3. **To Use Already Existing Legacy Non-Java Code**
+
+If some functionality already exists in C/C++ and you don't want to rewrite it in Java, you can use the native keyword to access it.
+
+---
+
+## Pseudocode to Use Native Keyword in Java
+
+**Three steps:**
+
+### Step 1: Load Native Libraries
+
+```java
+class Native {
+    static {
+        System.loadLibrary("native library path");
+    }
+}
+```
+
+**At the time of Java class loading, the corresponding native libraries should be loaded.** That's why we define this activity inside a static block (executed at class loading time).
+
+### Step 2: Declare a Native Method
+
+```java
+class Native {
+    static {
+        System.loadLibrary("native library path");
+    }
+    
+    public native void m1();  // Declaration ends with semicolon
+}
+```
+
+**The method which is already implemented in C/C++. We are not responsible to implement.**
+
+**Hence, native method declaration should end with semicolon** (just like abstract methods).
+
+### Step 3: Invoke a Native Method
+
+```java
+class Client {
+    public static void main(String[] args) {
+        Native n = new Native();
+        n.m1();  // Invoke native method
+    }
+}
+```
+
+---
+
+## Native Method Declaration Rules
+
+**For native methods, implementation is already available in old languages like C or C++. And we are not responsible to provide implementation.**
+
+**Hence, native method declaration should end with semicolon.**
+
+**Valid:**
+```java
+public native void m1();  // ✓ VALID
+```
+
+**Invalid:**
+```java
+public native void m1() { }  // ✗ INVALID
+```
+
+**Compile-time error:** "native methods cannot have a body"
+
+---
+
+## Illegal Combinations with Native
+
+### Native-Abstract: Illegal
+
+**For native methods, implementation is already available (in C/C++).**
+
+**But for abstract methods, implementation should not be available.**
+
+**Hence, we can't declare native method as abstract.**
+
+**That is, native-abstract combination is illegal combination for methods.**
+
+```java
+abstract native void m1();  // ✗ INVALID
+```
+
+### Native-Strictfp: Illegal
+
+**Strictfp means all floating-point calculations must follow IEEE 754 standard** (meant for Java language to get platform-independent results).
+
+**Native methods are implemented in C/C++, which are platform-dependent languages.** There is no guarantee that old languages follow IEEE 754 standard.
+
+**Hence, native-strictfp combination is illegal combination for methods.**
+
+```java
+native strictfp void m1();  // ✗ INVALID
+```
+
+---
+
+## Advantage and Disadvantage
+
+### Advantage:
+**The main advantage of native keyword is performance will be improved.**
+
+Performance-critical code can be implemented in C/C++, which is faster.
+
+### Disadvantage:
+**But the main disadvantage of native keyword is it breaks platform-independent nature of Java.**
+
+Because we're depending on C/C++ (platform-dependent languages), the Java program also becomes platform-dependent.
+
+**Example:** HashCode might generate different values on different systems.
+
+---
+
+## Transient Modifier
+
+### Where Transient Can Be Applied
+
+**Transient is a modifier applicable only for variables. We can't apply anywhere else.**
+
+It is a variable-specific modifier.
+
+### Context of Use
+
+**We can use transient keyword in serialization context.**
+
+---
+
+## What is Serialization?
+
+**Serialization:** Saving state of an object to a file (or sending across a network)
+
+**Deserialization:** Reading state of an object from a file
+
+```
+Account Object → [Serialization] → abc.ser file
+abc.ser file → [Deserialization] → Account Object
+```
+
+Saving to file = **permanent storage** (on hard disk)
+
+---
+
+## The Problem: Sensitive Data
+
+When serializing an object, there may be **sensitive/secure data** that shouldn't be saved permanently.
+
+**Example:**
+```java
+class Account {
+    String username = "Durga";    // OK to save
+    String password = "Anushka";  // NOT OK to save (sensitive!)
+}
+```
+
+**Saving password permanently to file is not recommended** - risk of misuse!
+
+Just like you'd share your email ID but not your password.
+
+---
+
+## The Solution: Transient Keyword
+
+**At the time of serialization, if we don't want to save the value of a particular variable to meet security constraint, then we should declare that variable as transient.**
+
+```java
+class Account {
+    String username = "Durga";
+    transient String password = "Anushka";  // Won't be serialized
+}
+```
+
+### What Happens?
+
+**At the time of serialization, JVM ignores original value of transient variables and saves default value to the file.**
+
+**After Serialization:**
+- username = "Durga" (saved as-is)
+- password = null (original value ignored, default saved)
+
+**After Deserialization:**
+- username = "Durga" (restored)
+- password = null (default value)
+
+**Hence, transient means not to serialize.**
+
+---
+
+## Volatile Modifier
+
+### Where Volatile Can Be Applied
+
+**Volatile is a modifier applicable only for variables. And we can't apply anywhere else.**
+
+---
+
+## The Problem: Data Inconsistency with Multiple Threads
+
+**If the value of a variable keeps on changing by multiple threads, then there may be a chance of data inconsistency problem.**
+
+**Example:**
+```
+Variable x = 10
+
+Thread 1 changes to: x = 20
+Thread 2 changes to: x = 30
+Thread 3 changes to: x = -10
+
+→ Data inconsistency problem!
+```
+
+### Real-World Analogy:
+
+Multiple kids fighting over the same ball:
+- All kids want the same ball
+- Fight over it
+- Ball gets damaged
+- Everyone loses
+
+**Solution:** Give each kid a separate ball!
+
+---
+
+## The Solution: Volatile Keyword
+
+**We can solve this problem by using volatile modifier.**
+
+**If a variable is declared as volatile, then for every thread, JVM will create a separate local copy.**
+
+**Every modification performed by the thread will take place in local copy, so that there is no effect on remaining threads.**
+
+```java
+volatile int x = 10;
+
+Thread 1 → Has its own copy of x → Changes don't affect others
+Thread 2 → Has its own copy of x → Changes don't affect others
+Thread 3 → Has its own copy of x → Changes don't affect others
+```
+
+---
+
+## Advantage and Disadvantage
+
+### Advantage:
+**The main advantage of volatile keyword is we can overcome data inconsistency problem.**
+
+### Disadvantage:
+**But the main disadvantage of volatile keyword is creating and maintaining a separate copy for every thread increases complexity of programming and creates performance problems.**
+
+If 10,000 threads exist, JVM creates 10,000 copies! This severely impacts performance.
+
+**Hence, if there is no specific requirement, then it is never recommended to use volatile keyword. And it is almost deprecated keyword.**
+
+Most Java programmers don't even know about this keyword because it's almost deprecated.
+
+---
+
+## Volatile-Final: Illegal Combination
+
+**Final variable means the value never changes.**
+
+**Whereas volatile variable means the value keeps on changing.**
+
+**Hence, volatile-final is illegal combination for variables.**
+
+```java
+final volatile int x = 10;  // ✗ INVALID
+```
+
+**Why illegal?**
+- Final → value is fixed, won't change
+- Volatile → creates separate copies because value keeps changing
+- Contradiction! If value is fixed, why create separate copies?
+
+**Compile-time error:** "illegal combination of modifiers: volatile and final"
+
+---
+
+## Summary Table: All 12 Java Modifiers
+
+| Modifier | Outer Class | Inner Class | Methods | Variables | Blocks | Outer Interface | Inner Interface | Outer Enum | Inner Enum | Constructors |
+|----------|-------------|-------------|---------|-----------|--------|-----------------|-----------------|------------|------------|--------------|
+| **public** | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| **private** | ✗ | ✓ | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ | ✓ | ✓ |
+| **protected** | ✗ | ✓ | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ | ✓ | ✓ |
+| **default** | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| **final** | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **abstract** | ✓ | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ | ✗ | ✗ | ✗ |
+| **static** | ✗ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✗ | ✓ | ✗ |
+| **synchronized** | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **native** | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **strictfp** | ✓ | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | ✗ |
+| **transient** | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **volatile** | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+
+---
+
+## Important Modifier-Specific Rules
+
+### 1. **The only applicable modifier for local variables is final.**
+
+### 2. **The only applicable modifiers for constructors are public, private, protected, default.**
+
+### 3. **The modifiers which are applicable only for methods:** native
+
+### 4. **The modifiers which are applicable only for variables:** transient, volatile
+
+### 5. **The modifiers which are applicable for classes but not for interfaces:** final
+
+### 6. **The modifiers which are applicable for classes but not for enum:** final, abstract
+
+---
+
+## Summary: Illegal Combinations
+
+| Combination | Valid? | Reason |
+|-------------|--------|--------|
+| **native abstract** | ✗ Illegal | Native has implementation (C/C++), abstract doesn't |
+| **native strictfp** | ✗ Illegal | No guarantee C/C++ follows IEEE 754 standard |
+| **volatile final** | ✗ Illegal | Final = fixed value, volatile = changing value |
+
+---
+
+## Key Takeaways
+
+### Native:
+- For methods only
+- Implemented in C/C++ for performance or machine-level access
+- Declaration ends with semicolon (no body)
+- Improves performance but breaks platform independence
+- Illegal with: abstract, strictfp
+
+### Transient:
+- For variables only
+- Used in serialization
+- Prevents saving sensitive data
+- JVM saves default value instead of original
+- Means "not to serialize"
+
+### Volatile:
+- For variables only
+- Creates separate copy for each thread
+- Prevents data inconsistency
+- Almost deprecated (severe performance cost)
+- Illegal with: final

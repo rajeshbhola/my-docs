@@ -1,0 +1,401 @@
+---
+title: Static and Synchronized Modifier
+---
+
+## Static Modifier
+
+### Where Static Can Be Applied
+
+**Static is a modifier applicable for methods and variables, but not for classes.**
+
+- ✓ Static variable
+- ✓ Static method
+- ✗ Static class (top-level class)
+- ✓ Static inner class (called **static nested classes**)
+
+**We can't declare top-level class with static modifier. But we can declare inner class as static. Such type of inner classes are called static nested classes.**
+
+---
+
+## Instance vs Static Variables - Key Difference
+
+### Instance Variables:
+
+**In the case of instance variables, for every object, a separate copy will be created.**
+
+```java
+class Student {
+    String name;      // Instance variable
+    int rollNumber;   // Instance variable
+}
+
+Student s1 = new Student(); // Separate copy of name, rollNumber
+Student s2 = new Student(); // Separate copy of name, rollNumber
+```
+
+### Static Variables:
+
+**In the case of static variables, a single copy will be created at class level and shared by every object of that class.**
+
+```java
+class Student {
+    String name;              // Instance - separate copy per object
+    int rollNumber;           // Instance - separate copy per object
+    static String collegeName; // Static - one copy for all objects
+}
+```
+
+---
+
+## Critical Example: Static vs Instance Behavior
+
+```java
+class Test {
+    static int x = 10;  // Static variable - one copy
+    int y = 20;         // Instance variable - separate copies
+    
+    public static void main(String[] args) {
+        Test t1 = new Test();
+        t1.x = 888;  // Changes the single static copy
+        t1.y = 999;  // Changes only t1's copy
+        
+        Test t2 = new Test();
+        System.out.println(t2.x + "..." + t2.y);
+    }
+}
+```
+
+**Output:** `888...20`
+
+**Why?**
+- `x` is static → only ONE copy exists → t1 changed it to 888 → t2 sees 888
+- `y` is instance → SEPARATE copies → t1's y = 999, but t2's y = 20 (original)
+
+**Diagram:**
+```
+Static variable x: [888] ← shared by all objects
+Instance variable y: t1 → [999]
+                     t2 → [20]  (separate copy)
+```
+
+---
+
+## Accessing Instance vs Static Members
+
+### The Rule:
+
+**We can't access instance members directly from static area. But we can access from instance area directly.**
+
+**We can access static members from both instance and static areas directly.**
+
+```java
+class Test {
+    int x = 10;         // Instance variable
+    static int y = 20;  // Static variable
+    
+    public void m1() {  // Instance method
+        System.out.println(x);  // ✓ Valid - instance from instance
+        System.out.println(y);  // ✓ Valid - static from instance
+    }
+    
+    public static void m2() {  // Static method
+        System.out.println(x);  // ✗ INVALID - instance from static
+        System.out.println(y);  // ✓ Valid - static from static
+    }
+}
+```
+
+**Compile-time error for invalid case:** "non-static variable x cannot be referenced from a static context"
+
+---
+
+## Important Question: Valid Declaration Combinations
+
+**Consider the following declarations:**
+
+1. `int x = 10;` (instance variable)
+2. `static int x = 10;` (static variable)
+3. `public void m1() { System.out.println(x); }` (instance method)
+4. `public static void m1() { System.out.println(x); }` (static method)
+
+**Within the same class, which declarations can we take simultaneously?**
+
+| Combination | Valid? | Reason |
+|-------------|--------|--------|
+| 1 and 3 | ✓ Valid | Instance variable + instance method - no problem |
+| 1 and 4 | ✗ Invalid | Static method can't access instance variable directly |
+| 2 and 3 | ✓ Valid | Instance method can access static variable |
+| 2 and 4 | ✓ Valid | Static method accessing static variable |
+| 1 and 2 | ✗ Invalid | Can't have instance and static variable with same name |
+| 3 and 4 | ✗ Invalid | Two methods with same signature (return type/modifiers don't matter) |
+
+**Compile-time errors:**
+- **1 and 4:** "non-static variable x cannot be referenced from a static context"
+- **1 and 2:** "variable x is already defined in Test"
+- **3 and 4:** "m1() is already defined in Test"
+
+---
+
+## Three Important Cases with Static Methods
+
+### Case 1: Overloading with Static Methods
+
+**Overloading concept applicable for static methods, including main method.**
+
+```java
+class Test {
+    public static void main(String[] args) {
+        System.out.println("String array");
+    }
+    
+    public static void main(int[] args) {  // Overloaded
+        System.out.println("Int array");
+    }
+}
+```
+
+**Output:** `String array`
+
+**But JVM can always call string array argument main method only.**
+
+**Other overloaded method we have to call just like a normal method call.**
+
+---
+
+### Case 2: Inheritance with Static Methods
+
+**Inheritance concept applicable for static methods, including main method.**
+
+```java
+class P {
+    public static void main(String[] args) {
+        System.out.println("Parent main");
+    }
+}
+
+class C extends P {
+    // Child doesn't have main method
+}
+```
+
+**Execution:**
+```
+java P → Output: Parent main
+java C → Output: Parent main  (inherits from parent)
+```
+
+**While executing child class, if child doesn't contain main method, then parent class main method will be executed.**
+
+---
+
+### Case 3: Method Hiding (Not Overriding!)
+
+```java
+class P {
+    public static void main(String[] args) {
+        System.out.println("Parent main");
+    }
+}
+
+class C extends P {
+    public static void main(String[] args) {
+        System.out.println("Child main");
+    }
+}
+```
+
+**Execution:**
+```
+java P → Output: Parent main
+java C → Output: Child main
+```
+
+**It seems overriding concept applicable for static methods. But it is not overriding and it is method hiding.**
+
+### Summary: Static Methods
+
+**For static methods, overloading and inheritance concepts are applicable, but overriding concept is not applicable. But instead of overriding, method hiding concept is applicable.**
+
+(Method hiding vs overriding - the difference will be explained in OOP concepts)
+
+---
+
+## When to Use Instance vs Static Methods
+
+### The Thumb Rule:
+
+**Inside method implementation, if we are using at least one instance variable, then that method talks about a particular object. Hence we should declare method as instance method.**
+
+**Inside method implementation, if we are not using any instance variable, then this method no way related to a particular object. Hence we have to declare such type of method as static method, irrespective of whether we are using static variables or not.**
+
+### Example:
+
+```java
+class Student {
+    String name;              // Instance
+    int rollNumber;           // Instance
+    int marks;                // Instance
+    static String collegeName; // Static
+    
+    // Uses instance variables → Instance method
+    String getStudentInfo() {
+        return name + "..." + marks;
+    }
+    
+    // Uses only static variable, no instance variables → Static method
+    static String getCollegeInfo() {
+        return collegeName;
+    }
+    
+    // No instance variables used → Static method
+    static int getAverage(int x, int y) {
+        return (x + y) / 2;  // Utility method
+    }
+    
+    // Uses instance variables → Instance method
+    String getCompleteInfo() {
+        return name + "..." + rollNumber + "..." + marks + "..." + collegeName;
+    }
+}
+```
+
+---
+
+## Static and Abstract: Illegal Combination
+
+**For static methods, implementation should be available.**
+
+**Whereas for abstract methods, implementation is not available.**
+
+**Hence, abstract-static combination is illegal for methods.**
+
+```java
+abstract static void m1();  // ✗ INVALID
+```
+
+**Compile-time error:** "illegal combination of modifiers: abstract and static"
+
+---
+
+## Synchronized Modifier
+
+### Where Synchronized Can Be Applied
+
+**Synchronized is a modifier applicable for methods and blocks, but not for classes and variables.**
+
+- ✓ Synchronized method
+- ✓ Synchronized block
+- ✗ Synchronized class
+- ✗ Synchronized variable
+
+---
+
+## The Problem: Race Condition
+
+**If multiple threads are trying to operate simultaneously on the same Java object, then there may be a chance of data inconsistency problem. This is called race condition.**
+
+### Real-World Analogy:
+
+Multiple dogs fighting over the same biryani plate:
+- Each dog wants to eat the entire plate
+- All dogs fight simultaneously
+- The plate gets damaged and biryani becomes useless
+- **Result:** Biryani inconsistency problem!
+
+### Technical Version:
+
+Multiple threads operating on same Java object:
+- Thread 1, Thread 2, Thread 3... all accessing same object
+- All threads modify data simultaneously
+- **Result:** Data inconsistency problem!
+
+---
+
+## The Solution: Synchronized Keyword
+
+**We can overcome this problem by using synchronized keyword.**
+
+**If a method or block declared as synchronized, then at a time only one thread is allowed to execute that method or block on the given object, so that data inconsistency problem will be resolved.**
+
+```java
+class BankAccount {
+    synchronized void withdraw() {
+        // Only ONE thread can execute this at a time
+        // Other threads must wait
+    }
+}
+```
+
+### How It Works:
+
+1. **First thread** comes → "I want to execute withdraw()" → Gets access, starts executing
+2. **Second thread** comes → "I want to execute withdraw()" → Must wait (method is synchronized)
+3. **Third thread** comes → Must wait
+4. First thread completes → Second thread gets access
+5. Second thread completes → Third thread gets access
+
+**Threads execute one by one, one by one.**
+
+---
+
+## Advantage and Disadvantage
+
+### Advantage:
+
+Data inconsistency problem will be resolved. No race condition.
+
+### Disadvantage:
+
+**But the main disadvantage of synchronized keyword is it increases waiting time of threads and creates performance problems.**
+
+- First thread executing → Second thread waiting
+- Second thread executing → Third thread waiting
+- Creates waiting time → Performance decreases
+
+**Hence, if there is no specific requirement, then it is not recommended to use synchronized keyword.**
+
+---
+
+## Synchronized and Abstract: Illegal Combination
+
+**Synchronized method should compulsory contain implementation.**
+
+**Whereas abstract method doesn't contain any implementation.**
+
+**Hence, abstract-synchronized is illegal combination of modifiers for methods.**
+
+```java
+abstract synchronized void m1();  // ✗ INVALID
+```
+
+**Compile-time error:** "illegal combination of modifiers: abstract and synchronized"
+
+---
+
+## Summary: Illegal Combinations with Abstract
+
+| Combination | Valid? | Reason |
+|-------------|--------|--------|
+| abstract final | ✗ Illegal | Final has implementation, abstract doesn't |
+| abstract static | ✗ Illegal | Static needs implementation, abstract doesn't |
+| abstract synchronized | ✗ Illegal | Synchronized needs implementation, abstract doesn't |
+| abstract native | ✗ Illegal | Native has implementation (C/C++), abstract doesn't |
+| abstract private | ✗ Illegal | Private not accessible to child, abstract needs child to implement |
+| abstract strictfp | ✗ Illegal (methods) | Strictfp needs implementation, abstract doesn't |
+| abstract strictfp | ✓ Legal (classes) | No conflict - strictfp for concrete methods, abstract for abstract methods |
+
+---
+
+## Key Takeaways
+
+### Static:
+- One copy at class level (static) vs separate copies per object (instance)
+- Static members accessible from anywhere
+- Instance members NOT accessible from static area
+- Overloading ✓ Inheritance ✓ Overriding ✗ (Method hiding instead)
+
+### Synchronized:
+- Prevents race condition and data inconsistency
+- Only one thread executes at a time
+- Increases waiting time (performance cost)
+- Use only when specifically needed

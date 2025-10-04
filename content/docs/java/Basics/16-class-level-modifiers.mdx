@@ -1,0 +1,437 @@
+---
+title: Class Level Modifiers
+---
+
+When writing our own classes, we must **provide information about our class to the JVM** using modifiers.
+
+### Information We Need to Specify:
+
+1. **Whether this class can be accessible from anywhere or not**
+   - Use `public` modifier for accessibility from anywhere
+
+2. **Whether child class creation is possible or not**
+   - Use `final` modifier to prevent child class creation
+
+3. **Whether object creation is possible or not**
+   - Use `abstract` modifier to prevent object creation
+
+**Modifiers provide information to the JVM about our class behavior.**
+
+---
+
+## Total Modifiers in Java
+
+There are **12 modifiers** in Java:
+
+```
+public      private     protected   default
+final       abstract    static      synchronized
+native      strictfp    transient   volatile
+```
+
+---
+
+## Modifiers Applicable for Top-Level Classes
+
+**Only 5 modifiers are applicable for top-level classes:**
+
+1. `public`
+2. `default` (no modifier)
+3. `final`
+4. `abstract`
+5. `strictfp`
+
+**If you use any other modifier for a top-level class, you'll get a compile-time error.**
+
+---
+
+## Modifiers Applicable for Inner Classes
+
+**8 modifiers are applicable for inner classes:**
+
+The 5 for top-level classes **PLUS:**
+- `private`
+- `protected`
+- `static`
+
+**Total: 8 modifiers for inner classes**
+
+---
+
+## Important: Identifying Top-Level vs Inner Classes
+
+### Example That Confuses Many:
+
+```java
+11  private class A {
+12  }
+13  
+14  static class B {
+15  }
+16  
+17  public static void main(String[] args) {
+18      System.out.println("Hello");
+19  }
+```
+
+**Question:** Valid or invalid?
+
+**Common wrong answer:** Invalid (because top-level classes can't be private or static)
+
+**Correct answer:** **VALID!**
+
+**Why?** Look at the line numbers! They start at **11**, not 1. This means there are 10 lines of code before this. Those 10 lines contain an **outer class**, making classes A and B **inner classes**.
+
+### How to Identify:
+
+- If line numbers start with **1** → Top-level class
+- If line numbers start with **non-1** → Inner class (some outer class exists above)
+
+**Inner classes CAN be private and static!**
+
+---
+
+## Access Specifiers vs Access Modifiers
+
+### Old Languages (C, C++):
+
+- **Access Specifiers:** public, private, protected, default
+- **Modifiers:** final, static, abstract, etc.
+
+### Java:
+
+**In Java, there is NO such distinction. ALL are considered MODIFIERS.**
+
+There is **no word like "specifier"** in Java. All 12 are called **modifiers**.
+
+### Proof:
+
+```java
+private class Test {
+    public static void main(String[] args) {
+        System.out.println("Hello");
+    }
+}
+```
+
+**Compile-time error:** "**modifier** private not allowed here"
+
+Not "specifier private" - the error says **"modifier"**.
+
+---
+
+## 1. Public Classes
+
+### Definition:
+
+**If a class is declared as public, then we can access that class from anywhere** (either within the package or from outside the package).
+
+### Example:
+
+**Package 1:**
+```java
+package pack1;
+
+class A {  // NOT public
+    public void m1() {
+        System.out.println("A class method");
+    }
+}
+```
+
+**Package 2:**
+```java
+package pack2;
+import pack1.A;
+
+class B {
+    public static void main(String[] args) {
+        A a = new A();  // Compile-time error!
+        a.m1();
+    }
+}
+```
+
+**Compile-time error:** "pack1.A is not public in pack1; cannot be accessed from outside package"
+
+### Solution: Make Class A Public
+
+```java
+package pack1;
+
+public class A {  // Now public
+    public void m1() {
+        System.out.println("A class method");
+    }
+}
+```
+
+Now class B compiles successfully!
+
+### Compilation and Execution:
+
+```bash
+# Compile both classes
+javac -d . A.java
+javac -d . B.java
+
+# Run
+java pack2.B
+```
+
+**Output:** `A class method`
+
+### Summary:
+
+**If class A is not public:**
+- While compiling class B, we get compile-time error:
+- "pack1.A is not public in pack1; cannot be accessed from outside package"
+
+**If class A is public:**
+- Class B compiles successfully
+
+---
+
+## 2. Default Classes
+
+### Definition:
+
+**If a class is declared as default (no modifier), then we can access that class only within the current package.**
+
+From outside the package, we **cannot** access it.
+
+**Hence, default access is also known as package-level access.**
+
+### Key Point:
+
+Default means the class is **only accessible within the same package**, not from outside packages.
+
+---
+
+## 3. Final Modifier
+
+### Where Final Can Be Applied:
+
+**Final is a modifier applicable for classes, methods, and variables.**
+
+---
+
+## Final Methods
+
+### Real-World Analogy:
+
+At a traffic signal, someone selling an item for ₹200. After bargaining:
+- "₹150?"
+- "No, ₹10 is my **final price**"
+- "₹50?"
+- "No, ₹10 is the **final price** - no change!"
+
+**Final = No change, fixed, cannot be modified**
+
+### In Java:
+
+**Whatever methods parent has are available to the child through inheritance.**
+
+If the child is not satisfied with the parent's implementation, the child can **override** (redefine) that method.
+
+### Example Without Final:
+
+```java
+class P {  // Parent
+    public void property() {
+        System.out.println("Cash, land, gold");
+    }
+    
+    public void marry() {
+        System.out.println("Subbalakshmi");
+    }
+}
+
+class C extends P {  // Child
+    // Satisfied with property() - don't override
+    
+    // NOT satisfied with marry() - override it
+    public void marry() {
+        System.out.println("Nayanthara");  // Child's choice
+    }
+}
+```
+
+This is called **overriding** - redefining the parent's method based on child's requirement.
+
+### With Final Keyword:
+
+```java
+class P {
+    public void property() {
+        System.out.println("Cash, land, gold");
+    }
+    
+    public final void marry() {  // FINAL method
+        System.out.println("Subbalakshmi");
+    }
+}
+
+class C extends P {
+    // Cannot override marry() - it's final!
+    public void marry() {  // ✗ Compile-time error
+        System.out.println("Nayanthara");
+    }
+}
+```
+
+**Compile-time error:** "marry() in C cannot override marry() in P; overridden method is final"
+
+### Definition:
+
+**If the parent class method is declared as final, we cannot override that method in the child class because its implementation is final.**
+
+### Summary:
+
+- Whatever methods parent has are available to child through **inheritance**
+- If child is not satisfied with parent method implementation, child can **override** (redefine) that method based on its requirement
+- This process is called **overriding**
+- **If the parent class method is declared as final, we cannot override that method in the child class because its implementation is final**
+
+---
+
+## Final Classes
+
+### Definition:
+
+**If a class is declared as final, we cannot extend functionality of that class.**
+
+That is, **we cannot create a child class for that class.**
+
+**Inheritance is not possible for final classes.**
+
+### Why Extend a Class?
+
+Suppose a parent class has 10 methods:
+- If 10 methods are enough → create parent object, use those methods
+- If you need more (say 15 methods total) → create **child class**, add 5 more methods
+- Child class now has all 15 methods (10 inherited + 5 new)
+
+**This is called "extending functionality"**
+
+### With Final Keyword:
+
+```java
+final class P {  // FINAL class
+    // 10 methods here
+}
+
+class C extends P {  // ✗ Compile-time error!
+    // Cannot extend final class
+}
+```
+
+**Compile-time error:** "cannot inherit from final P"
+
+### Summary:
+
+- If a class is final, no one can extend its functionality
+- **We cannot create a child class for a final class**
+- **Inheritance is not possible for final classes**
+
+---
+
+## Important Note About Final Classes
+
+### Question: Are all methods in a final class automatically final?
+
+```java
+final class B {
+    void m1() { }
+    void m2() { }
+    void m3() { }
+    // ... 1000 methods
+}
+```
+
+**Answer:** **YES!** Every method present inside a final class is always final by default.
+
+**Why?** Because:
+- If methods were not final, we could override them
+- To override, we need a child class
+- But we cannot create a child class for a final class
+- Therefore, all methods are implicitly final
+
+### Question: Are all variables in a final class automatically final?
+
+**Answer:** **NO!** Every variable present inside a final class need NOT be final.
+
+**Proof:**
+
+```java
+final class B {
+    static int x = 10;
+    
+    public static void main(String[] args) {
+        x = 777;  // Can change - variable is NOT final
+        System.out.println(x);
+    }
+}
+```
+
+**Output:** `777`
+
+The variable `x` can be changed because it's not declared as `final`. Only the class itself is final.
+
+---
+
+## Advantages and Disadvantages of Final
+
+### Main Advantage:
+
+**We can achieve security.**
+
+- No one can extend functionality (final class)
+- No one can change implementation (final method)
+- My implementation is unique and protected
+
+### Main Disadvantage:
+
+**We are missing key benefits of OOPs:**
+
+1. **Inheritance** (because of final classes)
+   - Cannot create child classes
+   - Cannot reuse existing functionality through inheritance
+
+2. **Polymorphism** (because of final methods)
+   - Cannot override methods
+   - Cannot provide different implementations
+
+### Conclusion:
+
+**Hence, if there is no specific requirement, it is not recommended to use the final keyword.**
+
+Don't use `final` just for style or fancy purposes - you'll miss important OOP benefits!
+
+---
+
+## Summary: Class Level Modifiers
+
+### Top-Level Classes (5 modifiers):
+- `public` - accessible from anywhere
+- `default` - package-level access only
+- `final` - cannot be extended
+- `abstract` - cannot instantiate (covered next)
+- `strictfp` - floating-point calculations
+
+### Inner Classes (8 modifiers):
+- All 5 above PLUS:
+- `private`
+- `protected`
+- `static`
+
+### Final Modifier:
+- **Final method** - cannot be overridden
+- **Final class** - cannot be extended (no child classes)
+- **Final variable** - cannot be reassigned (covered separately)
+
+### Key Points:
+- All methods in final class are implicitly final
+- Variables in final class are NOT automatically final
+- Final provides security but loses inheritance and polymorphism benefits
+- Not recommended to use final without specific requirement

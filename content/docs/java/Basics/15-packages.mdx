@@ -1,0 +1,390 @@
+---
+title: Packages
+---
+
+**Package** is an encapsulation mechanism to group related classes and interfaces into a single unit.
+
+### Real-World Analogy:
+- **Complete Java package** = Core Java + Advanced Java + Oracle
+- **Frameworks package** = Struts + Hibernate + Spring
+- **Tour packages** = South India tour, North India tour, Europe tour
+
+A package is simply a **group of related things**.
+
+---
+
+## Examples of Java Packages
+
+### Example 1: java.sql Package
+All classes and interfaces which are required for **database operations** are grouped into a single package: `java.sql`
+
+Classes include: Connection, DriverManager, Statement, PreparedStatement, ResultSet, etc.
+
+### Example 2: java.io Package
+All classes and interfaces which are useful for **file I/O operations** are grouped into a separate package: `java.io`
+
+Classes include: FileWriter, BufferedWriter, PrintWriter, FileReader, BufferedReader, etc.
+
+### Other Common Packages:
+- **java.net** - Networking operations
+- **java.rmi** - Remote Method Invocation
+- **java.util** - General utilities (ArrayList, HashMap, etc.)
+
+---
+
+## Main Advantages of Packages
+
+### 1. To Resolve Naming Conflicts (Unique Identification)
+
+Packages provide **unique identification** for components.
+
+**Example:** Without states, you could have only one Chief Minister (CM). With states (Telangana, Andhra Pradesh, Tamil Nadu, Karnataka), each can have its own CM.
+
+Similarly:
+- `java.util.Date` - Date class in util package
+- `java.sql.Date` - Date class in SQL package
+
+Without packages, you could only have ONE Date class. Packages allow multiple classes with the same name to coexist.
+
+### 2. Improves Modularity of the Application
+
+Packages allow you to organize code into logical modules:
+
+```
+com.xyz.order.process    - Order processing module
+com.xyz.order.delivery   - Order delivery module
+com.xyz.payment          - Payment module
+com.xyz.transaction      - Transaction module
+```
+
+This modular approach improves maintainability and readability.
+
+### 3. Improves Maintainability of the Application
+
+When code is divided into modules, it's easier to:
+- Locate specific functionality
+- Make updates
+- Debug issues
+- Manage the codebase
+
+### 4. Provides Security for Components
+
+A **default** (package-private) class can only be accessed within the same package. Outside packages cannot access it.
+
+The package acts as a **wall** for the class, restricting outside access. This provides security for your components.
+
+---
+
+## Package Naming Convention
+
+### Universally Accepted Convention:
+
+**Use the Internet domain name in reverse for packages.**
+
+Internet domain names are **unique** worldwide:
+- gmail.com - only one website
+- yahoo.com - only one website
+- durgasoft.com - only one website
+
+### Structure:
+```
+com.icicbank.loan.housing.Account
+```
+
+Breaking it down:
+- `com.icicbank` - Client's Internet domain name in reverse
+- `loan` - Module name
+- `housing` - Sub-module name
+- `Account` - Class name
+
+This convention ensures **unique identification** of components globally.
+
+---
+
+## Writing Package Statements
+
+### Syntax:
+```java
+package com.durgasoft.scjp.demo;
+
+public class Test {
+    public static void main(String[] args) {
+        System.out.println("Package demo");
+    }
+}
+```
+
+### Compilation Commands:
+
+**Option 1: Normal Compilation**
+```bash
+javac Test.java
+```
+- Generates `Test.class` in the **current working directory**
+- Package structure is ignored
+
+**Option 2: Compilation with -d Option**
+```bash
+javac -d . Test.java
+```
+
+**What does `-d` mean?**
+- `-d` = **destination** to place generated class files
+- `.` = current working directory
+- Creates the package structure automatically
+
+**Result:** 
+```
+current_directory/
+    com/
+        durgasoft/
+            scjp/
+                demo/
+                    Test.class
+```
+
+### Key Points About -d Option:
+
+**1. If package structure doesn't exist, it will be created:**
+```bash
+javac -d . Test.java
+```
+If `com/durgasoft/scjp/demo/` folders don't exist, this command will create them automatically.
+
+**2. You can specify any valid directory:**
+```bash
+javac -d F: Test.java
+javac -d C: Test.java
+javac -d E: Test.java
+```
+
+The package structure will be created in the specified location:
+```
+F:/
+    com/
+        durgasoft/
+            scjp/
+                demo/
+                    Test.class
+```
+
+**3. If specified directory doesn't exist, you get a compile-time error:**
+```bash
+javac -d J: Test.java
+```
+If `J:` drive doesn't exist:
+**Error:** "Directory not found: J:"
+
+---
+
+## Execution (Running the Program)
+
+### Important Rule:
+At the time of execution, you **must** provide the **fully qualified name**.
+
+```bash
+java com.durgasoft.scjp.demo.Test
+```
+
+**Output:** `Package demo`
+
+### Common Mistakes (WILL NOT WORK):
+
+```bash
+cd com/durgasoft/scjp/demo
+java Test          # ✗ WRONG - must use fully qualified name
+```
+
+You cannot navigate into the package folder and run with the short name. You must always use the fully qualified name from the root.
+
+---
+
+## Important Conclusions About Package Statements
+
+### Conclusion 1: At Most One Package Statement
+
+**In any Java source file, there can be at most one package statement.**
+
+"At most one" means: **either 0 or 1** (not more than 1).
+
+**Invalid Example:**
+```java
+package pack1;
+package pack2;  // ✗ INVALID
+
+public class A { }
+```
+
+**Compile-time error:** "class, interface, or enum expected"
+
+**Explanation:** After the first package statement, the compiler expects either a class, interface, or enum declaration. It doesn't expect another package statement.
+
+### Conclusion 2: Package Must Be the First Non-Comment Statement
+
+**In any Java program, the first non-comment statement should be the package statement (if it is available).**
+
+**Invalid Example:**
+```java
+import java.util.*;
+package pack1;  // ✗ INVALID - package must come BEFORE import
+
+public class A { }
+```
+
+**Compile-time error:** "class, interface, or enum expected"
+
+**Explanation:** After import statements, the compiler expects class/interface/enum declarations, not a package statement. Package must come first.
+
+**Valid order:**
+1. Package statement (optional, at most one)
+2. Import statements (optional, any number)
+3. Class/Interface/Enum declarations (at least one... or none!)
+
+---
+
+## Valid Java Source File Structure
+
+### The Complete Structure:
+
+```
+1. Package statement     - at most one
+2. Import statements     - any number (0, 1, 2, ...)
+3. Class/Interface/Enum  - any number (0, 1, 2, ...)
+```
+
+**This order is important!**
+
+### Special Note: Empty Source File
+
+An **empty source file** is a **valid Java program**.
+
+**Valid Java Programs:**
+
+**Program 1:** Empty file
+```java
+// Nothing - completely empty
+```
+
+**Program 2:** Only package
+```java
+package pack1;
+```
+
+**Program 3:** Only import
+```java
+import java.util.*;
+```
+
+**Program 4:** Package and import
+```java
+package pack1;
+import java.io.*;
+```
+
+**Program 5:** Full structure
+```java
+package pack1;
+import java.util.*;
+
+class Test {
+    public static void main(String[] args) {
+        System.out.println("Hello");
+    }
+}
+```
+
+All five programs above are **valid** Java source files!
+
+---
+
+## Summary: Java Source File Structure Rules
+
+### Valid Structure:
+```java
+package statement;        // At most ONE (optional)
+import statements;        // ANY NUMBER (optional)
+class/interface/enum;     // ANY NUMBER (can be zero!)
+```
+
+### Key Rules:
+
+1. **Package statement:**
+   - At most one per file
+   - Must be the first non-comment statement
+   - Optional
+
+2. **Import statements:**
+   - Any number allowed (0, 1, 2, ...)
+   - Must come after package (if present)
+   - Must come before class/interface/enum declarations
+   - Optional
+
+3. **Class/Interface/Enum declarations:**
+   - Any number allowed (including zero!)
+   - Must come after package and import statements
+
+4. **Order is important:** Package → Import → Class/Interface/Enum
+
+5. **An empty source file is valid**
+
+---
+
+## Common Compilation Errors
+
+### Error 1: Multiple Package Statements
+```java
+package pack1;
+package pack2;
+```
+**Error:** "class, interface, or enum expected"
+
+### Error 2: Package After Import
+```java
+import java.util.*;
+package pack1;
+```
+**Error:** "class, interface, or enum expected"
+
+### Error 3: Invalid Directory
+```bash
+javac -d J: Test.java
+```
+(If J: doesn't exist)
+**Error:** "Directory not found: J:"
+
+---
+
+## Practical Example
+
+**Complete workflow:**
+
+```java
+// File: Test.java
+package com.durgasoft.ocjp;
+
+public class Test {
+    public static void main(String[] args) {
+        System.out.println("Package demo");
+    }
+}
+```
+
+**Compile:**
+```bash
+javac -d . Test.java
+```
+
+**Result:** Creates folder structure:
+```
+com/durgasoft/ocjp/Test.class
+```
+
+**Run:**
+```bash
+java com.durgasoft.ocjp.Test
+```
+
+**Output:**
+```
+Package demo
+```

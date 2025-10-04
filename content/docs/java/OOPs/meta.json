@@ -1,0 +1,26 @@
+{
+  "title": "OOPs",
+  "pages": [
+    "01-introduction-to-java",
+    "02-java-identifiers-and-reserved-words-in-java",
+    "03-data-types-in-java",
+    "04-literals-in-java",
+    "05-arrays-in-java",
+    "06-types-of-variables",
+    "07-var-args-method",
+    "08-main-methods",
+    "09-command-line-arguments",
+    "10-coding-standards",
+    "11-operators-in-java",
+    "12-flow-control",
+    "13-source-file-structure",
+    "14-import-statements",
+    "15-packages",
+    "16-class-level-modifiers",
+    "17-abstract-and-strictfp-modifier",
+    "18-member-level-modifiers",
+    "19-final-variables",
+    "20-static-and-synchronized-modifier",
+    "21-native-transient-volatile-modifiers"
+  ]
+}

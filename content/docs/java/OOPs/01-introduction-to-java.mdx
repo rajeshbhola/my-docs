@@ -1,0 +1,210 @@
+---
+title: Introduction to Java
+---
+
+Java is one of the most popular and widely-used programming languages in the world. Known for its "Write Once, Run Anywhere" (WORA) philosophy, Java has powered everything from mobile applications to enterprise systems for nearly three decades.
+
+## What is Java?
+
+Java is a high-level, class-based, object-oriented programming language designed to have as few implementation dependencies as possible. It is a general-purpose language that enables developers to write code that can run on any platform that supports Java without needing recompilation.
+
+### Key Features
+
+- **Platform Independent**: Java bytecode runs on any platform with a Java Virtual Machine (JVM)
+- **Object-Oriented**: Everything in Java is an object, promoting modular and reusable code
+- **Robust and Secure**: Strong memory management, exception handling, and security features
+- **Multithreaded**: Built-in support for concurrent programming
+- **High Performance**: Just-In-Time (JIT) compilation enables near-native performance
+- **Distributed**: Designed for the distributed environment of the internet
+
+## History of Java
+
+### The Beginning (1991-1995)
+
+Java's story begins at Sun Microsystems in June 1991. The language was originally called **Oak** and was developed by James Gosling, Mike Sheridan, and Patrick Naughton as part of the Green Project.
+
+- **1991**: The Green Project initiated to develop software for consumer electronics
+- **1992**: Oak language created, named after an oak tree outside Gosling's office
+- **1994**: The team realized Oak's potential for the World Wide Web
+- **1995**: Oak renamed to **Java** (inspired by Java coffee) and officially announced
+- **May 23, 1995**: Java 1.0 officially released with the promise "Write Once, Run Anywhere"
+
+### Growth and Evolution (1996-2006)
+
+- **1996**: Sun released Java Development Kit (JDK) 1.0
+- **1998**: J2SE 1.2 introduced, marking the beginning of Java 2 Platform
+- **2004**: Java 5 (J2SE 5.0) released with major enhancements like generics, annotations, and enums
+- **2006**: Sun Microsystems made Java available as free and open-source software under GNU GPL
+
+### Oracle Era (2010-Present)
+
+- **2010**: Oracle Corporation acquired Sun Microsystems and took ownership of Java
+- **2011**: Java SE 7 released with key features like try-with-resources
+- **2014**: Java SE 8 released with revolutionary features like lambda expressions and Stream API
+- **2017**: Java SE 9 introduced the module system (Project Jigsaw)
+- **2018**: Oracle shifted to a six-month release cycle
+- **2021**: Java 17 LTS released, bringing sealed classes and pattern matching enhancements
+- **2023**: Java 21 LTS released with virtual threads and record patterns
+
+## Java Versions
+
+### Version Timeline
+
+| Version | Release Date | Code Name | Key Features |
+|---------|--------------|-----------|--------------|
+| JDK 1.0 | January 1996 | Oak | Initial release |
+| JDK 1.1 | February 1997 | - | JDBC, Inner classes, JavaBeans |
+| J2SE 1.2 | December 1998 | Playground | Collections Framework, Swing |
+| J2SE 1.3 | May 2000 | Kestrel | HotSpot JVM, JNDI |
+| J2SE 1.4 | February 2002 | Merlin | Assert, NIO, Logging API |
+| J2SE 5.0 | September 2004 | Tiger | Generics, Annotations, Enums, Varargs |
+| Java SE 6 | December 2006 | Mustang | Scripting support, Performance improvements |
+| Java SE 7 | July 2011 | Dolphin | Try-with-resources, Diamond operator |
+| Java SE 8 | March 2014 | - | Lambda expressions, Stream API, Default methods |
+| Java SE 9 | September 2017 | - | Module system, JShell |
+| Java SE 10 | March 2018 | - | Local variable type inference (var) |
+| Java SE 11 | September 2018 | - | **LTS**, HTTP Client, String enhancements |
+| Java SE 12-16 | 2019-2021 | - | Text blocks, Switch expressions, Records |
+| Java SE 17 | September 2021 | - | **LTS**, Sealed classes, Pattern matching |
+| Java SE 18-20 | 2022-2023 | - | Simple Web Server, Virtual threads preview |
+| Java SE 21 | September 2023 | - | **LTS**, Virtual threads, Record patterns |
+
+### LTS (Long-Term Support) Versions
+
+Oracle designates certain versions as LTS releases, which receive extended support:
+
+- **Java 8** (2014) - Most widely used LTS version
+- **Java 11** (2018) - First LTS under new release model
+- **Java 17** (2021) - Current recommended LTS
+- **Java 21** (2023) - Latest LTS version
+
+LTS versions receive updates and security patches for several years, making them ideal for enterprise applications.
+
+## Java Classifications
+
+Java is organized into different platforms and editions, each targeting specific application domains.
+
+### Java Platforms
+
+#### 1. Java SE (Standard Edition)
+
+**Java Platform, Standard Edition** is the core Java platform that provides the fundamental APIs and runtime environment.
+
+- **Purpose**: General-purpose programming
+- **Components**: JVM, JDK, Core libraries (Collections, I/O, Networking, etc.)
+- **Use Cases**: Desktop applications, command-line tools, basic server applications
+- **Includes**: `java.lang`, `java.util`, `java.io`, `java.net`, etc.
+
+#### 2. Java EE (Enterprise Edition) / Jakarta EE
+
+**Java Platform, Enterprise Edition** builds upon Java SE to provide APIs for large-scale, distributed, multi-tier enterprise applications.
+
+- **Purpose**: Enterprise-level applications
+- **Components**: Servlets, JSP, EJB, JPA, JAX-RS, CDI
+- **Use Cases**: Web applications, web services, enterprise systems
+- **Note**: Transferred to Eclipse Foundation in 2017 and renamed Jakarta EE
+
+#### 3. Java ME (Micro Edition)
+
+**Java Platform, Micro Edition** is designed for resource-constrained devices.
+
+- **Purpose**: Embedded systems and mobile devices
+- **Components**: Lightweight JVM, minimal APIs
+- **Use Cases**: IoT devices, embedded systems, feature phones
+- **Status**: Less common today due to Android dominance
+
+#### 4. JavaFX
+
+**JavaFX** is a software platform for creating desktop and rich internet applications.
+
+- **Purpose**: Modern UI applications
+- **Components**: Rich GUI controls, 2D/3D graphics, media support
+- **Use Cases**: Desktop applications with modern UIs
+- **Status**: Separated from JDK since Java 11
+
+### Java Development Tools
+
+#### JDK (Java Development Kit)
+
+The complete development environment for Java applications:
+
+- **Compiler** (`javac`): Converts Java source code to bytecode
+- **JRE**: Includes JVM and core libraries
+- **Development Tools**: Debugger, documentation generator (Javadoc), archiver (JAR)
+
+#### JRE (Java Runtime Environment)
+
+The runtime environment required to run Java applications:
+
+- **JVM**: Executes Java bytecode
+- **Core Libraries**: Standard Java class libraries
+- **Note**: Standalone JRE discontinued from Java 11+
+
+#### JVM (Java Virtual Machine)
+
+The engine that executes Java bytecode:
+
+- **Platform-specific**: Different implementations for Windows, Linux, macOS
+- **Responsibilities**: Class loading, memory management, garbage collection, security
+- **Popular Implementations**: HotSpot (Oracle), OpenJ9 (Eclipse), GraalVM
+
+### Java Distributions
+
+#### Oracle JDK
+
+- **Provider**: Oracle Corporation
+- **License**: Commercial (requires license for production use in some cases)
+- **Support**: Official Oracle support available
+
+#### OpenJDK
+
+- **Provider**: Open-source community
+- **License**: GPL with Classpath Exception (free and open-source)
+- **Support**: Community-driven
+- **Note**: Oracle JDK is based on OpenJDK
+
+#### Other Distributions
+
+- **Amazon Corretto**: AWS-maintained distribution
+- **AdoptOpenJDK / Adoptium**: Community-driven builds
+- **Azul Zulu**: Enterprise-grade OpenJDK builds
+- **GraalVM**: High-performance JDK with polyglot capabilities
+
+## Why Learn Java?
+
+### Industry Adoption
+
+- Powers billions of devices worldwide
+- Used by major companies: Google, Amazon, Netflix, Uber, Airbnb
+- Android development (before Kotlin) was primarily Java-based
+- Enterprise applications heavily rely on Java/Jakarta EE
+
+### Career Opportunities
+
+- Consistently ranked among top programming languages
+- High demand for Java developers in enterprise sector
+- Competitive salaries and job security
+- Versatile skill applicable to various domains
+
+### Strong Ecosystem
+
+- **Frameworks**: Spring, Hibernate, Apache Struts
+- **Build Tools**: Maven, Gradle
+- **Testing**: JUnit, TestNG, Mockito
+- **IDEs**: IntelliJ IDEA, Eclipse, NetBeans
+- **Application Servers**: Tomcat, WildFly, WebLogic
+
+### Community and Resources
+
+- Massive developer community
+- Extensive documentation and tutorials
+- Active Stack Overflow presence
+- Regular updates and improvements
+
+## Conclusion
+
+Java's journey from a language designed for consumer electronics to one of the world's most dominant programming languages is remarkable. Its platform independence, robust security, and vast ecosystem have made it the backbone of enterprise software development.
+
+Whether you're building Android apps, enterprise systems, web applications, or cloud services, Java provides the tools and reliability needed for modern software development. With regular updates, LTS versions, and a thriving community, Java continues to evolve while maintaining its core principle: **Write Once, Run Anywhere**.
+
+As you embark on your Java learning journey, you're joining millions of developers worldwide who trust Java to build scalable, secure, and high-performance applications.

@@ -1,0 +1,246 @@
+---
+title: Source File Structure
+---
+
+
+## Topic 1: Java Program Structure and Class Organization
+
+### Multiple Classes in a Java Program
+
+A Java program can contain **any number of classes**. However, there are important rules:
+
+**Rule 1:** At most one class can be declared as `public` (either zero or one public class).
+
+**Rule 2:** If there is a public class, the name of the program and the name of the public class must match, otherwise you will get a compile-time error.
+
+**Rule 3:** If there is no public class, you can use any name for the Java program.
+
+### Examples
+
+**Case 1: No Public Class**
+```java
+class A { }
+class B { }
+class C { }
+```
+- You can save this as `A.java`, `B.java`, `C.java`, or even `D.java`
+- No restrictions on the program name
+
+**Case 2: One Public Class**
+```java
+class A { }
+public class B { }
+class C { }
+```
+- The program name must be `B.java`
+- If you use any other name (like `H.java`), you get compile-time error: "Class B is public, should be declared in a file named B.java"
+
+**Case 3: Multiple Public Classes (Invalid)**
+```java
+class A { }
+public class B { }
+public class C { }
+```
+- Program name is `B.java`
+- Compile-time error: "Class C is public, should be declared in a file named C.java"
+- You cannot have more than one public class in a program
+
+---
+
+## Topic 2: Compilation and Execution Behavior
+
+### How Compilation Works
+
+When you compile a Java program, **a separate `.class` file is generated for every class** present in the program.
+
+Example:
+```java
+// File: D.java
+class A { }
+class B { }
+class C { }
+class D { }
+```
+
+After `javac D.java`, you get:
+- `A.class`
+- `B.class`
+- `C.class`
+- `D.class`
+
+**Important:** The `.class` file names are based on class names in the program, not the program name. Even though the file is `D.java`, there's no guarantee a `D.class` will be generated unless there's a class named `D`.
+
+### How Execution Works
+
+**Key Point:** We compile a Java program, but we **run a Java class**.
+
+```java
+// Compilation
+javac D.java  // compiles the program
+
+// Execution
+java A  // runs class A
+java B  // runs class B
+```
+
+When you execute a particular class, the corresponding class's `main` method will be executed.
+
+### Multiple Main Methods Example
+
+```java
+class A {
+    public static void main(String[] args) {
+        System.out.println("A class main");
+    }
+}
+
+class B {
+    public static void main(String[] args) {
+        System.out.println("B class main");
+    }
+}
+
+class C {
+    public static void main(String[] args) {
+        System.out.println("C class main");
+    }
+}
+
+class D {
+    // No main method
+}
+```
+
+Execution results:
+- `java A` → Output: "A class main"
+- `java B` → Output: "B class main"
+- `java C` → Output: "C class main"
+- `java D` → Runtime exception: "NoSuchMethodError: main"
+- `java Durga` → Runtime exception: "NoClassDefFoundError: Durga"
+
+**Conclusion:** The class containing the main method and the program name are not related. There is no link between them.
+
+---
+
+## Topic 3: Important Conclusions
+
+### Conclusion 1: Class File Generation
+When compiling a Java program, a separate `.class` file is generated for every class present in that program.
+
+### Conclusion 2: Compilation vs Execution
+- We can compile a Java program (Java source file)
+- We can run a Java class file (`.class` file)
+
+### Conclusion 3: Main Method Execution
+When executing a Java class, the corresponding class's main method will be executed. If the class doesn't contain a main method, you get runtime exception: **NoSuchMethodError: main**
+
+### Conclusion 4: Missing Class File
+If the corresponding `.class` file is not available, you get runtime exception: **NoClassDefFoundError**
+
+---
+
+## Topic 4: Best Practices for Program Organization
+
+### Not Recommended: Multiple Classes per File
+
+Having multiple classes in a single source file is **not recommended**.
+
+Example of bad practice:
+```
+File1.java - contains 150 classes
+File2.java - contains 75 classes
+File3.java - contains 25 classes
+```
+
+**Problems:**
+1. Difficult to find which file contains which class
+2. Reduced readability of the code
+3. Reduced maintainability of the code
+
+If you need to find the `Account` class, you have to search through multiple files, wasting time.
+
+### Recommended Approach: One Class per File
+
+**Best Practice:** Declare only one class per source file, and the name of the program should be the same as the class name.
+
+Example:
+- `Account.java` contains class `Account`
+- `Loan.java` contains class `Loan`
+- `Customer.java` contains class `Customer`
+- `String.java` contains class `String`
+- `Object.java` contains class `Object`
+
+**Advantages:**
+- Improved readability
+- Improved maintainability
+- Easy to locate any class
+
+---
+
+## Topic 5: Import Statements
+
+### The Problem: Compile-Time Errors with Unfamiliar Classes
+
+```java
+class Test {
+    public static void main(String[] args) {
+        ArrayList l = new ArrayList();
+    }
+}
+```
+
+Compile-time error: **Cannot find symbol: class ArrayList (location: class Test)**
+
+The compiler doesn't know where the `ArrayList` class is located.
+
+### Solution 1: Fully Qualified Name
+
+Use the complete package path:
+
+```java
+class Test {
+    public static void main(String[] args) {
+        java.util.ArrayList l = new java.util.ArrayList();
+    }
+}
+```
+
+This is called the **fully qualified name**: `java.util.ArrayList`
+
+The fully qualified name tells the compiler exactly where the class is located:
+- Package: `java`
+- Sub-package: `util`
+- Class: `ArrayList`
+
+### The Problem with Fully Qualified Names
+
+Using fully qualified names every time:
+1. Increases the length of the code
+2. Reduces readability
+
+If you need to use `ArrayList` 100 times, you must type `java.util.ArrayList` 100 times.
+
+### Solution 2: Import Statement
+
+Import statements provide a typing shortcut:
+
+```java
+import java.util.ArrayList;
+
+class Test {
+    public static void main(String[] args) {
+        ArrayList l = new ArrayList();  // short name
+    }
+}
+```
+
+**How it works:** When you write an import statement once, you can directly use the short name throughout your program. No need to use the fully qualified name repeatedly.
+
+### Summary
+
+**Import statement acts as a typing shortcut.**
+
+- **Without import:** Must use `java.util.ArrayList` (fully qualified name) every time
+- **With import:** Can use `ArrayList` (short name) directly
+
+The import statement improves code readability and reduces the length of the code.

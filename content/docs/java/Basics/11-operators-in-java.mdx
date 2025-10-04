@@ -1,0 +1,1461 @@
+---
+title: Operators
+---
+
+Operators might seem simple at first glance - we've been using +, -, *, / since childhood. However, this topic contains many subtle loopholes that require careful attention. According to Kathy Sierra's SCJP book, most exam takers score lowest in the operators section despite it appearing basic.
+
+---
+
+## 1. Increment and Decrement Operators
+
+### Two Types of Increment Operators
+
+**Pre-increment:** `y = ++x`
+- First increment x, then assign the incremented value to y
+
+**Post-increment:** `y = x++`
+- First assign the current value to y, then increment x
+
+### Two Types of Decrement Operators
+
+**Pre-decrement:** `y = --x`
+- First decrement x, then assign the decremented value to y
+
+**Post-decrement:** `y = x--`
+- First assign the current value to y, then decrement x
+
+### Example Table
+
+| Expression | Initial x | Value of y | Final x |
+|------------|-----------|------------|---------|
+| y = ++x    | 10        | 11         | 11      |
+| y = x++    | 10        | 10         | 11      |
+| y = --x    | 10        | 9          | 9       |
+| y = x--    | 10        | 10         | 9       |
+
+---
+
+## Loopholes in Increment/Decrement Operators
+
+### Loophole 1: Only for Variables, Not Constants
+
+**Valid:**
+```java
+int x = 10;
+int y = ++x;
+System.out.println(y); // Output: 11
+```
+
+**Invalid:**
+```java
+int y = ++10; // Compile-time error: unexpected type found: value, required: variable
+```
+
+**Rule:** Increment and decrement operators can only be applied to variables, not constant values.
+
+---
+
+### Loophole 2: Nesting Not Allowed
+
+**Invalid:**
+```java
+int x = 10;
+int y = ++(++x); // Compile-time error: unexpected type required: variable, found: value
+```
+
+**Explanation:** After applying the first ++, the result becomes a value (11). You cannot apply ++ to a value.
+
+**Rule:** Nesting of increment and decrement operators is not allowed.
+
+---
+
+### Loophole 3: Cannot Use with Final Variables
+
+**Valid:**
+```java
+int x = 10;
+x = 11;
+System.out.println(x); // Output: 11
+```
+
+**Invalid:**
+```java
+final int x = 10;
+x = 11; // Compile-time error: cannot assign a value to final variable x
+```
+
+**Invalid with Increment:**
+```java
+final int x = 10;
+x++; // Compile-time error: cannot assign a value to final variable x
+```
+
+**Explanation:** `x++` is equivalent to `x = x + 1`, which is reassignment. Final variables cannot be reassigned.
+
+**Rule:** Increment and decrement operators cannot be applied to final variables.
+
+---
+
+### Loophole 4: Applicable to All Primitive Types Except Boolean
+
+**Valid Examples:**
+```java
+int x = 10;
+x++;
+System.out.println(x); // Output: 11
+
+char ch = 'a';
+ch++;
+System.out.println(ch); // Output: b
+
+double d = 10.5;
+d++;
+System.out.println(d); // Output: 11.5
+```
+
+**Invalid Example:**
+```java
+boolean b = true;
+b++; // Compile-time error: operator ++ cannot be applied to boolean
+```
+
+**Rule:** Increment and decrement operators can be applied to every primitive type except boolean.
+
+---
+
+### Loophole 5: Difference Between b++ and b = b + 1
+
+**Case 1: b = b + 1**
+```java
+byte b = 10;
+b = b + 1; // Compile-time error: possible loss of precision found: int, required: byte
+```
+
+**Explanation:** When applying arithmetic operators between two variables, the result type is always `max(int, type of A, type of B)`. Here, `b + 1` results in `int`, which cannot be assigned to `byte` without explicit casting.
+
+**Case 2: b++**
+```java
+byte b = 10;
+b++;
+System.out.println(b); // Output: 11
+```
+
+**Explanation:** In increment and decrement operators, internal typecasting is performed automatically. `b++` is equivalent to `b = (byte)(b + 1)`.
+
+### Example: byte + byte = int
+
+```java
+byte a = 10;
+byte b = 20;
+byte c = a + b; // Compile-time error: possible loss of precision found: int, required: byte
+```
+
+**Fix with typecasting:**
+```java
+byte a = 10;
+byte b = 20;
+byte c = (byte)(a + b);
+System.out.println(c); // Output: 30
+```
+
+**Rule:** If we apply any arithmetic operator between two variables A and B, the result type is always `max(int, type of A, type of B)`.
+
+---
+
+## Summary: 5 Conclusions for Increment/Decrement
+
+1. Increment and decrement operators applicable only for variables, not for constant values
+2. Nesting of increment and decrement operators is not allowed
+3. For final variables, increment and decrement operators cannot be applied
+4. We can apply increment and decrement operators for every primitive type except boolean
+5. `b++` and `b = b + 1` are different. In increment/decrement operators, internal typecasting is performed automatically
+
+---
+
+## 2. Arithmetic Operators
+
+Arithmetic operators: `+`, `-`, `*`, `/`, `%` (modulo)
+
+### Rule for Result Type
+
+If we apply any arithmetic operator between two variables A and B, the result type is always:
+**max(int, type of A, type of B)**
+
+### Examples
+
+| Operation       | Result Type |
+|----------------|-------------|
+| byte + byte    | int         |
+| byte + short   | int         |
+| short + short  | int         |
+| byte + long    | long        |
+| long + double  | double      |
+| float + long   | float       |
+| char + char    | int         |
+
+### Type Promotion Chart (left to right = minimum to maximum)
+
+```
+byte → short → int → long → float → double
+char → int
+```
+
+### Example 1: char + char
+
+```java
+char a = 'a';
+char b = 'b';
+System.out.println(a + b); // Output: 195 (97 + 98, NOT "ab")
+```
+
+### Example 2: char + double
+
+```java
+char a = 'a';
+System.out.println(a + 0.89); // Output: 97.89
+```
+
+---
+
+## Division by Zero Behavior
+
+### In Integral Arithmetic (byte, short, int, long)
+
+**There is no way to represent infinity** in integral arithmetic.
+
+```java
+System.out.println(10 / 0); // Runtime exception: ArithmeticException: division by zero
+System.out.println(0 / 0);  // Runtime exception: ArithmeticException: division by zero
+```
+
+**Rule:** If infinity is the result in integral arithmetic, we will get a runtime exception: ArithmeticException.
+
+---
+
+### In Floating-Point Arithmetic (float, double)
+
+**There is a way to represent infinity** - Float and Double classes contain two constants:
+- `POSITIVE_INFINITY`
+- `NEGATIVE_INFINITY`
+
+```java
+System.out.println(10 / 0.0);     // Output: Infinity
+System.out.println(-10.0 / 0);    // Output: -Infinity
+```
+
+**Rule:** If infinity is the result in floating-point arithmetic, we won't get ArithmeticException. We get `Infinity` as output.
+
+---
+
+### Undefined Results: NaN (Not a Number)
+
+**In integral arithmetic:**
+```java
+System.out.println(0 / 0); // Runtime exception: ArithmeticException: division by zero
+```
+
+**In floating-point arithmetic:**
+
+Float and Double classes contain a constant: **NaN** (Not a Number)
+
+```java
+System.out.println(0.0 / 0);    // Output: NaN
+System.out.println(-0.0 / 0.0); // Output: NaN
+```
+
+**Rule:** If the result is undefined in floating-point arithmetic, we get `NaN` (no exception).
+
+---
+
+### Summary Table
+
+| Expression  | Result Type | Output                          |
+|-------------|-------------|---------------------------------|
+| 10 / 0      | int         | ArithmeticException             |
+| 10 / 0.0    | double      | Infinity                        |
+| 0 / 0       | int         | ArithmeticException             |
+| 0.0 / 0     | double      | NaN                             |
+
+---
+
+## Behavior of NaN
+
+### Important Rule for NaN Comparisons
+
+For any value x (including NaN itself):
+- `x < NaN` → **false**
+- `x <= NaN` → **false**
+- `x > NaN` → **false**
+- `x >= NaN` → **false**
+- `x == NaN` → **false**
+- `x != NaN` → **true**
+
+### Example
+
+```java
+System.out.println(10 < Float.NaN);            // false
+System.out.println(10 <= Float.NaN);           // false
+System.out.println(10 > Float.NaN);            // false
+System.out.println(10 >= Float.NaN);           // false
+System.out.println(10 == Float.NaN);           // false
+System.out.println(Float.NaN == Float.NaN);    // false
+System.out.println(10 != Float.NaN);           // true
+System.out.println(Float.NaN != Float.NaN);    // true
+```
+
+---
+
+## ArithmeticException Summary
+
+1. **It is a runtime exception**, not a compile-time error
+2. **It is possible only in integral arithmetic**, not in floating-point arithmetic
+3. **The only operators which cause ArithmeticException** are division (/) and modulo (%)
+
+---
+
+## 3. String Concatenation Operator (+)
+
+The **only overloaded operator in Java** is the `+` operator.
+
+- Sometimes it acts as **arithmetic addition operator**
+- Sometimes it acts as **string concatenation operator**
+
+### Rule
+
+- **If at least one argument is a String type**, then `+` acts as **concatenation operator**
+- **If both arguments are number types**, then `+` acts as **arithmetic addition operator**
+
+### Examples
+
+```java
+String a = "Durga";
+int b = 10, c = 20, d = 30;
+
+System.out.println(a + b + c + d);  // Output: Durga102030
+System.out.println(b + c + d + a);  // Output: 60Durga
+System.out.println(b + c + a + d);  // Output: 30Durga30
+System.out.println(b + a + c + d);  // Output: 10Durga2030
+```
+
+**Evaluation:** Left to right. Once a String is encountered, all subsequent operations are concatenation.
+
+### Example 2: Type Compatibility
+
+```java
+String a = "Durga";
+int b = 10, c = 20, d = 30;
+
+a = b + c + d;          // Invalid: cannot assign int to String
+a = a + b + c;          // Valid: String
+b = a + c + d;          // Invalid: cannot assign String to int
+b = b + c + d;          // Valid: int
+```
+
+**Compile-time errors:**
+- `a = b + c + d;` → incompatible types: found int, required java.lang.String
+- `b = a + c + d;` → incompatible types: found java.lang.String, required int
+
+---
+
+## 4. Relational Operators
+
+Relational operators: `<`, `<=`, `>`, `>=`
+
+### Rule 1: Applicable to All Primitive Types Except Boolean
+
+```java
+System.out.println(10 < 20);           // true
+System.out.println('a' < 10);          // false (97 < 10)
+System.out.println('a' < 97.6);        // true
+System.out.println('a' > 'A');         // true (97 > 65)
+System.out.println(true > false);      // Compile-time error: operator > cannot be applied to boolean
+```
+
+**Rule:** We can apply relational operators for every primitive type except boolean.
+
+---
+
+### Rule 2: Cannot Apply to Object Types
+
+```java
+System.out.println("durga123" > "durga"); // Compile-time error: operator > cannot be applied to java.lang.String
+```
+
+**Explanation:** Comparing objects like "first student > second student" is meaningless. You can compare specific attributes (marks, age), but not objects themselves.
+
+**Rule:** Relational operators cannot be applied to object types.
+
+---
+
+### Rule 3: Nesting of Relational Operators Not Allowed
+
+```java
+System.out.println(10 < 20 < 30); // Compile-time error: operator < cannot be applied to boolean, int
+```
+
+**Explanation:**
+- First, `10 < 20` evaluates to `true`
+- Then, `true < 30` → trying to compare boolean with int, which is invalid
+
+**Rule:** Nesting of relational operators is not allowed.
+
+---
+
+## 5. Equality Operators
+
+Equality operators: `==` (equal to), `!=` (not equal to)
+
+### Rule 1: Applicable to All Primitive Types Including Boolean
+
+```java
+System.out.println(10 == 20);         // false
+System.out.println('a' == 'b');       // false
+System.out.println('a' == 97.0);      // true
+System.out.println(false == false);   // true
+```
+
+**Rule:** We can apply equality operators for every primitive type, including boolean.
+
+---
+
+### Rule 2: Applicable to Object Types
+
+Equality operators are **universal operators** - applicable everywhere (primitives and objects).
+
+For object references r1 and r2:
+- `r1 == r2` returns **true** if and only if **both references point to the same object**
+
+**Equality operators are meant for reference comparison (address comparison).**
+
+### Example
+
+```java
+Thread t1 = new Thread();
+Thread t2 = new Thread();
+Thread t3 = t1;
+
+System.out.println(t1 == t2);  // false (different objects)
+System.out.println(t1 == t3);  // true (same object)
+```
+
+---
+
+### Rule 3: Must Have Some Relation Between Argument Types
+
+To use equality operators for object types, there must be some relation between argument types:
+- Child to parent
+- Parent to child
+- Same type
+
+If no relation exists → **Compile-time error: incomparable types**
+
+### Example
+
+```java
+Thread t = new Thread();
+Object o = new Object();
+String s = new String("Durga");
+
+System.out.println(t == o);  // Valid: false (Thread is child of Object)
+System.out.println(o == s);  // Valid: false (String is child of Object)
+System.out.println(s == t);  // Invalid: Compile-time error: incomparable types: java.lang.String and java.lang.Thread
+```
+
+---
+
+### Difference Between == and .equals()
+
+**== operator:**
+- Meant for **reference comparison** (address comparison)
+- Returns true only if both references point to the same object
+
+**.equals() method:**
+- Meant for **content comparison**
+- Returns true if the content is the same, even if objects are different
+
+### Example
+
+```java
+String s1 = new String("Durga");
+String s2 = new String("Durga");
+
+System.out.println(s1 == s2);      // false (different objects)
+System.out.println(s1.equals(s2)); // true (same content)
+```
+
+**Rule:** In general, use `==` for reference comparison and `.equals()` for content comparison.
+
+---
+
+### Comparing Object References with null
+
+For any object reference r:
+- `r == null` is always **false** (if r points to an object)
+- `null == null` is always **true**
+
+### Example
+
+```java
+String s = new String("Durga");
+System.out.println(s == null);    // false
+
+String s = null;
+System.out.println(s == null);    // true
+
+System.out.println(null == null); // true
+```
+
+---
+
+## 6. instanceof Operator
+
+### Purpose
+
+The `instanceof` operator checks whether a given object is of a particular type.
+
+### Syntax
+
+```
+r instanceof X
+```
+
+- **r:** Object reference
+- **X:** Class or interface name
+
+### Example 1
+
+```java
+Thread t = new Thread();
+
+System.out.println(t instanceof Thread);   // true
+System.out.println(t instanceof Object);   // true (Thread is child of Object)
+System.out.println(t instanceof Runnable); // true (Thread implements Runnable)
+```
+
+---
+
+### Rule: Must Have Some Relation Between Argument Types
+
+To use `instanceof`, there must be some relation between the types:
+- Child to parent
+- Parent to child
+- Same type
+
+If no relation exists → **Compile-time error: inconvertible types**
+
+### Example 2
+
+```java
+Thread t = new Thread();
+System.out.println(t instanceof String); // Compile-time error: inconvertible types
+```
+
+---
+
+### null instanceof X
+
+For any class or interface X:
+```java
+null instanceof X
+```
+is always **false**.
+
+### Example
+
+```java
+System.out.println(null instanceof Thread);   // false
+System.out.println(null instanceof Object);   // false
+System.out.println(null instanceof Runnable); // false
+```
+
+---
+
+## 7. Bitwise Operators
+
+Bitwise operators: `&` (and), `|` (or), `^` (xor - exclusive or)
+
+### AND Operator (&)
+
+Returns **true** if and only if **both arguments are true**.
+
+### OR Operator (|)
+
+Returns **true** if **at least one argument is true**.
+
+### XOR Operator (^)
+
+Returns **true** if and only if **both arguments are different** (either first or second, but not both).
+
+### Examples with Boolean
+
+```java
+System.out.println(true & false);   // false
+System.out.println(true | false);   // true
+System.out.println(true ^ false);   // true
+```
+
+---
+
+### Bitwise Operators with Integral Types
+
+These operators can also be applied to integral types (byte, short, int, long).
+
+### Example
+
+```java
+System.out.println(4 & 5);  // 4
+System.out.println(4 | 5);  // 5
+System.out.println(4 ^ 5);  // 1
+```
+
+**Explanation:**
+```
+4 = 100 (binary)
+5 = 101 (binary)
+
+4 & 5 = 100 (binary) = 4
+4 | 5 = 101 (binary) = 5
+4 ^ 5 = 001 (binary) = 1
+```
+
+**Rule:** We can apply bitwise operators for both boolean and integral types.
+
+---
+
+### Bitwise Complement Operator (~)
+
+The `~` operator performs bitwise complement.
+
+**Applicable only for integral types, not for boolean.**
+
+```java
+System.out.println(~true); // Compile-time error: operator ~ cannot be applied to boolean
+System.out.println(~4);    // -5
+```
+
+**Explanation for ~4 = -5:**
+
+For 32-bit representation:
+```
+4 = 00000000 00000000 00000000 00000100
+~4 = 11111111 11111111 11111111 11111011
+
+MSB = 1 → negative number
+Remaining bits represent value in 2's complement form
+2's complement of 11111011 = 00000101 = 5
+Therefore, ~4 = -5
+```
+
+**Rule:** Bitwise complement operator `~` is applicable only for integral types, not for boolean.
+
+---
+
+### Boolean Complement Operator (!)
+
+The `!` operator performs boolean complement (negation).
+
+**Applicable only for boolean, not for integral types.**
+
+```java
+System.out.println(!false); // true
+System.out.println(!4);     // Compile-time error: operator ! cannot be applied to int
+```
+
+**Rule:** Boolean complement operator `!` is applicable only for boolean types, not for integral types.
+
+---
+
+### Summary Table: Bitwise Operators
+
+| Operator | Applicable To                     |
+|----------|-----------------------------------|
+| &, \|, ^ | Both boolean and integral types   |
+| ~        | Only integral types (not boolean) |
+| !        | Only boolean (not integral types) |
+
+---
+
+## 8. Short Circuit Operators
+
+Short circuit operators: `&&` (short circuit and), `||` (short circuit or)
+
+### Difference Between & and &&
+
+**Normal & operator:**
+- Both arguments are **always evaluated**, whether required or not
+
+**Short circuit && operator:**
+- Second argument evaluation is **optional**
+- If first argument is **false**, second argument won't be evaluated
+
+### Performance Comparison
+
+| Operator | Performance |
+|----------|-------------|
+| &        | Low         |
+| &&       | High        |
+
+**Rule:** Short circuit operators improve performance by skipping unnecessary evaluations.
+
+---
+
+### When Second Argument is Evaluated
+
+**For x && y:**
+- y will be evaluated **if and only if x is true**
+- If x is false, y won't be evaluated
+
+**For x || y:**
+- y will be evaluated **if and only if x is false**
+- If x is true, y won't be evaluated
+
+---
+
+### Applicability
+
+| Operator | Applicable To                     |
+|----------|-----------------------------------|
+| &, \|    | Both boolean and integral types   |
+| &&, \|\| | Only boolean (not integral types) |
+
+---
+
+### Example 1
+
+```java
+int x = 10, y = 15;
+
+// Using & (normal and)
+if (++x < 10 & ++y > 15) {
+    x++;
+} else {
+    y++;
+}
+System.out.println(x + "..." + y); // Output: 11...17
+```
+
+**Explanation:**
+- `++x` → x becomes 11, condition: 11 < 10 → false
+- Even though first is false, second argument `++y` is evaluated → y becomes 16
+- `16 > 15` → true
+- `false & true` → false → else block executes → y becomes 17
+
+---
+
+**Using && (short circuit):**
+```java
+int x = 10, y = 15;
+
+// Using && (short circuit and)
+if (++x < 10 && ++y > 15) {
+    x++;
+} else {
+    y++;
+}
+System.out.println(x + "..." + y); // Output: 11...16
+```
+
+**Explanation:**
+- `++x` → x becomes 11, condition: 11 < 10 → false
+- Since first argument is false, second argument `++y` is **not evaluated**
+- else block executes → y becomes 16
+
+---
+
+### Example 2
+
+```java
+int x = 10;
+
+if (++x < 10 && x / 0 > 10) {
+    System.out.println("Hello");
+} else {
+    System.out.println("Hi");
+}
+```
+
+**Output:** `Hi`
+
+**Explanation:**
+- `++x` → x becomes 11, condition: 11 < 10 → false
+- Since first argument is false, `x / 0` is **not executed** (no ArithmeticException)
+- else block executes → prints "Hi"
+
+**If we replace && with &:**
+- Second argument `x / 0` will be evaluated → **ArithmeticException: division by zero**
+
+---
+
+## Summary: Differences Between & and &&
+
+| Feature                   | & (Normal And)              | && (Short Circuit And)     |
+|---------------------------|-----------------------------|----------------------------|
+| Both arguments evaluated  | Always                      | Only if required           |
+| Performance               | Low                         | High                       |
+| Applicable to             | Boolean and integral types  | Only boolean types         |
+
+---
+
+## 9. Type Cast Operator
+
+There are **two types of typecasting**:
+1. **Implicit typecasting** (automatic)
+2. **Explicit typecasting** (manual)
+
+---
+
+### Implicit Typecasting
+
+**Performed automatically by the compiler.**
+
+When assigning **smaller datatype value to bigger datatype variable**, implicit typecasting is performed.
+
+### Example 1
+
+```java
+int x = 'a';
+System.out.println(x); // Output: 97
+```
+
+**Explanation:** Compiler converts `char` to `int` automatically (implicit typecasting).
+
+### Example 2
+
+```java
+double d = 10;
+System.out.println(d); // Output: 10.0
+```
+
+**Explanation:** Compiler converts `int` to `double` automatically.
+
+---
+
+### Rules for Implicit Typecasting
+
+1. **Compiler is responsible** to perform implicit typecasting
+2. **Performed when** assigning smaller datatype value to bigger datatype variable
+3. **Also known as** widening or upcasting
+4. **No loss of information** in this typecasting
+
+### Possible Conversions (Implicit Typecasting)
+
+```
+byte → short → int → long → float → double
+char → int
+```
+
+---
+
+### Example Summary
+
+```java
+// Example 1
+int x = 'a';
+System.out.println(x); // 97
+// Compiler converts char to int automatically by implicit typecasting
+
+// Example 2
+double d = 10;
+System.out.println(d); // 10.0
+// Compiler converts int to double automatically by implicit typecasting
+```
+
+---
+
+### Explicit Typecasting
+
+**Performed explicitly by the programmer.**
+
+When assigning **bigger datatype value to smaller datatype variable**, explicit typecasting is required.
+
+### Example
+
+```java
+int x = 130;
+byte b = x; // Compile-time error: possible loss of precision found: int, required: byte
+```
+
+**Fix with explicit typecasting:**
+```java
+int x = 130;
+byte b = (byte) x;
+System.out.println(b); // Output: -126
+```
+
+---
+
+### Rules for Explicit Typecasting
+
+1. **Programmer is responsible** to perform explicit typecasting
+2. **Required when** assigning bigger datatype value to smaller datatype variable
+3. **Also known as** narrowing or downcasting
+4. **There may be a chance of loss of information**
+
+---
+
+### How 130 Becomes -126
+
+**32-bit representation of 130:**
+```
+130 = 00000000 00000000 00000000 10000010
+```
+
+**When typecasting to byte (8 bits):**
+- Only the **last 8 bits** are considered: `10000010`
+- MSB (Most Significant Bit) = 1 → **negative number**
+- Remaining bits represent value in **2's complement form**
+
+**Finding the value:**
+```
+1's complement of 10000010 = 01111101
+Add 1: 01111101 + 1 = 01111110 = 126
+Since MSB = 1, result is negative: -126
+```
+
+---
+
+### General Rule for Explicit Typecasting
+
+When assigning bigger datatype value to smaller datatype variable by explicit typecasting:
+- **Most significant bits are lost**
+- Only **least significant bits (LSB)** are considered
+
+### Example 2
+
+```java
+int x = 150;
+short s = (short) x;
+byte b = (byte) x;
+
+System.out.println(s); // 150
+System.out.println(b); // -106
+```
+
+**Explanation:**
+- `150` fits within short range → no loss → output: 150
+- `150` doesn't fit in byte → typecasting happens → output: -106
+
+---
+
+### Assigning Floating-Point to Integral Types
+
+When assigning floating-point values to integral types by explicit typecasting:
+**Digits after the decimal point will be lost.**
+
+### Example
+
+```java
+double d = 130.456;
+int x = (int) d;
+byte b = (byte) d;
+
+System.out.println(x); // 130
+System.out.println(b); // -126
+```
+
+**Explanation:**
+- `.456` is lost
+- `130` is assigned to `x`
+- `130` is then typecast to `byte` → `-126`
+
+---
+
+## 10. Assignment Operators
+
+There are **three types of assignment operators**:
+
+1. **Simple assignment:** `x = 10`
+2. **Chained assignment:** `a = b = c = d = 20`
+3. **Compound assignment:** `a += 20`
+
+---
+
+### Simple Assignment
+
+```java
+int x = 10;
+```
+
+Assigning a value to a variable.
+
+---
+
+### Chained Assignment
+
+```java
+int a, b, c, d;
+a = b = c = d = 20;
+System.out.println(a + "..." + b + "..." + c + "..." + d); // 20...20...20...20
+```
+
+**Evaluation:** Right to left
+- First `d = 20`
+- Then `c = d` → `c = 20`
+- Then `b = c` → `b = 20`
+- Then `a = b` → `a = 20`
+
+---
+
+### Important: Cannot Declare and Chain Assign Simultaneously
+
+**Invalid:**
+```java
+int a = b = c = d = 20; // Compile-time error: cannot find symbol variable b
+```
+
+**Explanation:** Only `a` is being declared. `b`, `c`, `d` are being used without declaration.
+
+**Valid:**
+```java
+int a, b, c, d;
+a = b = c = d = 20;
+```
+
+**Rule:** We cannot perform chained assignment directly at the time of declaration.
+
+---
+
+### Compound Assignment Operators
+
+Assignment operator mixed with another operator.
+
+**Example:**
+```java
+int a = 10;
+a += 20;
+System.out.println(a); // 30
+```
+
+`a += 20` is equivalent to `a = a + 20`
+
+---
+
+### All Compound Assignment Operators in Java
+
+**Arithmetic:**
+- `+=`, `-=`, `*=`, `/=`, `%=`
+
+**Bitwise:**
+- `&=`, `|=`, `^=`
+
+**Shift:**
+- `<<=` (left shift)
+- `>>=` (right shift)
+- `>>>=` (unsigned right shift)
+
+**Total:** 11 compound assignment operators
+
+---
+
+### Important Loophole: Internal Typecasting
+
+In **compound assignment operators**, **internal typecasting is performed automatically**.
+
+### Case 1: b = b + 1
+
+```java
+byte b = 10;
+b = b + 1; // Compile-time error: possible loss of precision found: int, required: byte
+```
+
+**Explanation:** `b + 1` results in `int`, which cannot be assigned to `byte`.
+
+---
+
+### Case 2: b++
+
+```java
+byte b = 10;
+b++;
+System.out.println(b); // 11
+```
+
+**Explanation:** `b++` is equivalent to `b = (byte)(b + 1)` → internal typecasting is performed.
+
+---
+
+### Case 3: b += 1
+
+```java
+byte b = 10;
+b += 1;
+System.out.println(b); // 11
+```
+
+**Explanation:** `b += 1` is equivalent to `b = (byte)(b + 1)` → internal typecasting is performed.
+
+---
+
+### Example with Loss of Information
+
+```java
+byte b = 127;
+b += 3;
+System.out.println(b); // -126
+```
+
+**Explanation:**
+- `127 + 3 = 130`
+- Internal typecasting: `(byte) 130` → `-126`
+
+**Rule:** In compound assignment operators, internal typecasting will be performed automatically.
+
+---
+
+### Complex Chained Compound Assignment
+
+```java
+int a, b, c, d;
+a = b = c = d = 20;
+
+a += b -= c *= d /= 2;
+System.out.println(a + "..." + b + "..." + c + "..." + d); // -160...-180...200...10
+```
+
+**Evaluation (right to left):**
+1. `d /= 2` → `d = 20 / 2 = 10`
+2. `c *= d` → `c = 20 * 10 = 200`
+3. `b -= c` → `b = 20 - 200 = -180`
+4. `a += b` → `a = 20 + (-180) = -160`
+
+---
+
+# Clean Study Notes: Java Operators and Assignments (Continued)
+
+## 11. Conditional Operator (Ternary Operator) - Continued
+
+### Syntax
+
+```java
+int x = (condition) ? value1 : value2;
+```
+
+- If **condition is true**, assign `value1` to `x`
+- If **condition is false**, assign `value2` to `x`
+
+### Example 1
+
+```java
+int x = (10 < 20) ? 30 : 40;
+System.out.println(x); // Output: 30
+```
+
+### Example 2: Nesting
+
+```java
+int x = (10 > 20) ? 30 : (40 > 50) ? 60 : 70;
+System.out.println(x); // Output: 70
+```
+
+**Explanation:**
+- `10 > 20` → false → evaluate second part
+- `40 > 50` → false → return 70
+
+**Rule:** Nesting of conditional operators is possible.
+
+---
+
+## 12. new Operator
+
+### Purpose
+
+The `new` operator is used to **create an object**.
+
+### Example
+
+```java
+Test t = new Test();
+```
+
+---
+
+### Important Clarification
+
+**Constructor is NOT for creating objects. Constructor is for initializing objects.**
+
+After creating an object using `new`, the constructor will be executed to perform initialization.
+
+```java
+Test t = new Test();
+```
+
+**Steps:**
+1. `new Test()` → creates the object (done by `new` operator)
+2. `Test()` constructor → initializes the object
+
+---
+
+### delete Operator
+
+**Java does not have a delete operator.**
+
+**Reason:** Destruction of useless objects is the responsibility of the **Garbage Collector**, not the programmer.
+
+**Comparison with C++:**
+- C++ has both `new` and `delete` keywords
+- In C++, programmer is responsible for creating and destroying objects
+- In Java, garbage collector handles object destruction
+
+---
+
+## 13. Array Declaration Operator []
+
+### Purpose
+
+Used to **declare and create arrays**.
+
+### Example
+
+```java
+int[] x = new int[10];
+```
+
+Creates an integer array with size 10.
+
+---
+
+## 14. Java Operator Precedence
+
+Operator precedence determines **in which order operators will be evaluated** when multiple operators are present.
+
+### Example
+
+```java
+10 + 2 * 3
+```
+
+**Result:** 16 (not 36)
+
+**Explanation:**
+- Multiplication (`*`) has higher precedence than addition (`+`)
+- `2 * 3 = 6` is evaluated first
+- Then `10 + 6 = 16`
+
+---
+
+### General Priority Rules (Any Programming Language)
+
+1. **Highest priority:** Unary operators
+2. **Next priority:** Binary operators
+3. **Next priority:** Ternary operators
+4. **Lowest priority:** Assignment operators
+
+---
+
+### Java Operator Precedence Chart (Highest to Lowest)
+
+**Level 1: Unary Operators**
+- `[]`, `++` (post-increment), `--` (post-decrement)
+- `++` (pre-increment), `--` (pre-decrement), `~`, `!`, `new`, typecast
+
+**Level 2: Arithmetic Operators**
+- `*`, `/`, `%` (higher precedence)
+- `+`, `-` (lower precedence)
+
+**Level 3: Shift Operators**
+- `<<`, `>>`, `>>>`
+
+**Level 4: Comparison Operators**
+- `<`, `<=`, `>`, `>=`, `instanceof`
+
+**Level 5: Equality Operators**
+- `==`, `!=`
+
+**Level 6: Bitwise Operators**
+- `&`
+- `^`
+- `|`
+
+**Level 7: Short Circuit Operators**
+- `&&`
+- `||`
+
+**Level 8: Conditional Operator**
+- `? :`
+
+**Level 9: Assignment Operators** (Lowest priority)
+- `=`, `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=`, `>>=`, `>>>=`
+
+---
+
+## 15. Evaluation Order of Operands
+
+**Important:** Java has **operator precedence** but **NOT operand precedence**.
+
+### Rule
+
+**Before applying any operator, all operands will be evaluated from left to right.**
+
+### Example
+
+```java
+class Test {
+    public static void main(String[] args) {
+        System.out.println(m1(1) + m1(2) * m1(3) / m1(4) + m1(5) * m1(6));
+    }
+    
+    public static int m1(int i) {
+        System.out.println(i);
+        return i;
+    }
+}
+```
+
+**Output:**
+```
+1
+2
+3
+4
+5
+6
+32
+```
+
+**Explanation:**
+1. **All operands evaluated first (left to right):** m1(1), m1(2), m1(3), m1(4), m1(5), m1(6)
+   - Prints: 1, 2, 3, 4, 5, 6
+2. **Then apply operator precedence:**
+   - `2 * 3 = 6`
+   - `6 / 4 = 1` (integral division)
+   - `5 * 6 = 30`
+   - `1 + 1 = 2`
+   - `2 + 30 = 32`
+3. **Final result:** 32
+
+**Rule:** In Java, we have only operator precedence but not operand precedence. Before applying any operator, all operands will be evaluated from left to right.
+
+---
+
+## Interview Questions
+
+### 1. Difference Between new Operator and newInstance() Method
+
+**Both are used to create objects, but:**
+
+| Feature | new Operator | newInstance() Method |
+|---------|--------------|----------------------|
+| When to use | When class name is known at the beginning | When class name is available dynamically at runtime |
+| Example | `Test t = new Test();` | `Object o = Class.forName(args[0]).newInstance();` |
+| Type | Operator in Java | Method present in java.lang.Class |
+| Constructor invocation | Can invoke any constructor based on requirement | Internally calls only no-argument constructor |
+| Required | Class can have any constructor | Class must contain no-argument constructor (otherwise InstantiationException) |
+| Missing .class file | NoClassDefFoundError (unchecked) | ClassNotFoundException (checked) |
+
+---
+
+### Example Scenario for newInstance()
+
+**Web Container (Servlet):**
+- Web container doesn't know which servlet to create until runtime
+- Based on URL pattern in web.xml, web container identifies the servlet
+- Web container uses `newInstance()` to create servlet object dynamically
+
+```java
+class Test {
+    public static void main(String[] args) throws Exception {
+        Object o = Class.forName(args[0]).newInstance();
+        System.out.println("Object created for " + o.getClass().getName());
+    }
+}
+```
+
+**Usage:**
+```
+java Test Student       → Object created for Student
+java Test Customer      → Object created for Customer
+java Test java.lang.String → Object created for java.lang.String
+```
+
+---
+
+### 2. Difference Between ClassNotFoundException and NoClassDefFoundError
+
+| Feature | ClassNotFoundException | NoClassDefFoundError |
+|---------|------------------------|----------------------|
+| Occurs when | Dynamically provided class name not available at runtime | Hardcoded class name not available at runtime |
+| Example | `Class.forName("Student").newInstance()` | `Test t = new Test();` |
+| Type | Checked exception | Unchecked error |
+| Must handle | Yes (try-catch or throws) | No (error category) |
+
+### Example
+
+**ClassNotFoundException:**
+```java
+Object o = Class.forName(args[0]).newInstance();
+```
+If `args[0]` is "Test123" and Test123.class doesn't exist → **ClassNotFoundException**
+
+**NoClassDefFoundError:**
+```java
+Test t = new Test();
+```
+If Test.class doesn't exist at runtime → **NoClassDefFoundError**
+
+**Rule:**
+- For **hardcoded class names**, missing .class file → NoClassDefFoundError
+- For **dynamically provided class names**, missing .class file → ClassNotFoundException
+
+---
+
+### 3. Difference Between instanceof Operator and isInstance() Method
+
+| Feature | instanceof Operator | isInstance() Method |
+|---------|---------------------|---------------------|
+| When to use | When type is known at the beginning | When type is available dynamically at runtime |
+| Type | Operator in Java | Method present in java.lang.Class |
+| Syntax | `r instanceof X` | `Class.forName(args[0]).isInstance(r)` |
+| Example | `t instanceof Thread` | `Class.forName("Runnable").isInstance(t)` |
+
+### Example: instanceof Operator
+
+```java
+Thread t = new Thread();
+System.out.println(t instanceof Thread);   // true
+System.out.println(t instanceof Object);   // true
+System.out.println(t instanceof Runnable); // true
+```
+
+**Use when:** Type is known at the beginning (Thread, Runnable, Object)
+
+---
+
+### Example: isInstance() Method
+
+```java
+class Test {
+    public static void main(String[] args) throws Exception {
+        Thread t = new Thread();
+        System.out.println(Class.forName(args[0]).isInstance(t));
+    }
+}
+```
+
+**Usage:**
+```
+java Test java.lang.Runnable  → true
+java Test java.lang.String    → false
+```
+
+**Use when:** Type is not known at the beginning and is provided dynamically at runtime
+
+**Rule:** isInstance() is a method equivalent of instanceof operator.
+
+---
+
+## Summary: Key Points to Remember
+
+1. **Increment/Decrement:** Only for variables, not constants; not for final; all primitives except boolean; internal typecasting in `++`
+2. **Arithmetic:** Result type = max(int, type A, type B); infinity/NaN in floating-point
+3. **String Concatenation:** `+` is overloaded; at least one String → concatenation
+4. **Relational:** All primitives except boolean; not for objects; no nesting
+5. **Equality:** Universal operator; for objects = reference comparison; `.equals()` = content comparison
+6. **instanceof:** Check object type; must have relation between types
+7. **Bitwise:** `&`, `|`, `^` for boolean and integral; `~` only integral; `!` only boolean
+8. **Short Circuit:** `&&`, `||` skip evaluation when possible; only for boolean
+9. **Typecasting:** Implicit (smaller→bigger, automatic); Explicit (bigger→smaller, manual, possible loss)
+10. **Assignment:** Compound operators perform internal typecasting automatically
+11. **Precedence:** Unary > Binary > Ternary > Assignment; operands evaluated left-to-right first
+12. **new vs newInstance:** Known class vs dynamic class
+13. **ClassNotFoundException vs NoClassDefFoundError:** Dynamic vs hardcoded class name
+14. **instanceof vs isInstance:** Known type vs dynamic type

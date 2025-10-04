@@ -1,0 +1,284 @@
+---
+title: Member Level Modifiers
+---
+
+**Member** = Method or Variable level modifiers
+
+### 1. Public Members
+
+**If a member is declared as public, then we can access that member from anywhere.**
+
+**BUT** - there's an important restriction:
+
+**Before checking member visibility, we have to check class visibility.**
+
+### Example: Public Method, Non-Public Class
+
+```java
+// Package pack1
+class A {  // NOT public
+    public void m1() {
+        System.out.println("A class method");
+    }
+}
+```
+
+```java
+// Package pack2
+import pack1.A;
+
+class B {
+    public static void main(String[] args) {
+        A a = new A();  // ✗ Compile-time error
+        a.m1();
+    }
+}
+```
+
+**Compile-time error:** "pack1.A is not public in pack1; cannot be accessed from outside package"
+
+**Even though m1() is public, the class A is not public, so we cannot access it from outside the package.**
+
+### Solution: Make Both Public
+
+```java
+// Package pack1
+public class A {  // Now public
+    public void m1() {
+        System.out.println("A class method");
+    }
+}
+```
+
+Now class B compiles successfully!
+
+### Summary for Public Members
+
+**If a member is declared as public, then we can access that member from anywhere, but the corresponding class should be visible.**
+
+**That is, before checking member visibility, we have to check class visibility.**
+
+**If both class and method are public, then only we can access the method from outside package.**
+
+---
+
+## 2. Default Members
+
+**If a member is declared as default (no modifier), then we can access that member only within the current package.**
+
+**From outside of the package, we cannot access.**
+
+**Hence, default access is also known as package-level access.**
+
+---
+
+## 3. Private Members
+
+**If a member is private, then we can access that member only within the class.**
+
+**From outside of the class, we cannot access.**
+
+### Private-Abstract: Illegal Combination
+
+**Abstract methods should be available to child classes to provide implementation.**
+
+**Whereas, private methods are not available to child classes.**
+
+**Hence, private-abstract combination is illegal for methods.**
+
+```java
+private abstract void m1();  // ✗ INVALID
+```
+
+**Why?** 
+- Abstract method → must be overridden in child class
+- Private method → not accessible to child class
+- **Contradiction!**
+
+---
+
+## 4. Protected Members (The Most Misunderstood Modifier)
+
+### Basic Rule
+
+**If a member is declared as protected, then we can access that member:**
+- **Anywhere within the current package**
+- **Only in child classes of outside package**
+
+**Formula:** Protected = Default + Kids (child classes from outside package)
+
+### Within Same Package
+
+**We can access protected members within the current package anywhere, either by using parent reference or by using child reference.**
+
+```java
+// Package pack1
+public class A {
+    protected void m1() {
+        System.out.println("The most misunderstood modifier");
+    }
+}
+
+class B extends A {
+    public static void main(String[] args) {
+        A a = new A();
+        a.m1();  // ✓ Valid - parent reference
+        
+        B b = new B();
+        b.m1();  // ✓ Valid - child reference
+        
+        A a1 = new B();
+        a1.m1();  // ✓ Valid - parent reference holding child object
+    }
+}
+```
+
+**All three are valid within the same package!**
+
+---
+
+### From Outside Package: The Twist
+
+```java
+// Package pack1
+public class A {
+    protected void m1() {
+        System.out.println("The most misunderstood modifier");
+    }
+}
+```
+
+```java
+// Package pack2
+import pack1.A;
+
+class C extends A {
+    public static void main(String[] args) {
+        A a = new A();
+        a.m1();  // ✗ INVALID - parent reference
+        
+        C c = new C();
+        c.m1();  // ✓ VALID - child reference
+        
+        A a1 = new C();
+        a1.m1();  // ✗ INVALID - parent reference
+    }
+}
+```
+
+**Compile-time error for case 1 and 3:** "m1() has protected access in pack1.A"
+
+### Critical Rule for Outside Package
+
+**We can access protected members in outside package only in child classes, and we should use child reference only.**
+
+**That is, parent reference cannot be used to access protected members from outside package.**
+
+---
+
+### Advanced Case: Using That Specific Child Reference
+
+```java
+// Package pack2
+import pack1.A;
+
+class C extends A { }
+
+class D extends C {
+    public static void main(String[] args) {
+        A a = new A();
+        a.m1();  // ✗ INVALID
+        
+        C c = new C();
+        c.m1();  // ✗ INVALID
+        
+        D d = new D();
+        d.m1();  // ✓ VALID - only this one!
+        
+        A a1 = new C();
+        a1.m1();  // ✗ INVALID
+        
+        A a2 = new D();
+        a2.m1();  // ✗ INVALID
+        
+        C c1 = new D();
+        c1.m1();  // ✗ INVALID
+    }
+}
+```
+
+**Only one case is valid!** The case using D reference to access from D class.
+
+### Enhanced Rule
+
+**We can access protected members from outside package only in child classes, and we should use that child class reference only.**
+
+**For example, from D class, if we want to access, we should use D class reference only.**
+
+---
+
+## Summary Table: Access Modifiers
+
+| Visibility | private | default | protected | public |
+|------------|---------|---------|-----------|--------|
+| Within the same class | ✓ Yes | ✓ Yes | ✓ Yes | ✓ Yes |
+| From child class of same package | ✗ No | ✓ Yes | ✓ Yes | ✓ Yes |
+| From non-child class of same package | ✗ No | ✓ Yes | ✓ Yes | ✓ Yes |
+| From child class of outside package | ✗ No | ✗ No | ✓ Yes* | ✓ Yes |
+| From non-child class of outside package | ✗ No | ✗ No | ✗ No | ✓ Yes |
+
+**\*Note:** For protected from outside package child class, we should use child reference only.
+
+---
+
+## Access Modifier Hierarchy
+
+**Most restricted → Least restricted:**
+
+```
+private < default < protected < public
+```
+
+- **Most restricted access modifier:** private
+- **Most accessible modifier:** public
+
+---
+
+## Recommendations
+
+### For Variables (Data Members):
+**Recommended modifier:** **private**
+
+Why? Data hiding principle in OOP. Variables should be private for encapsulation.
+
+### For Methods:
+**Recommended modifier:** **public**
+
+Why? Methods are services that should be accessible to others.
+
+---
+
+## Summary: Key Points
+
+### Strictfp:
+- Ensures platform-independent floating-point calculations
+- Applicable to classes and methods (not variables)
+- Abstract-strictfp is illegal for methods, but legal for classes
+
+### Public Members:
+- Accessible from anywhere
+- But corresponding class must also be visible (public)
+
+### Default Members:
+- Package-level access only
+- Cannot access from outside package
+
+### Private Members:
+- Class-level access only
+- Private-abstract combination is illegal
+
+### Protected Members (Most Misunderstood):
+- Same package: accessible anywhere (parent or child reference)
+- Outside package: only in child classes, using that child reference only
+- Formula: Protected = Default + Kids
+- Parent reference cannot be used from outside package

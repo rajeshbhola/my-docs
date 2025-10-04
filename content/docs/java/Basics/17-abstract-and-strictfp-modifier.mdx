@@ -1,0 +1,512 @@
+---
+title: Abstract and Strictfp Modifier
+---
+
+**Abstract is a modifier applicable for classes and methods, but NOT for variables.**
+
+- ✓ Abstract class
+- ✓ Abstract method
+- ✗ Abstract variable (NOT allowed)
+
+---
+
+## Abstract Methods
+
+### Definition
+
+**Abstract method:** A method that has **only declaration but not implementation**.
+
+### Real-World Example
+
+```java
+abstract class Vehicle {
+    public abstract int getNumberOfWheels();  // Only declaration, no implementation
+}
+```
+
+**Question:** How many wheels does a vehicle have?
+**Answer:** We don't know! It depends on the type of vehicle:
+- Bus → 7 wheels (including spare/stepney)
+- Auto → 3 wheels
+- Car → 5 wheels (including spare)
+
+At the Vehicle level, we **cannot implement** this method because we don't know the specific type.
+
+### Implementation by Child Classes
+
+```java
+abstract class Vehicle {
+    public abstract int getNumberOfWheels();
+}
+
+class Bus extends Vehicle {
+    public int getNumberOfWheels() {
+        return 7;  // Implementation provided by child
+    }
+}
+
+class Auto extends Vehicle {
+    public int getNumberOfWheels() {
+        return 3;  // Implementation provided by child
+    }
+}
+```
+
+**Child classes are responsible to provide implementation for parent class abstract methods.**
+
+---
+
+## Key Characteristics of Abstract Methods
+
+### 1. Declaration Without Implementation
+
+**Even though we don't know about implementation, we can still declare a method with the abstract modifier.**
+
+- For abstract methods, **only declaration is available, but not implementation**
+- **Abstract method declaration should end with semicolon** (not curly braces)
+
+### Syntax Rules
+
+**Valid:**
+```java
+public abstract void m1();  // ✓ Ends with semicolon
+```
+
+**Invalid:**
+```java
+public abstract void m1() { }  // ✗ Abstract methods cannot have a body
+```
+
+**Compile-time error:** "abstract methods cannot have a body"
+
+### 2. Purpose of Abstract Methods in Parent Class
+
+**By declaring abstract methods in the parent class, we can provide guidelines to child classes such that which methods compulsory child has to implement.**
+
+This ensures every child class **must** implement certain methods - it's not optional.
+
+---
+
+## Abstract Methods: Illegal Combinations
+
+### The Story of Abstract vs Other Modifiers
+
+Abstract method is like a "poor person" - it has no implementation (only declaration).
+
+Other modifiers that have implementation come and "dance" in front of abstract, saying "I have implementation, you don't!" This makes them **enemies** of abstract.
+
+### Abstract Never Talks About Implementation
+
+**If any modifier talks about implementation, it forms an illegal combination with abstract.**
+
+**The following are various illegal combinations of modifiers for methods with respect to abstract:**
+
+1. `abstract final` - Final has implementation that cannot be overridden
+2. `abstract native` - Native has implementation in C/C++
+3. `abstract synchronized` - Synchronized has implementation (thread-safe)
+4. `abstract static` - Static has implementation
+5. `abstract private` - Private has implementation
+6. `abstract strictfp` - Strictfp has implementation
+
+### Examples
+
+```java
+abstract final void m1();  // ✗ INVALID
+```
+
+**Compile-time error:** "illegal combination of modifiers: abstract and final"
+
+**Why?** 
+- Abstract method → must be overridden in child class
+- Final method → cannot be overridden
+- **Contradiction!**
+
+---
+
+## Abstract Classes
+
+### Definition
+
+**For any Java class, if we are not allowed to create an object (because of partial implementation), such type of class we have to declare with abstract modifier.**
+
+**That is, for abstract classes, instantiation is not possible.**
+
+### Why Not Allow Object Creation?
+
+If a class contains abstract methods, its implementation is **incomplete**. Creating an object would be meaningless.
+
+**Example:**
+```java
+abstract class Vehicle {
+    public abstract int getNumberOfWheels();
+}
+
+// Trying to create object:
+Vehicle v = new Vehicle();  // ✗ Compile-time error
+```
+
+**Compile-time error:** "Vehicle is abstract; cannot be instantiated"
+
+**Why the error?** If we create a Vehicle object and call `getNumberOfWheels()`, what answer can it give? It doesn't know! The implementation is incomplete.
+
+---
+
+## Abstract Class vs Abstract Method
+
+### Rule 1: If Class Contains Abstract Method, Declare Class as Abstract
+
+**If a class contains at least one abstract method, then compulsory we should declare class as abstract, otherwise we will get compile-time error.**
+
+**Reason:** If a class contains at least one abstract method, then implementation is not complete. Hence, not recommended to create an object. To restrict object instantiation, compulsory we should declare class as abstract.
+
+**Example:**
+
+```java
+class Vehicle {  // ✗ INVALID - not declared as abstract
+    public abstract int getNumberOfWheels();
+}
+```
+
+**Compile-time error:** "Vehicle is not abstract and does not override abstract method getNumberOfWheels() in Vehicle"
+
+**Correct:**
+```java
+abstract class Vehicle {  // ✓ VALID
+    public abstract int getNumberOfWheels();
+}
+```
+
+### Rule 2: Abstract Class Can Have Zero Abstract Methods
+
+**Even though class doesn't contain any abstract method, still we can declare class as abstract if we don't want instantiation.**
+
+**That is, abstract class can contain zero number of abstract methods also.**
+
+**Why?** Sometimes the available implementation may not be meaningful enough to create objects. We want to force users to extend the class and provide better implementations.
+
+### Examples
+
+**Example 1: HttpServlet Class**
+
+`HttpServlet` class (in Java Servlets) is abstract but doesn't contain any abstract methods.
+
+**Why?** Methods like `doGet()` and `doPost()` are implemented in HttpServlet, but only to provide **error information** to the client, not meaningful service. Creating an object and calling these methods would be meaningless. Hence, HttpServlet is declared abstract to prevent instantiation.
+
+**Example 2: Adapter Classes**
+
+Every adapter class is recommended to declare as abstract but doesn't contain any abstract methods.
+
+---
+
+## Extending Abstract Classes
+
+### Rule: Must Implement All Abstract Methods
+
+**If we are extending an abstract class, for each and every abstract method of parent class, we should provide implementation. Otherwise, we have to declare child class as abstract.**
+
+**In this case, next level child class is responsible to provide implementation.**
+
+### Example
+
+```java
+abstract class P {
+    public abstract void m1();
+    public abstract void m2();
+}
+
+class C extends P {
+    public void m1() {
+        // Implementation for m1
+    }
+    // ✗ Missing implementation for m2
+}
+```
+
+**Compile-time error:** "C is not abstract and does not override abstract method m2() in P"
+
+**Solutions:**
+1. Provide implementation for m2() in class C
+2. Declare class C as abstract (then next level child must implement)
+
+---
+
+## Common Compile-Time Errors
+
+### Error 1: Missing Method Body
+
+```java
+class P {
+    public void m1();  // No body, not declared abstract
+}
+```
+
+**Compile-time error:** "missing method body, or declare abstract"
+
+### Error 2: Abstract Method with Body
+
+```java
+class P {
+    public abstract void m1() { }  // Abstract with body
+}
+```
+
+**Compile-time error:** "abstract methods cannot have a body"
+
+### Error 3: Class Not Declared Abstract
+
+```java
+class P {  // Not abstract
+    public abstract void m1();
+}
+```
+
+**Compile-time error:** "P is not abstract and does not override abstract method m1() in P"
+
+---
+
+## Final vs Abstract
+
+### At Method Level: Illegal Combination
+
+**Abstract methods compulsory we should override in child classes to provide implementation.**
+
+**Whereas, we cannot override final methods.**
+
+**Hence, final-abstract combination is illegal combination for methods.**
+
+```java
+abstract final void m1();  // ✗ INVALID
+```
+
+**Why illegal?**
+- Abstract method → must be overridden
+- Final method → cannot be overridden
+- **Contradiction!**
+
+### At Class Level: Illegal Combination
+
+**For final classes, we cannot create child class.**
+
+**Whereas, for abstract classes, we should create child class to provide implementation.**
+
+**Hence, final-abstract combination is illegal for classes.**
+
+```java
+abstract final class Test { }  // ✗ INVALID
+```
+
+**Why illegal?**
+- Final class → cannot be extended
+- Abstract class → must be extended to provide implementation
+- **Contradiction!**
+
+### Important: Abstract Class CAN Contain Final Method
+
+**Question:** Inside abstract class, is it possible to declare final method?
+
+**Answer:** **YES!** Valid.
+
+```java
+abstract class Test {
+    public final void m1() {  // ✓ VALID
+        // Final method in abstract class
+    }
+    
+    public abstract void m2();  // Abstract method
+}
+```
+
+**Why valid?** Child class:
+- Can inherit and use m1() (cannot override it)
+- Must provide implementation for m2()
+
+No contradiction!
+
+### Important: Final Class CANNOT Contain Abstract Method
+
+**Question:** Inside final class, is it possible to declare abstract method?
+
+**Answer:** **NO!** Invalid.
+
+```java
+final class Test {
+    public abstract void m1();  // ✗ INVALID
+}
+```
+
+**Why invalid? Two problems:**
+1. If class contains abstract method, class must be abstract - but it's already final (illegal combination)
+2. Abstract method needs implementation in child class - but cannot create child for final class (contradiction)
+
+### Summary
+
+| Combination | Valid? | Reason |
+|-------------|--------|--------|
+| Abstract class + final method | ✓ YES | Child inherits final method, implements abstract ones |
+| Final class + abstract method | ✗ NO | Cannot extend final class to provide implementation |
+
+---
+
+## Recommendation: Use Abstract Modifier
+
+**It is highly recommended to use abstract modifier because it promotes several OOP features like inheritance and polymorphism.**
+
+### Comparison
+
+**Final keyword:**
+- ✗ Not recommended
+- Suppresses OOP features
+- Loses inheritance and polymorphism
+
+**Abstract keyword:**
+- ✓ Highly recommended
+- Promotes OOP features
+- Encourages inheritance and polymorphism
+
+---
+
+## Summary: Abstract Modifier
+
+### Abstract Method:
+- Has only declaration, no implementation
+- Ends with semicolon (not curly braces)
+- Child class must provide implementation
+- Cannot be combined with: final, native, synchronized, static, private, strictfp
+
+### Abstract Class:
+- Cannot be instantiated (no object creation)
+- May or may not contain abstract methods
+- If contains abstract method, must be declared abstract
+- Can contain zero abstract methods
+- Child must implement all abstract methods (or also be abstract)
+
+### Key Rules:
+1. If class contains ≥1 abstract method → class MUST be abstract
+2. Abstract class can have 0 abstract methods
+3. Extending abstract class → must implement all abstract methods (or declare child as abstract)
+4. Abstract-final combination is illegal (both method and class level)
+5. Abstract class CAN contain final methods
+6. Final class CANNOT contain abstract methods
+
+
+
+## Strictfp Modifier
+
+### Basic Information
+
+**Strictfp** = **Strict Floating Point**
+
+- **Introduced in:** Java 1.2 version
+- **Applicable for:** Classes and methods (NOT for variables)
+- Similar to abstract in applicability
+
+### The Problem It Solves
+
+**Problem:** The result of floating-point arithmetic varies from platform to platform.
+
+**Example:**
+```java
+System.out.println(10.0 / 3);
+```
+
+**Results on different platforms:**
+- 16-bit processor → 3.33333 (5-6 decimal places)
+- 32-bit processor → 3.333333333333 (14-15 decimal places)
+
+The result depends on the processor architecture - **platform-dependent results**.
+
+### Purpose of Strictfp
+
+**If we want platform-independent results for floating-point arithmetic, then we should go for strictfp modifier.**
+
+Strictfp ensures all floating-point calculations follow the **IEEE 754 standard**, providing consistent results across all platforms.
+
+---
+
+## Strictfp Method
+
+### Definition
+
+**If a method is declared as strictfp, all floating-point calculations in that method have to follow IEEE 754 standard, so that we will get platform-independent results.**
+
+```java
+public strictfp void calculate() {
+    double result = 10.0 / 3;
+    // Result will be consistent across all platforms
+}
+```
+
+### Strictfp and Abstract: Illegal Combination
+
+**Abstract modifier never talks about implementation.**
+
+**Whereas, strictfp method always talks about implementation** (floating-point calculations must follow IEEE 754 standard).
+
+**Hence, abstract-strictfp combination is illegal for methods.**
+
+```java
+abstract strictfp void m1();  // ✗ INVALID
+```
+
+**Compile-time error:** "illegal combination of modifiers: abstract and strictfp"
+
+---
+
+## Strictfp Class
+
+### Definition
+
+**If a class is declared as strictfp, then every floating-point calculation present in every concrete method has to follow IEEE 754 standard, so that we will get platform-independent results.**
+
+```java
+strictfp class Calculator {
+    void calculate1() {
+        // Floating-point calculations follow IEEE 754
+    }
+    
+    void calculate2() {
+        // Floating-point calculations follow IEEE 754
+    }
+}
+```
+
+### Strictfp Class with Abstract Methods
+
+```java
+abstract strictfp class Test {
+    // Concrete methods - strictfp applies
+    void m1() { }
+    void m2() { }
+    
+    // Abstract methods - abstract applies
+    abstract void m3();
+    abstract void m4();
+}
+```
+
+**Key Point:** 
+- Strictfp takes care of **concrete methods** (methods with implementation)
+- Abstract takes care of **abstract methods**
+- No contradiction!
+
+### Strictfp-Abstract Combination
+
+**We can declare abstract-strictfp combination for classes.**
+
+**That is, for classes, abstract-strictfp combination is legal.**
+
+**But illegal for methods.**
+
+**Valid:**
+```java
+abstract strictfp class Test { }  // ✓ VALID at class level
+```
+
+**Invalid:**
+```java
+abstract strictfp void m1();  // ✗ INVALID at method level
+```
+
+**Compile-time error:** "illegal combination of modifiers: abstract and strictfp"
+
+---

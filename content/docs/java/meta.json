@@ -1,15 +1,7 @@
 {
   "title": "Java",
   "pages": [
-    "01-introduction-to-java",
-    "02-java-identifiers-and-reserved-words-in-java",
-    "03-data-types-in-java",
-    "04-literals-in-java",
-    "05-arrays-in-java",
-    "06-types-of-variables",
-    "07-var-args-method",
-    "08-main-methods",
-    "09-command-line-arguments",
-    "10-coding-standards"
+    "Basics",
+    "OOPs"
   ]
 }
