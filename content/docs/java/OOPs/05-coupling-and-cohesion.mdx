@@ -1,0 +1,336 @@
+---
+title: Coupling and Cohesion
+---
+
+These are advanced OOP features that become very important at framework level (MVC, Struts, Spring) and enterprise application design.
+
+---
+
+## Coupling
+
+**Definition:** The degree of dependency between components is called coupling.
+
+**Analogy for measurement:**
+- Height → meters, centimeters, feet
+- Milk → liters
+- Weight → kilograms
+- Temperature → degrees Celsius, Fahrenheit
+- **Dependency → Coupling**
+
+### Types of Coupling
+
+**Tightly Coupling:**
+- More dependency between components
+- Components are highly dependent on each other
+
+**Loosely Coupling:**
+- Less dependency between components
+- Components are more independent
+
+### Example of Tightly Coupled Components
+
+```java
+class A {
+    static int i = B.j;
+}
+
+class B {
+    static int j = C.k;
+}
+
+class C {
+    static int k = D.m1();
+}
+
+class D {
+    public static int m1() {
+        return 10;
+    }
+}
+```
+
+These components are tightly coupled because the dependency between components is high.
+
+### Problems with Tightly Coupling
+
+**1. Enhancement becomes difficult:**
+- Without affecting remaining components, we cannot modify any component
+- If you change the value from 10 to 20 in class D, all components (A, B, C) are affected
+- A small change impacts multiple components
+
+**2. Reusability is suppressed:**
+- To use class A, you must bring B, C, and D
+- Cannot reuse A independently
+- For 10 lines of code, you have to bring all dependent classes
+- Better to rewrite the code than take this risk
+
+**3. Maintainability is reduced:**
+- Difficult to maintain because of high interdependency
+- Changes ripple through the system
+
+**Conclusion:** Tightly coupling is the worst programming practice.
+
+### Benefits of Loosely Coupling
+
+**Loosely coupling is a good programming practice because:**
+- We should maintain dependency between components as less as possible
+- Independent components are easier to work with
+- Similar to independent house vs apartment analogy - less coordination needed
+
+---
+
+## Cohesion
+
+**Definition:** For every component, a clear, well-defined functionality should be defined. Such components are said to follow high cohesion.
+
+### High Cohesion vs Low Cohesion
+
+**High Cohesion:**
+- Each component has a clear, well-defined functionality
+- Component is specialized for one specific task
+- Example: One component for database operations, another for logging, another for presentation
+
+**Low Cohesion:**
+- Clear functionality is not defined
+- Mixed functionality in one component
+- Not a good programming practice
+
+### Example: Low Cohesion (Bad Practice)
+
+**Total Servlet approach:**
+```java
+// One servlet handles everything (70 lakhs lines of code)
+class TotalServlet {
+    // Login page display
+    // Validation logic
+    // Display inbox page
+    // Display reply page
+    // Display compose page
+    // Display error page
+    // ... all functionality in one place
+}
+```
+
+**Problems with Low Cohesion:**
+
+1. **Enhancement is difficult:**
+   - To change login page look and feel, must redesign entire servlet
+   - Small change requires working with 70 lakh lines of code
+   - Hard to identify which code is responsible for specific functionality
+
+2. **Reusability is suppressed:**
+   - Cannot reuse 10 lines of validation logic without bringing entire servlet
+   - Better to rewrite than bring 70 lakh lines
+
+3. **Maintainability is reduced:**
+   - Difficult to maintain large mixed-functionality component
+
+### Example: High Cohesion (Good Practice)
+
+**Separate components for each functionality:**
+
+```
+Login.jsp → (submit) → ValidateServlet → (if success) → Inbox.jsp
+                                      → (if error) → Error.jsp
+
+Inbox.jsp → (reply) → Reply.jsp
+         → (compose) → Compose.jsp
+```
+
+**Advantages of High Cohesion:**
+
+1. **Enhancement is easy:**
+   - Can change login.jsp without affecting other components
+   - Changes are isolated
+
+2. **Reusability is promoted:**
+   - Can reuse ValidateServlet wherever validation is needed
+   - Components are modular
+
+3. **Maintainability is improved:**
+   - One person maintains login module
+   - Another person maintains inbox module
+   - Different people can work on different modules
+
+**Best Example:** MVC (Model-View-Controller) design pattern
+- View component → Presentation logic
+- Controller component → Controlling logic
+- Model component → Business logic
+
+---
+
+## Summary: Good Programming Practices
+
+**Loosely coupling and high cohesion are good programming practices.**
+
+---
+
+## Object Type Casting
+
+Before discussing type casting, you should know these two points:
+
+1. **Parent reference can hold child object**
+   ```java
+   Object o = new String("Durga");  // Valid
+   ```
+
+2. **Interface reference can hold implemented class object**
+   ```java
+   Runnable r = new Thread();  // Valid
+   ```
+
+### Type Casting Syntax
+
+```java
+A b = (C) d;
+```
+
+Where:
+- **A** = Class or interface name
+- **b** = Name of reference variable
+- **C** = Class or interface name
+- **d** = Reference variable name
+
+**What happens:**
+- We are trying to convert D object to C type
+- Then assigning C type to A type reference variable
+
+### Three Rules (Mantras) for Type Casting
+
+#### Mantra 1: Compile Time Checking 1
+
+**Rule:** The type of 'D' and 'C' must have some relation (either child to parent, parent to child, or same type).
+
+**Otherwise:** Compile error → "inconvertible types found D type required C"
+
+**Example 1 (Valid):**
+```java
+Object o = new String("Durga");
+StringBuffer sb = (StringBuffer) o;  // Compiles fine
+// Object and StringBuffer have parent-child relation
+```
+
+**Example 2 (Invalid):**
+```java
+String s = new String("Durga");
+StringBuffer sb = (StringBuffer) s;  // Compile error
+// Error: inconvertible types
+// found: java.lang.String
+// required: java.lang.StringBuffer
+// No relation between String and StringBuffer
+```
+
+#### Mantra 2: Compile Time Checking 2
+
+**Rule:** 'C' must be either same or derived type (child) of 'A'.
+
+**Otherwise:** Compile error → "incompatible types found C required A"
+
+**Example 1 (Valid):**
+```java
+Object o = new String("Durga");
+StringBuffer sb = (StringBuffer) o;  // Valid
+// StringBuffer is same as StringBuffer
+```
+
+**Example 2 (Invalid):**
+```java
+Object o = new String("Durga");
+StringBuffer sb = (String) o;  // Compile error
+// Error: incompatible types
+// found: java.lang.String
+// required: java.lang.StringBuffer
+// String is not child of StringBuffer
+```
+
+#### Mantra 3: Runtime Checking
+
+**Rule:** Runtime object type of 'D' must be either same or derived type of 'C'.
+
+**Otherwise:** Runtime exception → ClassCastException
+
+**Example (Runtime Exception):**
+```java
+Object o = new String("Durga");
+StringBuffer sb = (StringBuffer) o;  // Compiles but fails at runtime
+// Runtime error: ClassCastException
+// java.lang.String cannot be cast to java.lang.StringBuffer
+// Because runtime object is String, not StringBuffer or its child
+```
+
+**Valid Example:**
+```java
+Object o = new String("Durga");
+Object o1 = (String) o;  // Valid
+// Compile time: Object and String have relation ✓
+// String is child of Object ✓
+// Runtime: Underlying object is String, same as String ✓
+```
+
+### Key Points
+
+**Compiler checks:**
+- Reference types only
+- Two conditions (Mantra 1 and Mantra 2)
+
+**JVM checks:**
+- Underlying runtime object type
+- One condition (Mantra 3)
+
+### Complex Example with Class Hierarchy
+
+```
+Object
+  ├── Base1
+  │    ├── Derived1
+  │    └── Derived2
+  └── Base2
+       ├── Derived3
+       └── Derived4
+```
+
+**Given:**
+```java
+Base2 b = new Derived4();
+```
+
+**Test cases:**
+
+```java
+// 1. Object o = (Base2) b;
+// Valid - All rules satisfied
+
+// 2. Object o = (Base1) b;
+// Compile error: inconvertible types
+// found: Base2, required: Base1
+// No relation between Base2 and Base1
+
+// 3. Object o = (Derived3) b;
+// Runtime exception: ClassCastException
+// Derived4 cannot be cast to Derived3
+// Compile passes but runtime object (Derived4) is not child of Derived3
+
+// 4. Base2 b1 = (Base1) b;
+// Compile error: inconvertible types
+// found: Base2, required: Base1
+
+// 5. Base1 b1 = (Derived4) b;
+// Compile error: incompatible types
+// found: Derived4, required: Base1
+// Derived4 is not child of Base1
+
+// 6. Base1 b1 = (Derived1) b;
+// Compile error: inconvertible types
+// found: Base2, required: Derived1
+// No relation between Base2 and Derived1
+```
+
+---
+
+## Summary
+
+**Three Mantras for Type Casting:**
+
+1. **Compile Check 1:** Types must have relationship
+2. **Compile Check 2:** Target type must be same or parent
+3. **Runtime Check:** Actual object must be compatible with cast type

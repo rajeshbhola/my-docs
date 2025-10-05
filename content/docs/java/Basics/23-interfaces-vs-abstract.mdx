@@ -1,0 +1,393 @@
+---
+title: Interface vs Abstract
+---
+
+## Constructor vs New Operator: Critical Distinction
+
+### Purpose of Each
+
+**New Operator:**
+- **Responsible for creating the object**
+- Creates space in memory for the object
+- Allocates memory for all instance variables with default values
+
+**Constructor:**
+- **Responsible for initializing the object** (NOT creating it)
+- Provides actual values to instance variables
+- Executes AFTER object is created by `new`
+
+### Execution Order
+
+```java
+Student s1 = new Student("Durga", 101);
+```
+
+**Order of execution:**
+1. **First:** `new` operator creates the object
+2. **Then:** Constructor executes to initialize that object
+
+**Analogy:** Baby must be born first (new), then naming ceremony happens (constructor).
+
+---
+
+## Abstract Class Constructor
+
+### Can We Create Object for Abstract Class?
+
+**CRITICAL: Either directly or indirectly, we CANNOT create object for abstract class.**
+
+- ❌ **Direct creation:** Not possible (incomplete implementation)
+- ❌ **Indirect creation:** Also NOT possible
+- ✓ **But abstract class CAN contain constructor**
+
+---
+
+### Why Abstract Class Can Contain Constructor?
+
+**The main objective of abstract class constructor is to perform initialization for the instance variables which are inheriting from abstract class to the child class.**
+
+**When does abstract class constructor execute?**
+- Whenever we are creating **child class object**
+- NOT for creating parent object (parent object is never created!)
+- For **child object initialization only**
+
+---
+
+### Example: Without Constructor in Abstract Class
+
+```java
+abstract class Person {
+    String name;
+    int age;
+    // 100 properties total (assume)
+}
+
+class Student extends Person {
+    int rollNumber;
+    int marks;
+    
+    // Must initialize ALL 4 properties here
+    Student(String name, int age, int rollNumber, int marks) {
+        this.name = name;          // Line 1
+        this.age = age;            // Line 2
+        // ... 98 more lines for other Person properties
+        this.rollNumber = rollNumber;  // Line 101
+        this.marks = marks;            // Line 102
+    }
+}
+
+class Teacher extends Person {
+    double salary;
+    String subject;
+    
+    // Again must initialize ALL 4 properties
+    Teacher(String name, int age, double salary, String subject) {
+        this.name = name;          // Line 1
+        this.age = age;            // Line 2
+        // ... 98 more lines for other Person properties
+        this.salary = salary;      // Line 101
+        this.subject = subject;    // Line 102
+    }
+}
+```
+
+**Problems:**
+- ✗ Each child constructor contains 102 lines of code
+- ✗ First 100 lines are IDENTICAL in every child class
+- ✗ If 1000 child classes exist → write same 100 lines 1000 times
+- ✗ **Code redundancy** - same code repeated everywhere
+- ✗ **More code** - length increases unnecessarily
+- ✗ **Reduced readability**
+
+---
+
+### Example: WITH Constructor in Abstract Class
+
+```java
+abstract class Person {
+    String name;
+    int age;
+    // 100 properties total
+    
+    // Parent constructor handles parent properties
+    Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+        // ... initialization for all 100 properties
+    }
+}
+
+class Student extends Person {
+    int rollNumber;
+    int marks;
+    
+    // Only 3 lines needed!
+    Student(String name, int age, int rollNumber, int marks) {
+        super(name, age);  // Calls parent constructor - handles 100 properties
+        this.rollNumber = rollNumber;  // Line 2
+        this.marks = marks;            // Line 3
+    }
+}
+
+Student s1 = new Student("Durga", 48, 101, 90);
+// name = "Durga" (initialized by parent constructor)
+// age = 48 (initialized by parent constructor)
+// rollNumber = 101 (initialized by child constructor)
+// marks = 90 (initialized by child constructor)
+```
+
+**Benefits:**
+- ✓ **Code reusability** - parent constructor reused by all children
+- ✓ **Less code** - only 3 lines per child constructor instead of 102
+- ✓ **Better readability**
+- ✓ One `super()` call replaces 100 lines of duplicate code
+
+---
+
+### In the Above Program: How Many Objects Created?
+
+```java
+Student s1 = new Student("Durga", 48, 101, 90);
+```
+
+**Answer: Only ONE object created - the Student object**
+
+**Both parent and child constructors executed, but:**
+- Parent constructor executed → **to initialize parent properties of child object**
+- Child constructor executed → **to initialize child properties of child object**
+- **Both work for CHILD OBJECT purpose only**
+
+---
+
+## Parent Object Creation Myth
+
+### Common Misconception
+
+**FALSE:** "Whenever we are creating child class object, automatically parent object will be created."
+
+**TRUTH:** "Whenever we are creating child class object, automatically parent constructor will be executed, but parent object WON'T be created."
+
+---
+
+### Proof Using Hash Codes
+
+```java
+class P {
+    P() {
+        System.out.println(this.hashCode());  // Parent constructor
+    }
+}
+
+class C extends P {
+    C() {
+        System.out.println(this.hashCode());  // Child constructor
+    }
+}
+
+class Test {
+    public static void main(String[] args) {
+        C c = new C();
+        System.out.println(c.hashCode());
+    }
+}
+```
+
+**Output:**
+```
+100
+100
+100
+```
+
+**All three hash codes are THE SAME!**
+
+**What this proves:**
+- Only **ONE object** was created
+- Parent constructor executed on **child object** (not parent object)
+- `this` in parent constructor refers to **child object**
+- If parent object was created separately, we'd see **two different hash codes**
+
+---
+
+## Why Interface Cannot Contain Constructor
+
+### The Main Purpose of Constructor
+
+**Constructor's job:** To perform initialization for **instance variables**
+
+### Abstract Class Can Contain Constructor Because:
+
+```java
+abstract class Person {
+    String name;  // Instance variable ✓
+    int age;      // Instance variable ✓
+    // These variables required for child class objects
+    
+    Person(String name, int age) {
+        this.name = name;  // Initialize instance variables
+        this.age = age;
+    }
+}
+```
+
+- Abstract class **can contain instance variables**
+- These variables are **required for child classes**
+- To initialize these instance variables → **constructor concept is required**
+
+---
+
+### Interface Cannot Contain Constructor Because:
+
+**Every variable present inside interface is always `public static final`, whether we are declaring or not.**
+
+```java
+interface In {
+    int x = 10;  // Actually: public static final int x = 10;
+    // NO instance variables possible!
+}
+```
+
+- **No chance of existing instance variables** inside interface
+- Every variable is `public static final` (class-level, not instance-level)
+- No instance variables → No need for initialization → **Constructor concept NOT required**
+
+---
+
+## Summary Table: Constructor Necessity
+
+| Class Type | Can Have Instance Variables? | Can Have Constructor? | Why? |
+|-----------|----------------------------|---------------------|------|
+| **Concrete Class** | ✓ Yes | ✓ Yes | To initialize instance variables for objects |
+| **Abstract Class** | ✓ Yes | ✓ Yes | To initialize instance variables inherited by child objects |
+| **Interface** | ✗ No (only static final) | ✗ No | No instance variables exist, so no need for initialization |
+
+---
+
+## Interface vs Abstract Class: When Everything is Abstract
+
+### Can We Replace Interface with Abstract Class?
+
+**Question:** Inside interface we can take only abstract methods. Inside abstract class we can also take only abstract methods. So can we replace interface with abstract class?
+
+**Answer:** **Yes, but it's NOT a good programming practice.**
+
+**This is like recruiting IAS officer for sweeping purpose.**
+- IAS officer CAN sweep? Yes, technically possible
+- Is it a good use of IAS officer? **NO!** - We're misusing their role
+
+---
+
+### Technical Problems with Using Abstract Class Instead of Interface
+
+#### Problem 1: Missing Inheritance Benefit
+
+**With Interface:**
+```java
+class Test implements X {
+    // Can also extend another class if needed ✓
+}
+
+class Test extends SomeClass implements X {
+    // Valid! No problem ✓
+}
+```
+
+**With Abstract Class:**
+```java
+class Test extends X {
+    // CANNOT extend any other class ✗
+    // Java doesn't support multiple inheritance
+}
+
+class Test extends X, Y {
+    // Compile error! ✗
+}
+```
+
+**While implementing interface, we can extend some other class. While extending abstract class, we can't extend any other class. Hence we are missing inheritance benefit.**
+
+---
+
+#### Problem 2: Object Creation is Costly
+
+**With Interface:**
+```java
+interface X {
+    void m1();
+}
+
+class Test implements X {
+    public void m1() { }
+}
+
+Test t = new Test();  // Takes ~2 units of time
+```
+
+- Interface has **no instance variables**
+- Interface has **no constructors**
+- Interface has **no instance blocks**
+- Object creation is **fast and cheap**
+
+**With Abstract Class:**
+```java
+abstract class X {
+    // May have instance variables
+    // May have instance blocks
+    // May have constructor
+    void m1();
+}
+
+class Test extends X {
+    public void m1() { }
+}
+
+Test t = new Test();  // Takes ~20 units of time
+```
+
+- When creating `Test` object, parent constructor executes
+- Parent instance control flow executes
+- Parent initialization happens
+- Object creation is **slow and costly**
+
+---
+
+### Conclusion
+
+**If everything is abstract, it is highly recommended to go for INTERFACE but not abstract class.**
+
+**Why?**
+1. ✓ While implementing interface: can extend other classes (inheritance benefit preserved)
+2. ✓ Object creation is not costly with interface
+3. ✗ While extending abstract class: cannot extend other classes (missing inheritance benefit)
+4. ✗ Object creation is costly with abstract class
+
+**We can replace interface with abstract class, but it's not a good programming practice. This is something like recruiting IAS officer for sweeping purpose.**
+
+---
+
+## Key Takeaways: True or False
+
+| Statement | Answer | Explanation |
+|-----------|--------|-------------|
+| The purpose of constructor is to create an object | ✗ FALSE | Constructor initializes; new operator creates |
+| The purpose of constructor is to initialize an object but not to create object | ✓ TRUE | Correct! |
+| Once a constructor completes, then only object creation completes | ✗ FALSE | Object created first by new, then constructor executes |
+| First object will be created and then constructor will be executed | ✓ TRUE | Correct order! |
+| We can't create object for abstract class directly but indirectly we can create | ✗ FALSE | Either directly or indirectly, we CANNOT create |
+| Whenever we are creating child class object, automatically parent object will be created | ✗ FALSE | Parent constructor executes, but parent object NOT created |
+| Whenever we are creating child class object, automatically abstract class constructor will be executed | ✓ TRUE | For child object initialization |
+| Whenever we are creating child class object, automatically parent constructor will be executed but parent object won't be created | ✓ TRUE | Both constructors work for child object only |
+| Either directly or indirectly we can't create object for abstract class, and hence constructor concept is not applicable for abstract class | ✗ FALSE | We can't create object, BUT constructor IS applicable |
+| Interface can contain constructor | ✗ FALSE | Constructor concept NOT applicable for interfaces |
+
+---
+
+## Final Summary
+
+1. **New operator creates object; Constructor initializes object** (not creates!)
+2. **Execution order:** new first → then constructor
+3. **Abstract class CAN have constructor** for initializing inherited instance variables
+4. **Abstract class constructor executes** when creating child object (for child initialization)
+5. **Parent object is NEVER created** when creating child object (only parent constructor executes)
+6. **Interface CANNOT have constructor** (no instance variables exist)
+7. **If everything is abstract:** Use interface (better than abstract class)

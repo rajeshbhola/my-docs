@@ -1,0 +1,385 @@
+---
+title: Overloading
+---
+
+## What is Method Overloading?
+
+**Two methods are said to be overloaded if and only if both methods having same name but different argument types.**
+
+```java
+class Test {
+    public void m1(int i) { }      // Method 1
+    public void m1(float f) { }    // Method 2
+    // These are overloaded methods
+}
+```
+
+**Note:** In overloading, **method resolution always takes care by compiler based on reference type**. Runtime object won't play any role in overloading.
+
+---
+
+## Case 1: Automatic Promotion in Overloading
+
+### The Rule
+
+**While resolving overloaded methods:**
+1. If exact matched method is **not available**
+2. Then we **won't get** any compile time error immediately
+3. First it will **promote argument to the next level**
+4. And check whether matched method is available or not
+5. If matched method is available, then it will be considered
+6. If matched method is not available, then compiler promotes argument **once again to the next level**
+7. This process will be continued **until all possible promotions**
+8. Still if the match method is not available, **then we will get compile time error**
+
+---
+
+### Automatic Promotion Chart
+
+```
+byte → short → int → long → float → double
+char → int → long → float → double
+```
+
+**The following are all possible promotions in overloading:**
+- byte → short
+- short → int
+- int → long
+- long → float
+- float → double
+- char → int
+
+---
+
+### Example
+
+```java
+class Test {
+    public void m1(int i) {
+        System.out.println("int arg method");
+    }
+    
+    public void m1(float f) {
+        System.out.println("float arg method");
+    }
+    
+    public static void main(String[] args) {
+        Test t = new Test();
+        
+        t.m1(10);      // Output: int arg method (exact match)
+        
+        t.m1(10.5f);   // Output: float arg method (exact match)
+        
+        t.m1('a');     // Output: int arg method 
+                       // (char promoted to int - no exact match for char)
+        
+        t.m1(10L);     // Output: float arg method
+                       // (long promoted to float - no exact match for long)
+        
+        t.m1(10.5);    // Compile error: cannot find symbol
+                       // method m1(double)
+                       // (double cannot be promoted further)
+    }
+}
+```
+
+**Explanation for `t.m1('a')`:**
+- Argument type: `char`
+- No method `m1(char)` exists
+- Compiler promotes `char` → `int`
+- Method `m1(int)` exists ✓
+- Output: "int arg method"
+
+**Explanation for `t.m1(10L)`:**
+- Argument type: `long`
+- No method `m1(long)` exists
+- Compiler promotes `long` → `float`
+- Method `m1(float)` exists ✓
+- Output: "float arg method"
+
+**Explanation for `t.m1(10.5)`:**
+- Argument type: `double`
+- No method `m1(double)` exists
+- Cannot promote `double` (no further promotion possible)
+- Compile error: cannot find symbol method m1(double) location: class Test
+
+---
+
+### This Process is Called Automatic Promotion in Overloading
+
+---
+
+## Case 2: Child Type Gets More Priority Than Parent
+
+**While resolving overloaded methods, compiler will always give precedence for child type argument when compared with parent type argument.**
+
+### Example 1: String vs Object
+
+```java
+class Test {
+    public void m1(String s) {
+        System.out.println("String version");
+    }
+    
+    public void m1(Object o) {
+        System.out.println("Object version");
+    }
+    
+    public static void main(String[] args) {
+        Test t = new Test();
+        
+        t.m1(new Object());  // Output: Object version (exact match)
+        
+        t.m1("Durga");       // Output: String version (exact match)
+        
+        t.m1(null);          // Output: String version
+                             // (null valid for both, child gets priority)
+    }
+}
+```
+
+**Explanation for `t.m1(null)`:**
+- `null` is valid for `String` argument ✓
+- `null` is valid for `Object` argument ✓
+- Both methods matched
+- `String` is child of `Object`
+- **Child always gets more priority** → String version executes
+
+**Analogy:** If work can be completed at child level, what is the need of going to parent? Like asking collector about movie theater location vs asking attender.
+
+---
+
+### Example 2: String vs StringBuffer (Ambiguity)
+
+```java
+class Test {
+    public void m1(String s) {
+        System.out.println("String version");
+    }
+    
+    public void m1(StringBuffer sb) {
+        System.out.println("StringBuffer version");
+    }
+    
+    public static void main(String[] args) {
+        Test t = new Test();
+        
+        t.m1("Durga");                      // Output: String version
+        
+        t.m1(new StringBuffer("Durga"));    // Output: StringBuffer version
+        
+        t.m1(null);                         // Compile error!
+                                            // reference to m1 is ambiguous
+    }
+}
+```
+
+**Explanation for `t.m1(null)`:**
+- `null` valid for `String` ✓
+- `null` valid for `StringBuffer` ✓
+- Both are children of `Object`
+- **Both are at same level** (neither is parent/child of other)
+- Compiler cannot decide which to choose
+- **Compile error: reference to m1 is ambiguous**
+
+---
+
+## Case 3: Order of Arguments Matters
+
+```java
+class Test {
+    public void m1(int i, float f) {
+        System.out.println("int-float version");
+    }
+    
+    public void m1(float f, int i) {
+        System.out.println("float-int version");
+    }
+    
+    public static void main(String[] args) {
+        Test t = new Test();
+        
+        t.m1(10, 10.5f);    // Output: int-float version (exact match)
+        
+        t.m1(10.5f, 10);    // Output: float-int version (exact match)
+        
+        t.m1(10, 10);       // Compile error: reference to m1 is ambiguous
+                            // First arg int matches both
+                            // Second arg int→float matches both
+                            // Both methods matched equally
+        
+        t.m1(10.5f, 10.5f); // Compile error: cannot find symbol
+                            // method m1(float, float)
+                            // No method matches (float→int not possible)
+    }
+}
+```
+
+**Important:** Java is **not** a country-dependent language. It doesn't matter if you read left-to-right or right-to-left!
+
+---
+
+## Case 4: Var-args Gets Least Priority
+
+```java
+class Test {
+    public void m1(int i) {
+        System.out.println("general method");
+    }
+    
+    public void m1(int... x) {
+        System.out.println("var-arg method");
+    }
+    
+    public static void main(String[] args) {
+        Test t = new Test();
+        
+        t.m1();         // Output: var-arg method
+                        // (only var-arg matches - can be called with 0 args)
+        
+        t.m1(10, 20);   // Output: var-arg method
+                        // (only var-arg matches - can take multiple args)
+        
+        t.m1(10);       // Output: general method
+                        // (both match, but general method gets priority)
+    }
+}
+```
+
+### Key Rule
+
+**In general, var-arg method will get the least priority.**
+
+**If no other method matched, then only var-arg method will get the chance.**
+
+**This is exactly same as default case inside the switch.**
+
+```java
+switch(x) {
+    case 1: ...
+    case 2: ...
+    default: ...  // Executes only if no other case matched
+}
+```
+
+---
+
+## Case 5: Overloading Based on Reference Type (Not Runtime Object)
+
+```java
+class Animal { }
+class Monkey extends Animal { }
+
+class Test {
+    public void m1(Animal a) {
+        System.out.println("Animal version");
+    }
+    
+    public void m1(Monkey m) {
+        System.out.println("Monkey version");
+    }
+    
+    public static void main(String[] args) {
+        Test t = new Test();
+        
+        Animal a = new Animal();
+        t.m1(a);              // Output: Animal version
+                              // (Animal reference, Animal object)
+        
+        Monkey m = new Monkey();
+        t.m1(m);              // Output: Monkey version
+                              // (Monkey reference, Monkey object)
+        
+        Animal a1 = new Monkey();  // Parent reference, child object
+        t.m1(a1);             // Output: Animal version
+                              // (Based on REFERENCE type, not object)
+    }
+}
+```
+
+### Critical Rule
+
+**Note: In overloading, method resolution always takes care by compiler based on REFERENCE TYPE.**
+
+**In overloading, runtime object won't play any role.**
+
+Even though `a1` points to `Monkey` object at runtime, compiler looks at reference type (`Animal`) to decide which method to call.
+
+---
+
+## Summary Table: Overloading Cases
+
+| Case | Rule | Example |
+|------|------|---------|
+| **1. Automatic Promotion** | If exact match not found, promote argument to next level | `char` → `int` → `long` → `float` → `double` |
+| **2. Child Gets Priority** | Child type argument preferred over parent | `m1(null)` with String/Object → String wins |
+| **3. Ambiguity** | If both at same level, compile error | `m1(null)` with String/StringBuffer → error |
+| **4. Var-args Priority** | Var-arg gets **least priority** | General method chosen over var-arg when both match |
+| **5. Reference Type** | Based on **reference type**, not runtime object | `Animal a = new Monkey()` → Animal version called |
+
+---
+
+## Key Differences: Overloading vs Overriding
+
+| Aspect | Overloading | Overriding |
+|--------|-------------|------------|
+| **Method Resolution** | Compile time (by compiler) | Runtime (by JVM) |
+| **Based on** | Reference type | Runtime object type |
+| **Also known as** | Compile-time polymorphism / Static polymorphism / Early binding | Runtime polymorphism / Dynamic polymorphism / Late binding |
+| **Method Signature** | Must be different | Must be same |
+| **Return Type** | No restriction | Must be same (or covariant) |
+
+---
+
+## Complete Example Demonstrating All Cases
+
+```java
+class Test {
+    // Case 1: Automatic promotion
+    public void m1(int i) { 
+        System.out.println("int"); 
+    }
+    
+    // Case 2 & 3: Child priority and order
+    public void m2(String s) { 
+        System.out.println("String"); 
+    }
+    public void m2(Object o) { 
+        System.out.println("Object"); 
+    }
+    
+    // Case 4: Var-args
+    public void m3(int i) { 
+        System.out.println("general"); 
+    }
+    public void m3(int... x) { 
+        System.out.println("var-arg"); 
+    }
+    
+    public static void main(String[] args) {
+        Test t = new Test();
+        
+        // Automatic promotion
+        t.m1('a');        // char → int: Output: int
+        
+        // Child priority
+        t.m2(null);       // String is child: Output: String
+        
+        // Var-arg least priority
+        t.m3(10);         // Both match: Output: general
+        t.m3(10, 20);     // Only var-arg: Output: var-arg
+    }
+}
+```
+
+---
+
+## Final Takeaways
+
+1. **Exact match always gets highest priority**
+2. **Automatic promotion** happens if exact match not found
+3. **Child type preferred** over parent type
+4. **Ambiguity error** if two methods at same level both match
+5. **Var-arg gets least priority** (like switch default case)
+6. **Overloading resolution**: Based on **reference type** (compile time)
+7. **Overriding resolution**: Based on **runtime object** (runtime)

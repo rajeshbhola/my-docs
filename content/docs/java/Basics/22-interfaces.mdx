@@ -1,0 +1,324 @@
+---
+title: Interfaces
+---
+
+## Interface Methods
+
+### Every Interface Method is Always Public and Abstract
+
+**Every method present inside interface is always public and abstract, whether we are declaring or not.**
+
+**Why public?**
+- **To make this method available to every implementation class.** 
+- Implementation class may be in the same package or outside package.
+- Must be accessible everywhere.
+
+**Why abstract?**
+- **Implementation class is responsible to provide implementation.**
+- Interface is just a requirement specification.
+- It doesn't contain implementation - that's the implementation class's job.
+
+### Inside Interface, All Method Declarations Are Equal
+
+```java
+interface In {
+    void m1();
+    public void m1();
+    abstract void m1();
+    public abstract void m1();
+}
+```
+
+**All four declarations are equal** - compiler treats them identically.
+
+---
+
+### Modifiers Not Allowed for Interface Methods
+
+**As every interface method is always public and abstract, we can't declare interface method with the following modifiers:**
+
+- ✗ **private** (conflicts with public)
+- ✗ **protected** (conflicts with public)
+- ✗ **static** (conflicts with abstract)
+- ✗ **final** (conflicts with abstract)
+- ✗ **synchronized** (conflicts with abstract)
+- ✗ **native** (conflicts with abstract)
+- ✗ **strictfp** (conflicts with abstract)
+
+**Invalid Examples:**
+```java
+interface In {
+    private void m1();      // ✗ Compile error
+    static void m1();       // ✗ Compile error
+    final void m1();        // ✗ Compile error
+}
+```
+
+---
+
+## Interface Variables
+
+### Purpose of Interface Variables
+
+**The main purpose of interface variable is to define requirement-level constants.**
+
+**Example:**
+```java
+interface CollegeSystem {
+    String COLLEGE_NAME = "DurgaSoft";
+    String LOCATION = "Hyderabad";
+    String MOBILE = "9988776655";
+    
+    void enrollStudent();
+    void getMarks();
+}
+```
+
+While implementing these services, if anywhere college name is required, use `COLLEGE_NAME`. If location is required, use `LOCATION`.
+
+---
+
+### Every Interface Variable is Always Public Static Final
+
+**Every variable present inside interface is always public static final, whether we are declaring or not.**
+
+**Why public?**
+- **To make this variable available to every implementation class.**
+- Implementation class may be anywhere (same package or outside).
+
+**Why static?**
+- **Without existing object, implementation class can access this variable.**
+- We cannot create object for interface.
+- Without object, to access a variable, it must be static.
+
+**Why final?**
+- **If one implementation class changes value, then remaining implementation classes will be affected.**
+- Multiple implementation classes exist (Oracle driver, MySQL driver, etc.)
+- One class shouldn't change shared values.
+- **To restrict this, every interface variable is always final.**
+
+---
+
+### Inside Interface, All Variable Declarations Are Equal
+
+```java
+interface In {
+    int x = 10;
+    public int x = 10;
+    static int x = 10;
+    final int x = 10;
+    public static int x = 10;
+    public final int x = 10;
+    static final int x = 10;
+    public static final int x = 10;
+}
+```
+
+**All declarations are equal** - compiler treats them identically.
+
+---
+
+### Modifiers Not Allowed for Interface Variables
+
+**As every interface variable is always public static final, we can't declare with the following modifiers:**
+
+- ✗ **private** (conflicts with public)
+- ✗ **protected** (conflicts with public)
+- ✗ **transient** (no serialization for interface)
+- ✗ **volatile** (conflicts with final)
+
+---
+
+### Mandatory Initialization at Declaration
+
+**For interface variables, compulsory we should perform initialization at the time of declaration only, otherwise we will get compile-time error.**
+
+**Invalid:**
+```java
+interface In {
+    int x;  // ✗ Compile error: "= expected"
+}
+```
+
+**Valid:**
+```java
+interface In {
+    int x = 10;  // ✓ Must initialize at declaration
+}
+```
+
+**Compile-time error:** "= expected" (expects assignment at declaration)
+
+---
+
+### Accessing Interface Variables in Implementation Class
+
+**Inside implementation class, we can access interface variables but we can't modify values.**
+
+```java
+interface In {
+    int x = 10;
+}
+
+class Test implements In {
+    public static void main(String[] args) {
+        x = 7;  // ✗ INVALID - cannot assign
+        System.out.println(x);  // ✓ Can access
+    }
+}
+```
+
+**Compile-time error:** "cannot assign a value to final variable x"
+
+**Valid - Local variable (not interface variable):**
+```java
+class Test implements In {
+    public static void main(String[] args) {
+        int x = 7;  // ✓ Valid - this is a local variable
+        System.out.println(x);  // Output: 7
+    }
+}
+```
+
+---
+
+## Interface Naming Conflicts
+
+### 1. Method Naming Conflicts
+
+#### Case 1: Same Signature, Same Return Type
+
+```java
+interface Left {
+    public void m1();
+}
+
+interface Right {
+    public void m1();
+}
+
+class Test implements Left, Right {
+    public void m1() {
+        // One implementation is enough for both
+    }
+}
+```
+
+**If two interfaces contain a method with the same signature and the same return type, then in the implementation class we have to provide implementation for only one method.**
+
+Both Left and Right are satisfied with the same implementation - no conflict!
+
+---
+
+#### Case 2: Same Name, Different Argument Types
+
+```java
+interface Left {
+    public void m1();
+}
+
+interface Right {
+    public void m1(int i);
+}
+
+class Test implements Left, Right {
+    public void m1() {
+        // Implementation for Left
+    }
+    
+    public void m1(int i) {
+        // Implementation for Right
+    }
+}
+```
+
+**If two interfaces contain a method with the same name but different argument types, then in the implementation class we have to provide implementation for both methods, and these methods act as overloaded methods.**
+
+---
+
+#### Case 3: Same Signature, Different Return Types (IMPOSSIBLE!)
+
+```java
+interface Left {
+    public void m1();
+}
+
+interface Right {
+    public int m1();
+}
+
+// ✗ IMPOSSIBLE TO IMPLEMENT BOTH!
+class Test implements Left, Right {
+    // Cannot provide implementation for both
+}
+```
+
+**If two interfaces contain a method with the same signature but different return types, then it is impossible to implement both interfaces simultaneously (if return types are not covariant).**
+
+**Why impossible?**
+- To satisfy Left: `public void m1() { }` 
+- To satisfy Right: `public int m1() { return 10; }`
+- But in same class, two methods with same signature not allowed!
+
+**Important Question:**
+
+**Q: Is a Java class can implement any number of interfaces simultaneously?**
+
+**A: Yes, except a particular case. If two interfaces contain a method with same signature but different return types, then it is impossible to implement both interfaces simultaneously.**
+
+---
+
+### 2. Variable Naming Conflicts
+
+**Two interfaces can contain a variable with the same name, and there may be a chance of variable naming conflicts. But we can solve this problem by using interface names.**
+
+```java
+interface Left {
+    int x = 777;
+}
+
+interface Right {
+    int x = 888;
+}
+
+class Test implements Left, Right {
+    public static void main(String[] args) {
+        System.out.println(x);  // ✗ Ambiguous - compile error
+        
+        System.out.println(Left.x);   // ✓ Valid - Output: 777
+        System.out.println(Right.x);  // ✓ Valid - Output: 888
+    }
+}
+```
+
+**Compile-time error for ambiguous case:** "reference to x is ambiguous"
+
+**Solution:** Use interface name to access the variable (since they're static).
+
+---
+
+## Summary: Interface Methods vs Variables
+
+### Interface Methods:
+- Always public and abstract
+- Implementation class must implement them
+- Cannot use: private, protected, static, final, synchronized, native, strictfp
+- Method naming conflicts: solvable except when same signature + different return types
+
+### Interface Variables:
+- Always public static final
+- Must initialize at declaration
+- Cannot modify in implementation class (can only access)
+- Cannot use: private, protected, transient, volatile
+- Variable naming conflicts: solvable using interface name
+
+---
+
+## Key Takeaways
+
+1. **Every interface method = public abstract** (whether declared or not)
+2. **Every interface variable = public static final** (whether declared or not)
+3. **Must initialize interface variables at declaration** (no static block exists in interface)
+4. **Can access but cannot modify** interface variables in implementation class
+5. **Method conflicts:** Usually solvable, except same signature + different non-covariant return types
+6. **Variable conflicts:** Always solvable using interface name

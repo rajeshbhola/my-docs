@@ -1,0 +1,238 @@
+---
+title: Singleton Class
+---
+
+**Definition:** A class for which we are allowed to create **only one object**.
+
+### Examples of Singleton Classes in Java
+- `Runtime`
+- `BusinessDelegate`
+- `ServiceLocator`
+- `ActionServlet` (in some frameworks)
+
+---
+
+## Advantage of Singleton Classes
+
+### The Core Problem
+
+**Scenario:** 100 students want SCJP training from Durga Sir.
+
+**Bad approach - One-to-one classes:**
+- Fee: ₹3 lakhs per student (100 students × ₹3,000 = ₃,00,000)
+- Result: No one can afford it
+
+**Good approach - Shared classroom:**
+- Create ONE classroom
+- All 100 students share it
+- Fee: ₹3,000 per student
+- Total revenue same, but affordable for all
+
+### The Singleton Principle
+
+**If several people have the same requirement:**
+1. ❌ Don't create separate objects for every person
+2. ✅ Create only ONE object
+3. ✅ Reuse the same object for every requirement
+
+**Benefits:**
+- **Performance improvement** - fewer object creations
+- **Memory optimization** - one object instead of thousands
+
+### Example: Runtime Object
+
+```java
+// First person requests runtime object
+Runtime r1 = Runtime.getRuntime();
+
+// Second person requests runtime object
+Runtime r2 = Runtime.getRuntime();  // Gets SAME object as r1
+
+// One lakh people request runtime object
+Runtime r100000 = Runtime.getRuntime();  // Still gets the SAME object
+
+// Result: 100,000 people sharing ONE runtime object
+// Instead of creating 100,000 separate objects
+```
+
+**Key Point:** `getRuntime()` doesn't create new objects—it always returns the existing object.
+
+---
+
+## How to Create Our Own Singleton Class
+
+### Approach 1: Early Initialization
+
+**Components needed:**
+1. **Private static variable** - holds the single instance
+2. **Private constructor** - prevents outside object creation
+3. **Public static factory method** - provides access to the instance
+
+```java
+class Test {
+    // 1. Create the single instance at class loading
+    private static Test t = new Test();
+    
+    // 2. Private constructor - can't be called from outside
+    private Test() {
+        // Constructor code
+    }
+    
+    // 3. Factory method - returns the same instance always
+    public static Test getTest() {
+        return t;  // Always returns the same object
+    }
+}
+
+// Usage:
+Test t1 = Test.getTest();      // Gets the singleton object
+Test t2 = Test.getTest();      // Gets the SAME object
+Test t100000 = Test.getTest(); // Still gets the SAME object
+```
+
+**How it works:**
+- Object created at class loading time (when static variable initializes)
+- Every call to `getTest()` returns the same object
+- Private constructor prevents: `new Test()` ❌
+
+### Approach 2: Lazy Initialization (Recommended)
+
+**Problem with Approach 1:** Object created at beginning even if never used (waste of memory)
+
+**Solution:** Create object only when first requested
+
+```java
+class Test {
+    // 1. Initially null - no object created yet
+    private static Test t = null;
+    
+    // 2. Private constructor
+    private Test() {
+        // Constructor code
+    }
+    
+    // 3. Factory method - creates object on first call only
+    public static Test getTest() {
+        if (t == null) {           // First time check
+            t = new Test();        // Create object only once
+        }
+        return t;                  // Return existing object
+    }
+}
+```
+
+**How it works:**
+- First call: `t == null` → creates new object
+- Subsequent calls: `t != null` → returns existing object
+- More memory efficient - object created only if needed
+
+### Real Example: Runtime Class Implementation
+
+```java
+public class Runtime {
+    private static Runtime currentRuntime = new Runtime();
+    
+    private Runtime() { }
+    
+    public static Runtime getRuntime() {
+        return currentRuntime;
+    }
+}
+```
+
+**Runtime uses Approach 1** (early initialization)
+
+---
+
+## Preventing Inheritance Without `final`
+
+### The Problem
+
+Making a class `final` prevents inheritance:
+```java
+final class P { }
+class C extends P { }  // Compile error - cannot extend final class
+```
+
+### Alternative: Private Constructor
+
+**Even if class is NOT final, we can prevent child classes by making all constructors private.**
+
+```java
+class P {
+    private P() { }  // Private constructor
+}
+
+class C extends P { }  // Compile error!
+```
+
+**Why it fails:**
+1. Compiler generates default constructor in `C`
+2. Default constructor contains: `super();`
+3. `super()` tries to call `P()`
+4. But `P()` is private - cannot be called from outside
+5. **Compile error:** "P() has private access in P"
+
+### Summary
+
+**By declaring every constructor as private:**
+- We can **restrict child class creation**
+- Class doesn't need to be `final`
+- Inheritance becomes impossible
+
+```java
+class P {
+    private P() { }
+}
+
+// For the above class, it is IMPOSSIBLE to create a child class
+```
+
+---
+
+## Summary: Applications of Private Constructors
+
+| Application | Purpose | Example |
+|-------------|---------|---------|
+| **Singleton classes** | Ensure only one object exists | Runtime, ServiceLocator |
+| **Utility classes** | Prevent instantiation of classes with only static methods | Math, Arrays, Collections |
+| **Prevent inheritance** | Stop child class creation without using `final` | Security-sensitive classes |
+
+---
+
+## Singleton Class Comparison
+
+| Feature | Approach 1 (Early) | Approach 2 (Lazy) |
+|---------|-------------------|-------------------|
+| **Object creation time** | At class loading | When first requested |
+| **Memory efficiency** | Less efficient (object always created) | More efficient (created only if needed) |
+| **Complexity** | Simple | Slightly more complex |
+| **Thread safety** | Thread-safe by default | Requires synchronization (advanced topic) |
+| **Example** | Runtime class | Preferred for most cases |
+
+---
+
+## Key Takeaways
+
+1. **Singleton = Only one object allowed for entire class**
+
+2. **Advantage: Performance + Memory optimization**
+   - One object shared by thousands/millions of users
+   - Instead of creating thousands/millions of separate objects
+
+3. **Implementation requires three components:**
+   - Private static variable
+   - Private constructor
+   - Public static factory method
+
+4. **Private constructors serve multiple purposes:**
+   - Create singleton classes
+   - Prevent object creation (utility classes)
+   - Prevent inheritance without `final`
+
+5. **Factory method pattern:**
+   - Method that returns object of its own class
+   - Called using class name: `Runtime.getRuntime()`
+   - Can control object creation (like returning existing instance)
+
+6. **Best practice:** Use Approach 2 (lazy initialization) unless object is guaranteed to be needed

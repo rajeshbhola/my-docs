@@ -1,0 +1,352 @@
+---
+title: Overriding
+---
+
+
+Overriding is when a child class redefines a parent class method based on its own requirements.
+
+**Key Points:**
+- Parent class methods are available to the child through inheritance
+- If the child is not satisfied with the parent implementation, it can redefine that method
+- The parent class method that gets overridden is called the **overridden method**
+- The child class method that does the overriding is called the **overriding method**
+
+**Example:**
+```java
+class P {
+    public void property() {
+        System.out.println("Cash, land, gold");
+    }
+    
+    public void marry() {
+        System.out.println("Marriage with Subalakshmi");
+    }
+}
+
+class C extends P {
+    public void marry() {
+        System.out.println("Marriage with Charmi or Narayana");
+    }
+}
+```
+
+In this example, the child is satisfied with the property implementation but not with the marriage arrangement, so it overrides the marry method.
+
+## Method Resolution in Overriding
+
+**Compiler Role:**
+- Checks if the method exists in the parent class based on reference type
+- Validates syntax
+
+**JVM Role:**
+- At runtime, checks if the object is parent or child
+- If child object exists and the method is overridden, executes the child class method based on runtime object
+
+**Example:**
+```java
+class Test {
+    public static void main(String[] args) {
+        P p = new P();
+        p.marry();  // Parent method
+        
+        C c = new C();
+        c.marry();  // Child method
+        
+        P p1 = new C();
+        p1.marry();  // Child method (runtime object is C)
+    }
+}
+```
+
+**Important:** In overriding, method resolution always takes care by JVM based on runtime object. That's why overriding is also known as runtime polymorphism, dynamic polymorphism, or late binding.
+
+## Rules for Overriding
+
+### Rule 1: Method Signatures Must Match
+- Method names must be same
+- Argument types must be same
+- Method signatures must be same
+
+### Rule 2: Return Types
+**Until Java 1.4:**
+- Return types must be exactly same
+
+**From Java 1.5 onwards:**
+- Co-variant return types are allowed
+- Child class method return type can be same as parent or its child type
+
+**Example:**
+```java
+class P {
+    public Object m1() {
+        return null;
+    }
+}
+
+class C extends P {
+    public String m1() {  // Valid from Java 1.5
+        return null;
+    }
+}
+```
+
+**Note:** Co-variant return type concept applies only to object types, not primitives.
+
+### Rule 3: Private Methods
+- Parent class private methods are not available to the child
+- Overriding concept is not applicable for private methods
+- You can define the same private method in child class, but it's valid but not overriding
+
+### Rule 4: Final Methods
+- We cannot override parent class final methods in child classes
+- If you try to override, you get compile error: "M1 in C cannot override M1 in P; overridden method is final"
+
+### Rule 5: Abstract Methods
+- Parent class abstract methods should be overridden in child class to provide implementation
+
+**Example:**
+```java
+abstract class P {
+    public abstract void m1();
+}
+
+class C extends P {
+    public void m1() {
+        // Implementation
+    }
+}
+```
+
+- You can also override non-abstract method as abstract (but rarely used)
+
+### Rule 6: Modifiers Without Restrictions
+The following modifiers don't keep any restriction in overriding:
+- synchronized
+- native
+- strictfp
+
+### Rule 7: Access Modifiers
+**While overriding, we cannot reduce the scope of access modifier, but we can increase it.**
+
+**Valid combinations:**
+- If parent method is `public`, child must be `public`
+- If parent method is `protected`, child can be `protected` or `public`
+- If parent method is default, child can be default, `protected`, or `public`
+- If parent method is `private`, overriding concept is not applicable
+
+**Compile Error Example:**
+```java
+class P {
+    public void m1() { }
+}
+
+class C extends P {
+    void m1() { }  // Error: attempting to assign weaker access privileges
+}
+```
+
+### Rule 8: Throws Clause
+**If child class method throws any checked exception, compulsory parent class method should throw the same checked exception or its parent. Otherwise, compile error.**
+
+**No restrictions for unchecked exceptions.**
+
+**Valid Examples:**
+```java
+// Valid - child doesn't throw
+class P {
+    public void m1() throws Exception { }
+}
+class C extends P {
+    public void m1() { }
+}
+
+// Valid - child throws same or child exception
+class P {
+    public void m1() throws IOException { }
+}
+class C extends P {
+    public void m1() throws FileNotFoundException { }
+}
+
+// Invalid - child throws parent of IOException
+class P {
+    public void m1() throws IOException { }
+}
+class C extends P {
+    public void m1() throws Exception { }  // Compile error
+}
+```
+
+## Overriding with Static Methods (Method Hiding)
+
+**We cannot override:**
+- Static method with non-static (compile error)
+- Non-static method with static (compile error)
+
+**If both parent and child methods are static:**
+- We won't get compile error
+- But it's not overriding, it's **method hiding**
+
+### Difference Between Method Hiding and Overriding
+
+**All rules are same except:**
+
+| Method Hiding | Overriding |
+|--------------|-----------|
+| Both methods should be static | Both methods should be non-static |
+| Method resolution by compiler based on reference type | Method resolution by JVM based on runtime object |
+| Compile time polymorphism / static polymorphism / early binding | Runtime polymorphism / dynamic polymorphism / late binding |
+
+**Example:**
+```java
+class P {
+    public static void m1() {
+        System.out.println("Parent");
+    }
+}
+
+class C extends P {
+    public static void m1() {
+        System.out.println("Child");
+    }
+}
+
+class Test {
+    public static void main(String[] args) {
+        P p = new P();
+        p.m1();  // Parent
+        
+        C c = new C();
+        c.m1();  // Child
+        
+        P p1 = new C();
+        p1.m1();  // Parent (based on reference type)
+    }
+}
+```
+
+## Overriding with Var-args Methods
+
+**A var-args method can be overridden with another var-args method only.**
+
+If you try to override var-args method with normal method, it becomes overloading, not overriding.
+
+**Example:**
+```java
+class P {
+    public void m1(int... x) {
+        System.out.println("Parent");
+    }
+}
+
+class C extends P {
+    public void m1(int x) {  // This is overloading, not overriding
+        System.out.println("Child");
+    }
+}
+
+// Output will be based on reference type (overloading rule)
+```
+
+## Overriding with Variables
+
+**Overriding concept is applicable only for methods, not for variables.**
+
+Variable resolution always takes care by compiler based on reference type, irrespective of whether the variable is static or non-static.
+
+**Example:**
+```java
+class P {
+    int x = 38;
+}
+
+class C extends P {
+    int x = 39;
+}
+
+class Test {
+    public static void main(String[] args) {
+        P p = new P();
+        System.out.println(p.x);  // 38
+        
+        C c = new C();
+        System.out.println(c.x);  // 39
+        
+        P p1 = new C();
+        System.out.println(p1.x);  // 38 (based on reference type)
+    }
+}
+```
+
+## Differences Between Overloading and Overriding
+
+| Property | Overloading | Overriding |
+|----------|------------|-----------|
+| Method names | Must be same | Must be same |
+| Argument types | Must be different (at least order) | Must be same including order |
+| Method signatures | Must be different | Must be same |
+| Return types | No restrictions | Must be same until 1.4; from 1.5 onwards co-variant return types allowed |
+| Private, static, final methods | Can be overloaded | Cannot be overridden |
+| Access modifiers | No restrictions | Cannot reduce scope, but can increase |
+| Throws clause | No restrictions | If child throws checked exception, parent must throw same or its parent; no restrictions for unchecked |
+| Method resolution | By compiler based on reference type | By JVM based on runtime object |
+| Also known as | Compile time polymorphism / static polymorphism / early binding | Runtime polymorphism / dynamic polymorphism / late binding |
+
+**Summary:**
+- In overloading, we check only method names (must be same) and argument types (must be different)
+- In overriding, we check everything: method names, argument types, return types, access modifiers, throws clause, etc.
+
+## Polymorphism
+
+**Definition:** One name but multiple forms
+
+**Three Examples:**
+
+1. **Overloading:** Same method name but different argument types
+   ```java
+   abs(int)
+   abs(long)
+   abs(float)
+   ```
+
+2. **Overriding:** Same method signature but different implementations in parent and child
+   ```java
+   class P {
+       void marry() { System.out.println("Subalakshmi"); }
+   }
+   class C extends P {
+       void marry() { System.out.println("Charmi"); }
+   }
+   ```
+
+3. **Parent reference to hold child object:**
+   ```java
+   List l = new ArrayList();
+   List l = new LinkedList();
+   List l = new Vector();
+   ```
+
+## Parent Reference vs Child Reference
+
+**Parent reference can be used to hold child object, but:**
+- We can call only methods available in parent class
+- We cannot call child-specific methods
+
+**When to use parent reference:**
+- If we don't know exact runtime type of object
+- Examples: `Object o = list.get(0);` or `List getList() { return new ArrayList(); }`
+
+**When to use child reference:**
+- If we know exact runtime type of object
+
+| Child C = new C(); | Parent P = new C(); |
+|-------------------|---------------------|
+| Use when we know exact runtime type | Use when we don't know exact runtime type |
+| Can call both parent and child methods (Advantage) | Can call only parent methods (Disadvantage) |
+| Can hold only that particular child object (Disadvantage) | Can hold any child object (Advantage) |
+
+## Three Pillars of OOP
+
+1. **Encapsulation** - Security
+2. **Polymorphism** - Flexibility
+3. **Inheritance** - Reusability

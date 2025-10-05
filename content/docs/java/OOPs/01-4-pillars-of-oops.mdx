@@ -1,0 +1,417 @@
+---
+title: 4 Pillars of OOPs
+---
+
+
+## 1. Data Hiding
+
+### Definition
+
+**Data hiding means: Outside person can't access our internal data directly, OR our internal data should not go out directly.**
+
+### Core Principle
+
+**After validation or authentication, outside person can access our internal data.**
+
+- Internal data should NOT be accessible without proper authentication
+- Right person gets access only after validation
+- Prevents data misuse and unauthorized access
+
+---
+
+### Real-World Examples
+
+**Example 1: Gmail Account**
+- Open gmail.com → Won't show inbox immediately
+- Must provide username and password
+- After authentication → Can view YOUR inbox only
+- Cannot view other person's inbox (even if you're a valid Gmail user)
+
+**Example 2: ATM/Bank Account**
+- Valid bank customer with ATM card
+- Can check YOUR account balance after entering PIN
+- Cannot check Charan's or Pavan's account balance
+- Even though you're a valid customer - no access to others' data
+
+---
+
+### How to Achieve Data Hiding
+
+**By declaring data members (variables) as `private`**
+
+```java
+public class Account {
+    private double balance;  // Private - data hiding achieved
+    
+    // Access through method with validation
+    public double getBalance() {
+        // Perform validation
+        // Check if person is valid
+        return balance;  // Return only after validation
+    }
+}
+```
+
+**Key Points:**
+- ✓ Variable is `private` → Outside person cannot access directly
+- ✓ Access through public method → Can perform validation
+- ✓ After validation → Provide data to right person only
+
+---
+
+### Main Advantage of Data Hiding
+
+**SECURITY**
+
+Wherever hiding exists → Security is the advantage
+
+**Why security?**
+- Bank doesn't share anyone's account information publicly
+- If they did, no one would open accounts there
+- Swiss bank secrecy - if they revealed account holders, no one would deposit money
+
+---
+
+### Recommended Practice
+
+**Note: It is highly recommended to declare data members (variables) as `private`.**
+
+- In C language: Default modifier for variables is `private`
+- In Java: Default modifier exists, but **recommended modifier is `private`**
+
+---
+
+## 2. Abstraction
+
+### Definition
+
+**Abstraction means: Hiding internal implementation and just highlighting the set of services what we are offering.**
+
+### Core Principle
+
+- Hide HOW it works internally
+- Show WHAT services are available
+- Provide abstract idea (outline/central point), not complete details
+
+---
+
+### Real-World Example: ATM Card Usage
+
+**What you do:**
+1. Swipe/insert card
+2. Enter PIN number (1-2-3-4)
+3. See GUI screen with options:
+   - Withdraw
+   - Deposit
+   - Check Balance
+   - Mini Statement
+4. Click "Withdraw" → Enter amount (₹10,000)
+5. Select account type (Savings/Current)
+6. Print receipt? (Yes/No)
+7. Get money within 10 seconds
+
+**What you DON'T know (internal implementation):**
+- When you swipe card, what validation happens internally?
+- Where is the server located?
+- Which database is it communicating with?
+- What is the database username/password?
+- In which programming language is the logic implemented?
+- Which database query is triggered when you enter PIN?
+- How is the withdrawal logic coded?
+
+**You use ATM hundreds of times but don't know internal implementation!**
+
+---
+
+### Abstraction in Action
+
+**Through Bank ATM GUI Screen:**
+- Bank highlights: Withdraw, Deposit, Balance Inquiry, Mini Statement
+- You see WHAT services are available
+- You DON'T see HOW they're implemented internally
+
+**This is abstraction: Hide internal implementation, highlight services offered**
+
+---
+
+### Main Advantages of Abstraction
+
+#### 1. **Security**
+- Outside person doesn't know our internal implementation
+- Wherever hiding exists → Security achieved
+
+#### 2. **Enhancement Becomes Easy**
+- Suppose ATM functionality implemented in Java
+- Java performance not good
+- Tomorrow: New language "Maava" comes (better performance)
+- Can replace internal implementation with Maava
+- **GUI screen remains same** → No effect on end user
+- Without affecting outside person, can change internal implementation
+
+#### 3. **Improves Maintainability of Application**
+- Internal changes don't affect users
+- Easy to maintain and upgrade
+
+#### 4. **Improves Easiness to Use Our System**
+- Don't need to know internal functionality to use ATM card
+- If you had to understand code to use ATM → No one would use it!
+- Abstraction makes systems user-friendly
+
+---
+
+### How to Implement Abstraction
+
+**By using interfaces and abstract classes:**
+- **Interface** → Full abstraction (100% abstract)
+- **Abstract class** → Partial abstraction
+
+---
+
+## 3. Encapsulation
+
+### Definition (Theoretical)
+
+**Encapsulation: The process of binding data and corresponding methods into a single unit.**
+
+### Capsule Analogy
+
+**Medicine Capsule:**
+- Colorful medicine required to cure cold
+- Medicine kept INSIDE a capsule
+- Capsule wraps/binds the medicine
+- This is **capsulation** → **Encapsulation**
+
+**Java Class:**
+- Student information requires: data + behavior
+- Bind data (variables) and behavior (methods) into a class
+- Class is the **capsule** that encapsulates everything
+
+---
+
+### Encapsulation = Data Hiding + Abstraction
+
+**Technical Definition:**
+
+**If any component follows data hiding + abstraction, such component is said to be an encapsulated component.**
+
+**Formula:**
+```
+Encapsulation = Data Hiding + Abstraction
+```
+
+---
+
+### Example: Encapsulated Account Class
+
+```java
+public class Account {
+    private double balance;  // Data hiding - private variable
+    
+    // Abstraction - hide implementation, show service
+    public double getBalance() {
+        // Validation code (hidden from user)
+        // Check if person is valid
+        return balance;  // Return only after validation
+    }
+    
+    public void setBalance(double balance) {
+        // Validation code (hidden from user)
+        // Check if person is valid
+        this.balance = balance;  // Update only after validation
+    }
+}
+```
+
+**GUI Screen for End User:**
+```
+Welcome to D Bank
+┌──────────────────┐
+│ Balance Inquiry  │  → Internally calls getBalance()
+└──────────────────┘
+┌──────────────────┐
+│ Update Balance   │  → Internally calls setBalance()
+└──────────────────┘
+```
+
+**End user:**
+- Sees GUI screen with buttons
+- Doesn't know which method is called
+- Doesn't know in which language code is implemented
+- Just clicks button → Gets result
+
+**This is encapsulation:**
+- ✓ Data hiding (private variable)
+- ✓ Abstraction (hide internal code, show services)
+
+---
+
+### Main Advantage of Encapsulation
+
+**SECURITY** (same as data hiding and abstraction)
+
+**Additional advantages:**
+1. Enhancement becomes easy
+2. Improves maintainability of application
+3. Improves easiness to use our system
+
+---
+
+### Main Disadvantage of Encapsulation
+
+**It increases length of code and slows down execution**
+
+#### Example 1: Online Money Transfer
+
+**To transfer ₹10,000 from your account to friend's account:**
+
+1. Enter User ID and Password
+2. Enter One-Time Password (OTP)
+3. Click "Funds Transfer"
+4. Add payee/Confirm payee
+5. Enter amount: ₹10,000
+6. Enter remarks
+7. Enter Transaction Password
+8. Enter 4 digits from grid card/ATM back side
+9. Submit → "Transaction processed successfully"
+
+**Result:**
+- **Advantage:** Security (4 levels of authentication)
+- **Disadvantage:** Time-consuming (5-10 minutes for simple transfer)
+- Performance slows down, execution becomes lengthy
+
+#### Example 2: Classroom Entry Security
+
+**Normal scenario:**
+- 500 students, 4 doors open
+- Time to fill room: 5-10 minutes
+
+**With security checks:**
+- Only 1 door open
+- Each student: Metal detector → Scanner → Check bags → Get receipt
+- Time per student: 3-5 minutes
+- Total time: 500 × 5 = 2,500 minutes = **4-5 hours**
+- Then 1 hour class!
+
+**Result:**
+- **Advantage:** Security
+- **Disadvantage:** Slows down execution drastically
+
+---
+
+## 4. Tightly Encapsulated Class
+
+### Definition
+
+**A class is said to be tightly encapsulated if and only if each and every variable is declared as `private`.**
+
+### Key Rules
+
+✓ **We check:** Are ALL variables `private`?
+✗ **We DON'T check:**
+- Whether class contains getter/setter methods
+- Whether these methods are `public` or not
+
+**Only rule: Every variable must be `private`**
+
+---
+
+### Example 1: Simple Tightly Encapsulated Class
+
+```java
+public class Account {
+    private double balance;  // Every variable private ✓
+    
+    public double getBalance() {  // Method existence doesn't matter
+        return balance;
+    }
+}
+```
+
+**Is this tightly encapsulated?** ✓ **YES**
+- Only one variable: `balance`
+- It is `private`
+- Getter method presence/absence doesn't matter
+
+---
+
+### Example 2: Multiple Classes with Inheritance
+
+```java
+class A {
+    private int x = 10;  // Private ✓
+}
+
+class B extends A {
+    int y = 20;  // NOT private ✗ (default)
+}
+
+class C extends A {
+    private int z = 30;  // Private ✓
+}
+```
+
+**Which classes are tightly encapsulated?**
+- **Class A:** ✓ YES (every variable is private)
+- **Class B:** ✗ NO (variable `y` is not private - it's default)
+- **Class C:** ✓ YES (variable `z` is private; inherited `x` from A is also private)
+
+---
+
+### Example 3: Another Inheritance Scenario
+
+```java
+class A {
+    int x = 10;  // NOT private ✗ (default)
+}
+
+class B extends A {
+    private int y = 20;  // Private ✓
+}
+
+class C extends B {
+    private int z = 30;  // Private ✓
+}
+```
+
+**Which classes are tightly encapsulated?**
+- **Class A:** ✗ NO (variable `x` is not private)
+- **Class B:** ✗ NO (inherits non-private `x` from A)
+- **Class C:** ✗ NO (inherits non-private `x` from A through B)
+
+---
+
+### Important Conclusion
+
+**Note: If the parent class is not tightly encapsulated, then NO child class is tightly encapsulated.**
+
+**Why?**
+- Parent class has non-private data
+- Non-private data is inherited by ALL children
+- Every child has access to parent's non-private data
+- Therefore, no child can be tightly encapsulated
+
+---
+
+## Summary Comparison
+
+| Feature | Data Hiding | Abstraction | Encapsulation |
+|---------|------------|-------------|---------------|
+| **Focus** | Hide data from outside | Hide implementation details | Combine both |
+| **How** | Declare variables `private` | Use interfaces/abstract classes | Data hiding + Abstraction |
+| **What to hide** | Internal data/variables | Internal implementation/code | Both data and implementation |
+| **What to show** | Nothing directly (access via methods) | Services available | Services via methods |
+| **Main Advantage** | Security | Security, Easy enhancement, Maintainability | Security (same benefits) |
+| **Example** | `private double balance;` | ATM GUI screen | Account class with private data + public methods |
+
+---
+
+## Key Takeaways
+
+1. **All three concepts focus on SECURITY as primary advantage**
+2. **Data Hiding:** Outside can't access our data directly (use `private`)
+3. **Abstraction:** Outside can't see our implementation (hide code, show services)
+4. **Encapsulation:** Combination of both (bind data + methods into single unit)
+5. **Tightly Encapsulated Class:** ALL variables must be `private`
+6. **Recommended:** Declare every variable as `private` in Java
+7. **Disadvantage:** Security features increase code length and slow execution
+8. **Inheritance Rule:** If parent not tightly encapsulated → no child is tightly encapsulated

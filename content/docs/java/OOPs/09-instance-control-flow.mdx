@@ -1,0 +1,584 @@
+---
+title: Instance Control Flow
+---
+
+### When Does Instance Control Flow Execute?
+
+Instance control flow executes **whenever we create an object**. Unlike static control flow (which is a one-time activity at class loading), instance control flow happens **for every object creation**.
+
+---
+
+## Three Steps of Instance Control Flow
+
+When we create an object, the following sequence occurs:
+
+### Step 1: Identification of Instance Members (Top to Bottom)
+- JVM identifies all instance members from top to bottom
+- For instance **variables**: JVM assigns **default values** (RIWO state)
+- For instance **blocks** and **methods**: Only identified
+
+### Step 2: Execution of Instance Variable Assignments and Instance Blocks (Top to Bottom)
+- Instance variable assignments are executed
+- Instance blocks are executed
+- Order: strictly top to bottom
+
+### Step 3: Execution of Constructor
+- Constructor executes
+- After constructor completes, object creation is complete
+
+---
+
+## Complete Example
+
+```java
+class Test {
+    int i = 10;                     // Step 3: i=0, Step 9: i=10
+    
+    {                                // Step 4: identified
+        m1();                        // Step 10: call m1()
+        System.out.println("First instance block");  // Step 12
+    }
+    
+    Test() {                         // Step 5: constructor identified
+        System.out.println("Constructor");  // Step 15
+    }
+    
+    public static void main(String[] args) {
+        Test t = new Test();         // Object creation starts here
+        System.out.println("Main");  // Step 16
+    }
+    
+    public void m1() {               // Step 6: identified
+        System.out.println(j);       // Step 11: prints j
+    }
+    
+    {                                // Step 7: identified
+        System.out.println("Second instance block");  // Step 13
+    }
+    
+    int j = 20;                     // Step 8: j=0, Step 14: j=20
+}
+```
+
+### Execution Flow
+
+**First: Static Control Flow**
+- Step 1: Identify main method
+- Step 2: Execute main method → encounter `new Test()`
+
+**Then: Instance Control Flow (for object creation)**
+
+**Steps 3-8: Identification of instance members (top to bottom)**
+- Step 3: `int i` → i = 0 (RIWO state)
+- Step 4: First instance block identified
+- Step 5: Constructor identified
+- Step 6: m1() method identified
+- Step 7: Second instance block identified
+- Step 8: `int j` → j = 0 (RIWO state)
+
+**Steps 9-14: Execution of instance variable assignments and instance blocks (top to bottom)**
+- Step 9: i = 10 (read and write state)
+- Step 10: Execute first instance block → call m1()
+- Step 11: Inside m1(), print j → **Output: 0** (j still default)
+- Step 12: Print "First instance block" → **Output: First instance block**
+- Step 13: Execute second instance block → **Output: Second instance block**
+- Step 14: j = 20 (read and write state)
+
+**Step 15: Execution of constructor**
+- Step 15: Print "Constructor" → **Output: Constructor**
+
+**Step 16: Back to main method**
+- Step 16: Print "Main" → **Output: Main**
+
+### Complete Output:
+```
+0
+First instance block
+Second instance block
+Constructor
+Main
+```
+
+---
+
+## Key Differences: Static vs Instance Control Flow
+
+| Feature | Static Control Flow | Instance Control Flow |
+|---------|-------------------|---------------------|
+| When executed | Once at class loading | For every object creation |
+| Frequency | One-time activity | Multiple times (per object) |
+| Triggered by | Running the class | Creating an object |
+| Members involved | Static members | Instance members |
+
+---
+
+## Without Object Creation
+
+**If we don't create an object:**
+
+```java
+class Test {
+    int i = 10;
+    { System.out.println("Instance block"); }
+    
+    public static void main(String[] args) {
+        System.out.println("Main");
+    }
+}
+```
+
+**Output:**
+```
+Main
+```
+
+Only static control flow executes. Instance members are never identified because no object is created.
+
+---
+
+## Object Creation is Costly
+
+**Why is object creation expensive?**
+
+Object creation involves many steps (identification, execution of assignments/blocks, constructor). In the example above:
+- Object creation starts at Step 2 (in main method)
+- Returns only after Step 15 (after constructor completes)
+- Total: 13+ steps for one object creation
+
+**Best Practice:** Don't create objects unnecessarily. Only create when specifically required to avoid performance degradation.
+
+---
+
+## Instance Control Flow in Parent-Child Relationship
+
+### Five Steps When Creating Child Class Object
+
+When we create a child class object, the following sequence occurs:
+
+**Step 1: Identification of instance members from parent to child**
+- Identify all instance members in parent class first
+- Then identify all instance members in child class
+
+**Step 2: Execution of instance variable assignments and instance blocks ONLY in parent class**
+- Execute parent class instance assignments and blocks
+- Child class NOT executed yet
+
+**Step 3: Execution of parent constructor**
+- Parent constructor executes completely
+
+**Step 4: Execution of instance variable assignments and instance blocks in child class**
+- Now execute child class instance assignments and blocks
+
+**Step 5: Execution of child constructor**
+- Child constructor executes
+- Object creation complete
+
+---
+
+## Complete Parent-Child Example
+
+```java
+class Parent {
+    int i = 10;                     // Step 4: i=0, Step 15: i=10
+    
+    {                                // Step 5
+        m1();                        // Step 16
+        System.out.println("Parent instance block");  // Step 18
+    }
+    
+    Parent() {                       // Step 6
+        System.out.println("Parent constructor");  // Step 20
+    }
+    
+    public static void main(String[] args) {  // Step 1
+        Parent p = new Parent();
+        System.out.println("Parent main");
+    }
+    
+    public void m1() {               // Step 7
+        System.out.println(j);
+    }
+    
+    int j = 20;                     // Step 8: j=0, Step 19: j=20
+}
+
+class Child extends Parent {
+    int x = 100;                    // Step 9: x=0, Step 21: x=100
+    
+    {                                // Step 10
+        m2();                        // Step 22
+        System.out.println("Child first instance block");  // Step 24
+    }
+    
+    Child() {                        // Step 11
+        System.out.println("Child constructor");  // Step 27
+    }
+    
+    public static void main(String[] args) {  // Step 2
+        Child c = new Child();       // Step 3: Create object
+        System.out.println("Child main");  // Step 28
+    }
+    
+    public void m2() {               // Step 12
+        System.out.println(y);       // Step 23: prints y
+    }
+    
+    {                                // Step 13
+        System.out.println("Child second instance block");  // Step 25
+    }
+    
+    int y = 200;                    // Step 14: y=0, Step 26: y=200
+}
+```
+
+### Execution: `java Child`
+
+**Static Control Flow:**
+- Step 1: Identify Parent.main()
+- Step 2: Identify Child.main()
+- Step 3: Execute Child.main() → create Child object
+
+**Instance Control Flow:**
+
+**Step 4-14: Identification (Parent to Child)**
+- Steps 4-8: Parent instance members
+- Steps 9-14: Child instance members
+
+**Step 15-19: Execute assignments/blocks in PARENT only**
+- Step 15: i = 10
+- Step 16: Call m1()
+- Step 17: Print j → **Output: 0**
+- Step 18: Print "Parent instance block" → **Output: Parent instance block**
+- Step 19: j = 20
+
+**Step 20: Execute parent constructor**
+- Step 20: Print "Parent constructor" → **Output: Parent constructor**
+
+**Step 21-26: Execute assignments/blocks in CHILD**
+- Step 21: x = 100
+- Step 22: Call m2()
+- Step 23: Print y → **Output: 0**
+- Step 24: Print "Child first instance block" → **Output: Child first instance block**
+- Step 25: Print "Child second instance block" → **Output: Child second instance block**
+- Step 26: y = 200
+
+**Step 27: Execute child constructor**
+- Step 27: Print "Child constructor" → **Output: Child constructor**
+
+**Step 28: Back to main**
+- Step 28: Print "Child main" → **Output: Child main**
+
+### Complete Output:
+```
+0
+Parent instance block
+Parent constructor
+0
+Child first instance block
+Child second instance block
+Child constructor
+Child main
+```
+
+---
+
+## Summary: Complete Flow When Executing Child Class
+
+**When we run: `java Child`**
+
+1. **Static Control Flow** (one-time)
+   - Identify static members (parent to child)
+   - Execute static assignments/blocks (parent to child)
+   - Execute child's main method
+
+2. **Instance Control Flow** (per object - when `new Child()` is called)
+   - Identify instance members (parent to child)
+   - Execute parent's assignments/blocks
+   - Execute parent's constructor
+   - Execute child's assignments/blocks
+   - Execute child's constructor
+
+**Key Point:** Parent activities complete first, then child activities follow.
+
+
+
+# Clean Study Notes: Mixed Control Flow and Object Creation in Java
+
+## Mixed Instance and Static Control Flow
+
+When both static and instance members exist in a class, understanding the execution order is crucial.
+
+### Example: Mixed Control Flow
+
+```java
+class Test {
+    {  // Instance block
+        System.out.println("First instance block");
+    }
+    
+    static {  // Static block
+        System.out.println("First static block");
+    }
+    
+    Test() {
+        System.out.println("Constructor");
+    }
+    
+    public static void main(String[] args) {
+        Test t1 = new Test();
+        System.out.println("Main");
+        Test t2 = new Test();
+    }
+    
+    static {
+        System.out.println("Second static block");
+    }
+    
+    {
+        System.out.println("Second instance block");
+    }
+}
+```
+
+### Execution Order
+
+**Step 1: Static Control Flow (one-time)**
+1. Identify static members (both static blocks, main method)
+2. Execute static blocks top to bottom → "First static block", "Second static block"
+3. Execute main method
+
+**Step 2: Instance Control Flow (for first object `t1`)**
+4. Identify instance members
+5. Execute instance blocks top to bottom → "First instance block", "Second instance block"
+6. Execute constructor → "Constructor"
+
+**Step 3: Continue main method**
+7. Print "Main"
+
+**Step 4: Instance Control Flow (for second object `t2`)**
+8. Instance blocks again → "First instance block", "Second instance block"
+9. Constructor again → "Constructor"
+
+### Output:
+```
+First static block
+Second static block
+First instance block
+Second instance block
+Constructor
+Main
+First instance block
+Second instance block
+Constructor
+```
+
+**Key Observation:** Static control flow executes once. Instance control flow executes for every object creation.
+
+---
+
+## Order of Execution Examples
+
+### Example 1: Instance Block, Variable, Constructor Order
+
+```java
+public class Initialization {
+    private static String m1(String message) {
+        System.out.println(message);
+        return message;
+    }
+    
+    public Initialization() {
+        m = m1("1");  // Constructor
+    }
+    
+    {
+        m = m1("2");  // Instance block
+    }
+    
+    String m = m1("3");  // Instance variable
+    
+    public static void main(String[] args) {
+        Object o = new Initialization();
+    }
+}
+```
+
+**Execution:**
+1. Static control flow: identify m1, identify main, execute main
+2. Create object → instance control flow:
+   - Identify instance members (instance block, constructor, variable m)
+   - Execute instance block → prints "2"
+   - Execute instance variable assignment → prints "3"
+   - Execute constructor → prints "1"
+
+**Output:** `2 3 1`
+
+### Example 2: Static and Instance Mixed
+
+```java
+public class Initialization2 {
+    private static String m1(String message) {
+        System.out.println(message);
+        return message;
+    }
+    
+    static String m = m1("1");  // Static variable
+    
+    {
+        m = m1("2");  // Instance block
+    }
+    
+    static {
+        m = m1("3");  // Static block
+    }
+    
+    public static void main(String[] args) {
+        Object o = new Initialization2();
+    }
+}
+```
+
+**Execution:**
+1. Identify static members (m1, variable m, static block, main)
+2. Execute static variable assignment → prints "1"
+3. Execute static block → prints "3"
+4. Execute main method
+5. Create object → instance control flow:
+   - Execute instance block → prints "2"
+
+**Output:** `1 3 2`
+
+---
+
+## Why Can't We Access Instance Members from Static Area?
+
+### The Problem
+
+```java
+class Test {
+    int x = 10;
+    
+    public static void main(String[] args) {
+        System.out.println(x);  // Compile Error!
+    }
+}
+```
+
+**Compile Error:**
+```
+non-static variable x cannot be referenced from a static context
+```
+
+### The Reason
+
+**While executing static area, JVM may not have identified instance members.**
+
+**Execution flow:**
+1. Static control flow starts
+2. Identify static members (only main method)
+3. Execute main method
+4. Try to access x → **But x hasn't been identified yet!**
+
+Instance members are identified only when we create an object.
+
+### Solution: Create Object First
+
+```java
+class Test {
+    int x = 10;
+    
+    public static void main(String[] args) {
+        Test t = new Test();  // Create object
+        System.out.println(t.x);  // Valid - prints 10
+    }
+}
+```
+
+Now it works because:
+1. Object creation triggers instance control flow
+2. JVM identifies x
+3. We can access x through object reference
+
+---
+
+## Five Ways to Create/Get Objects in Java
+
+### 1. Using `new` Operator
+
+```java
+Test t = new Test();
+```
+
+Most common and straightforward approach.
+
+### 2. Using `newInstance()` Method (Reflection)
+
+```java
+Test t = (Test) Class.forName("Test").newInstance();
+```
+
+- Loads the class dynamically
+- Calls `newInstance()` on Class object
+- Returns Object type (requires type casting)
+
+### 3. Using Factory Method
+
+```java
+Runtime r = Runtime.getRuntime();
+DateFormat df = DateFormat.getInstance();
+```
+
+**Factory method:** A method that returns an object of its own class.
+- Called using class name
+- Returns object of same class
+- Internally may use `new` operator
+- Programmer-friendly approach
+
+### 4. Using `clone()` Method
+
+```java
+Test t1 = new Test();
+Test t2 = (Test) t1.clone();
+```
+
+Creates an exact duplicate (cloned) object of the existing object.
+
+### 5. Using Deserialization
+
+```java
+FileInputStream fis = new FileInputStream("abc.ser");
+ObjectInputStream ois = new ObjectInputStream(fis);
+Dog d2 = (Dog) ois.readObject();
+```
+
+- Reads object from file
+- Object was previously serialized (saved to file)
+- Reconstructs object from byte stream
+
+---
+
+## Summary Table: Object Creation Methods
+
+| Method | Example | Use Case |
+|--------|---------|----------|
+| new operator | `Test t = new Test()` | Standard object creation |
+| newInstance() | `Class.forName("Test").newInstance()` | Dynamic class loading, reflection |
+| Factory method | `Runtime.getRuntime()` | Controlled object creation |
+| clone() | `t1.clone()` | Creating duplicate objects |
+| Deserialization | `ois.readObject()` | Reading objects from files |
+
+---
+
+## Key Takeaways
+
+1. **Static control flow executes once** at class loading; instance control flow executes **for every object creation**
+
+2. **Execution order within instance control flow:**
+   - Instance blocks execute before instance variable assignments (both top to bottom)
+   - Constructor executes last
+
+3. **From static area, we cannot access instance members directly** because instance members aren't identified until object creation
+
+4. **Five standard ways to create objects** in Java, each serving different purposes
+
+5. **Object creation is costly** - involves identification, execution of blocks/assignments, and constructor execution

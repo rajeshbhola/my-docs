@@ -21,6 +21,8 @@
     "18-member-level-modifiers",
     "19-final-variables",
     "20-static-and-synchronized-modifier",
-    "21-native-transient-volatile-modifiers"
+    "21-native-transient-volatile-modifiers",
+    "22-interfaces",
+    "23-interfaces-vs-abstract"
   ]
 }

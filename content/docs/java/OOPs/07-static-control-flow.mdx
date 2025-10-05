@@ -1,0 +1,247 @@
+---
+title: Static Control Flow
+---
+
+Static control flow determines the order in which static members are executed when a Java class runs.
+
+---
+
+## Three Steps of Static Control Flow
+
+When we execute a Java class (e.g., `java Base`), the following sequence occurs:
+
+### Step 1: Identification of Static Members (Top to Bottom)
+- JVM identifies all static members from top to bottom
+- For static **variables**: JVM assigns **default values** immediately
+- For static **blocks**: Only identified, not executed yet
+
+### Step 2: Execution of Static Variable Assignments and Static Blocks (Top to Bottom)
+- Static variable assignments are executed
+- Static blocks are executed
+- Order: strictly top to bottom
+
+### Step 3: Execution of Main Method
+- **Main method is the LAST thing to execute**
+- This contradicts the common belief that main is the starting point
+
+**Important:** Main method is NOT the starting point in static control flow—it's the last step!
+
+---
+
+## Complete Example
+
+```java
+class Base {
+    static int i = 10;              // Step 1: i = 0 (default)
+                                    // Step 7: i = 10 (actual value)
+    
+    static {                         // Step 2: identified
+        m1();                        // Step 8: call m1()
+        System.out.println("First Static Block");  // Step 10
+    }
+    
+    public static void main(String[] args) {
+        m1();                        // Step 13: call m1()
+        System.out.println("Base main");  // Step 15
+    }
+    
+    public static void m1() {        // Step 4: identified
+        System.out.println(j);       // Step 9: prints j, Step 14: prints j
+    }
+    
+    static {                         // Step 5: identified
+        System.out.println("Second Static Block");  // Step 11
+    }
+    
+    static int j = 20;              // Step 6: j = 0 (default)
+                                    // Step 12: j = 20 (actual value)
+}
+```
+
+### Detailed Execution Steps
+
+**Step 1-6: Identification of static members (top to bottom)**
+- Step 1: `static int i` → i = 0 (default value)
+- Step 2: First static block identified
+- Step 3: main method identified
+- Step 4: m1 method identified
+- Step 5: Second static block identified
+- Step 6: `static int j` → j = 0 (default value)
+
+**Step 7-12: Execution of static variable assignments and static blocks (top to bottom)**
+- Step 7: `i = 10` (original value assigned)
+- Step 8: Execute first static block → call `m1()`
+- Step 9: Inside m1(), print j → **Output: 0** (j still has default value)
+- Step 10: Print "First Static Block" → **Output: First Static Block**
+- Step 11: Execute second static block → **Output: Second Static Block**
+- Step 12: `j = 20` (original value assigned)
+
+**Step 13-15: Execution of main method**
+- Step 13: Call `m1()`
+- Step 14: Inside m1(), print j → **Output: 20** (j now has actual value)
+- Step 15: Print "Base main" → **Output: Base main**
+
+### Complete Output:
+```
+0
+First Static Block
+Second Static Block
+20
+Base main
+```
+
+---
+
+## Read Indirectly Write Only (RIWO) State
+
+### Understanding RIWO State
+
+**When does a variable enter RIWO state?**
+- Variable is **identified** by JVM
+- But **original value not yet assigned**
+- Only default value is present
+
+**Example:**
+```java
+static int i = 10;  // Step 1: i = 0 (RIWO state)
+                    // Step 7: i = 10 (Read and Write state)
+```
+
+### Direct Read vs Indirect Read
+
+**Direct Read:**
+Reading a variable directly inside a static block
+```java
+static {
+    System.out.println(x);  // Direct read
+}
+```
+
+**Indirect Read:**
+Calling a method, and inside that method reading the variable
+```java
+static {
+    m1();  // Calling method
+}
+
+public static void m1() {
+    System.out.println(x);  // Indirect read
+}
+```
+
+### Rules for RIWO State
+
+**If a variable is in Read Indirectly Write Only state:**
+- **Cannot perform direct read** → Compile error: "illegal forward reference"
+- **Can perform indirect read** → Valid, will print default value
+- **Can perform write operation** → Always allowed
+
+---
+
+## Examples of RIWO State
+
+### Example 1: Valid (After Assignment)
+
+```java
+class Test {
+    static int x = 10;
+    
+    static {
+        System.out.println(x);  // Valid - x already assigned
+    }
+}
+```
+
+**Output:**
+```
+10
+Exception in thread "main" java.lang.NoSuchMethodError: main
+```
+(No main method, so runtime exception after static block execution)
+
+### Example 2: Invalid (Direct Read in RIWO)
+
+```java
+class Test {
+    static {
+        System.out.println(x);  // INVALID - Direct read in RIWO state
+    }
+    
+    static int x = 10;
+}
+```
+
+**Compile Error:**
+```
+illegal forward reference
+```
+
+**Why?**
+- First, x is identified with default value 0 (RIWO state)
+- Then, static block tries to directly read x
+- Direct read is NOT allowed in RIWO state
+
+### Example 3: Valid (Indirect Read in RIWO)
+
+```java
+class Test {
+    static {
+        m1();  // Valid - indirect read
+    }
+    
+    public static void m1() {
+        System.out.println(x);  // Indirect read
+    }
+    
+    static int x = 10;
+}
+```
+
+**Output:**
+```
+0
+Exception in thread "main" java.lang.NoSuchMethodError: main
+```
+
+**Why valid?**
+- x is in RIWO state when static block executes
+- But we're doing **indirect read** (calling m1, then reading x)
+- Indirect read is ALLOWED in RIWO state
+- Prints default value: 0
+
+---
+
+## Summary Table: Direct vs Indirect Read
+
+| Variable State | Direct Read | Indirect Read | Write |
+|---------------|-------------|---------------|-------|
+| RIWO (Read Indirectly Write Only) | ❌ Compile Error | ✅ Prints default value | ✅ Allowed |
+| Read and Write (after assignment) | ✅ Prints actual value | ✅ Prints actual value | ✅ Allowed |
+
+---
+
+## Key Takeaways
+
+1. **Static control flow has 3 steps:**
+   - Identification of static members
+   - Execution of static variable assignments and blocks
+   - Execution of main method
+
+2. **Main method executes LAST**, not first
+
+3. **RIWO state occurs when:**
+   - Variable identified but not yet assigned original value
+   - Only default value exists
+
+4. **In RIWO state:**
+   - Direct read → Compile error: "illegal forward reference"
+   - Indirect read → Valid, prints default value
+   - Write → Always allowed
+
+5. **Order matters:**
+   - Everything executes strictly top to bottom
+   - Static blocks execute before main method
+
+---
+
+**Note:** These concepts are based on Java 1.6. Some minor changes exist in Java 1.7 and later versions.

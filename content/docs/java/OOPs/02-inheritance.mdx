@@ -1,0 +1,592 @@
+---
+title: Inheritance
+---
+
+## IS-A Relationship (Inheritance)
+
+### Basic Definition
+
+**IS-A relationship is also known as Inheritance**
+
+- **Implemented by:** `extends` keyword
+- **Main advantage:** Code reusability
+
+---
+
+### Key Conclusions About IS-A Relationship
+
+#### Conclusion 1: Parent Methods Available to Child
+
+**Whatever methods parent has are by default available to the child.**
+
+```java
+class P {
+    public void m1() {
+        System.out.println("Parent");
+    }
+}
+
+class C extends P {
+    public void m2() {
+        System.out.println("Child");
+    }
+}
+```
+
+**Hence, on the child reference we can call both parent and child methods:**
+
+```java
+C c = new C();
+c.m1();  // ✓ Valid - parent method
+c.m2();  // ✓ Valid - child method
+```
+
+---
+
+#### Conclusion 2: Child Methods NOT Available to Parent
+
+**Whatever methods child has are by default NOT available to the parent.**
+
+**Hence, on the parent reference we can't call child-specific methods:**
+
+```java
+P p = new P();
+p.m1();  // ✓ Valid - parent method
+p.m2();  // ✗ Invalid - compile error: cannot find symbol method m2 in class P
+```
+
+---
+
+#### Conclusion 3: Parent Reference Can Hold Child Object (Critical!)
+
+**Parent reference can be used to hold child object.**
+
+**But by using that reference, we can't call child-specific methods.**
+
+**We can call the methods present in parent class only.**
+
+```java
+P p1 = new C();  // ✓ Valid - parent reference, child object
+p1.m1();         // ✓ Valid - method in parent class
+p1.m2();         // ✗ Invalid - compile error: cannot find symbol method m2 in class P
+```
+
+**Important Notes:**
+- Even though runtime object is child type
+- We can only call methods available in parent class
+- This is polymorphism (will be explained later)
+- **In overloading: Method resolution always taken care by compiler based on REFERENCE TYPE**
+
+---
+
+#### Conclusion 4: Child Reference CANNOT Hold Parent Object
+
+**Parent reference can be used to hold child object, but child reference CANNOT be used to hold parent object.**
+
+```java
+C c1 = new P();  // ✗ Invalid - compile error: incompatible types
+                 // Found: P, Required: C
+```
+
+---
+
+### Code Reusability Example: With vs Without Inheritance
+
+#### Without Inheritance (Bad Practice)
+
+```java
+class VehicleLoan {
+    // 300 methods
+}
+
+class HousingLoan {
+    // 300 methods (many duplicate from VehicleLoan)
+}
+
+class PersonalLoan {
+    // 300 methods (many duplicate)
+}
+
+// Total: 900 methods written
+// Development time: ~90 hours
+```
+
+**Problems:**
+- ✗ Code redundancy (same methods written multiple times)
+- ✗ High development time
+- ✗ Difficult to maintain
+- ✗ If common method needs change, must change in all classes
+
+---
+
+#### With Inheritance (Good Practice)
+
+```java
+class Loan {
+    // 250 common methods (applicable to any loan type)
+}
+
+class VehicleLoan extends Loan {
+    // 50 specific methods
+    // 250 common methods inherited automatically
+}
+
+class HousingLoan extends Loan {
+    // 50 specific methods
+    // 250 common methods inherited automatically
+}
+
+class PersonalLoan extends Loan {
+    // 50 specific methods
+    // 250 common methods inherited automatically
+}
+
+// Total: 400 methods written (250 + 50 + 50 + 50)
+// Development time: ~40 hours
+```
+
+**Benefits:**
+- ✓ **Code reusability** - common methods written once, used everywhere
+- ✓ Less development time
+- ✓ Easy maintenance
+- ✓ Change common method once - affects all children
+
+---
+
+### Design Principle
+
+**Note:**
+- **The most common methods which are applicable for any type of child** → Define in **parent class**
+- **The specific methods which are applicable for a particular child** → Define in **child class**
+
+---
+
+### Java API and Inheritance
+
+**Total Java API is implemented based on inheritance concept only.**
+
+#### Object Class as Root
+
+**Object class acts as root for all Java classes.**
+
+```
+Object (11 methods - applicable to any Java object)
+  ↓
+String, StringBuffer, Throwable, etc.
+```
+
+**The most common methods which are applicable for any Java object are defined in Object class.**
+
+**Hence, every class in Java is the child class of Object either directly or indirectly.**
+
+**So that Object class methods by default available to every Java class without rewriting.**
+
+**Due to this, Object class acts as root for all Java classes.**
+
+---
+
+#### Throwable Class as Root for Exception Hierarchy
+
+**Throwable class defines the most common methods which are required for every exception and error classes.**
+
+```
+Throwable
+  ↓
+  ├── Exception
+  │     ├── RuntimeException
+  │     │     ├── ArithmeticException
+  │     │     ├── NullPointerException
+  │     │     └── ...
+  │     ├── IOException
+  │     └── ...
+  └── Error
+        ├── OutOfMemoryError
+        └── ...
+```
+
+**Hence, this class acts as root for Java exception hierarchy.**
+
+---
+
+### Multiple Inheritance
+
+#### In Classes: NOT Allowed
+
+**Note: A Java class can't extend more than one class at a time.**
+
+**Hence, Java won't provide support for multiple inheritance in classes.**
+
+```java
+class A extends B, C { }  // ✗ Invalid - compile error
+```
+
+---
+
+#### Why Multiple Inheritance Not Allowed?
+
+**There may be a chance of ambiguity problem.**
+
+```java
+// Assume (not valid in Java):
+class P1 {
+    void m1() { }
+}
+
+class P2 {
+    void m1() { }
+}
+
+class C extends P1, P2 {  // Not allowed!
+    // If allowed, which m1() would C inherit?
+    // P1's m1() or P2's m1()? → Ambiguity!
+}
+```
+
+**Hence, Java won't provide support for multiple inheritance.**
+
+---
+
+#### In Interfaces: Allowed!
+
+**But interface can extend any number of interfaces simultaneously.**
+
+**Hence, Java provides support for multiple inheritance with respect to interfaces.**
+
+```java
+interface A { }
+interface B { }
+interface C extends A, B { }  // ✓ Valid
+```
+
+---
+
+#### Why Ambiguity Problem Won't Be There in Interfaces?
+
+**Even though multiple method declarations are available, but implementation is unique.**
+
+```java
+interface ParentInterface1 {
+    void m1();  // Only declaration
+}
+
+interface ParentInterface2 {
+    void m1();  // Only declaration
+}
+
+interface ChildInterface extends ParentInterface1, ParentInterface2 {
+    // Inherits m1() declaration from both
+}
+
+class ImplementationClass implements ChildInterface {
+    public void m1() {  // Only ONE implementation
+        // This implementation serves both declarations
+    }
+}
+```
+
+**And hence, there is no chance of ambiguity problem in interfaces.**
+
+---
+
+#### Strictly Speaking
+
+**Note: Strictly speaking, through interfaces we won't get any inheritance.**
+
+- Interfaces only have declarations, no implementations
+- Code reusability requires implementation to reuse
+- Since no implementation to inherit, technically not inheritance
+- But generally people accept it as multiple inheritance
+
+---
+
+### Parent Object Creation Myth
+
+#### If Parent is NOT Tightly Encapsulated
+
+**Note: If the parent class is not tightly encapsulated, then NO child class is tightly encapsulated.**
+
+```java
+class A {
+    int x = 10;  // NOT private (default access)
+}
+
+class B extends A {
+    private int y = 20;
+}
+
+class C extends B {
+    private int z = 30;
+}
+```
+
+**Which are tightly encapsulated?**
+- Class A: ✗ NO (x is not private)
+- Class B: ✗ NO (inherits non-private x from A)
+- Class C: ✗ NO (inherits non-private x from A through B)
+
+**Why?**
+- Parent class has non-private data
+- Non-private data is inherited by children
+- Every child has non-private data → not tightly encapsulated
+
+---
+
+### Cyclic Inheritance
+
+**Cyclic inheritance is not allowed in Java. Of course, it's not required.**
+
+#### Example 1: Class Extending Itself
+
+```java
+class A extends A { }  // ✗ Invalid
+// Compile error: cyclic inheritance involving A
+```
+
+**Why not allowed?**
+- A class methods already available to itself
+- No need to extend itself - useless
+
+---
+
+#### Example 2: Circular Dependency
+
+```java
+class A extends B { }
+class B extends A { }
+// ✗ Invalid - compile error: cyclic inheritance involving A
+```
+
+**Why not allowed?**
+- A needs B's methods → extends B
+- B needs A's methods → extends A
+- Both requirements can't coexist
+- If both need each other's methods → put all methods in single class
+
+---
+
+## HAS-A Relationship
+
+### Basic Definition
+
+**HAS-A relationship is also known as Composition or Aggregation**
+
+- **No specific keyword** to implement HAS-A relationship
+- **Most of the times** we are depending on `new` keyword (create object)
+- **Main advantage:** Code reusability (same as IS-A)
+
+---
+
+### Example: Car HAS-A Engine
+
+```java
+class Engine {
+    // Engine-specific functionality
+    public void engineFunctionality() {
+        // Engine operations
+    }
+}
+
+class Car {
+    Engine e = new Engine();  // Car HAS-A Engine reference
+    
+    // Wherever engine functionality required,
+    // create object and call the function
+    // We are not required to redefine this function
+}
+```
+
+**What is the relationship between Car and Engine?**
+- Car HAS-A Engine reference
+- This is HAS-A relationship
+
+---
+
+### Difference: Composition vs Aggregation
+
+Both are HAS-A relationships, but with different association strengths:
+
+---
+
+#### 1. Composition (Strong Association)
+
+**Definition:**
+
+**Without existing container object, there is no chance of existing contained object.**
+
+**Then container and contained objects are strongly associated.**
+
+**This strong association is nothing but Composition.**
+
+---
+
+**Example: University and Department**
+
+```java
+University
+  ├── CS Department
+  ├── EC Department
+  ├── ME Department
+  └── Civil Department
+```
+
+**University consists of several departments.**
+
+**Without existing University, there is no chance of existing Department.**
+
+**University and Department are strongly associated.**
+
+**This strong association is nothing but Composition.**
+
+---
+
+**Relationship:**
+- University = Container object
+- Department = Contained object
+- If University closes → Department automatically closes
+- Without University, Department cannot exist
+
+---
+
+#### 2. Aggregation (Weak Association)
+
+**Definition:**
+
+**Without existing container object, there may be chance of existing contained objects.**
+
+**Then container and contained objects are weakly associated.**
+
+**This weak association is nothing but Aggregation.**
+
+---
+
+**Example: Department and Professor**
+
+```java
+Department
+  ├── Professor 1
+  ├── Professor 2
+  └── Professor N
+```
+
+**Department consists of several professors.**
+
+**Without existing Department, there may be chance of existing Professor objects.**
+
+- If Department closes → Professors can work in other departments
+- Professors can be transferred to other universities
+- Without Department, Professor objects can still exist
+
+**Department and Professor objects are weakly associated.**
+
+**This weak association is nothing but Aggregation.**
+
+---
+
+**Relationship:**
+- Department = Container object
+- Professor = Contained object
+- If Department closes → Professors may continue (transfer/other university)
+- Professors can exist without this specific Department
+
+---
+
+### Summary Table: Composition vs Aggregation
+
+| Aspect | Composition | Aggregation |
+|--------|-------------|-------------|
+| **Association** | Strong | Weak |
+| **Container-Contained Dependency** | Without container, contained cannot exist | Without container, contained may exist |
+| **Example** | University ↔ Department | Department ↔ Professor |
+| **Lifecycle** | Contained object dies with container | Contained object can survive independently |
+| **Object Holding** | Container holds contained objects directly | Container holds just references of contained objects |
+
+---
+
+### Key Differences Explained
+
+**In Composition:**
+- Container object **holds directly** contained objects
+- Contained objects exist **within** container only
+- Department must exist within University
+
+**In Aggregation:**
+- Container object **holds just references** of contained objects
+- Contained objects can exist **outside** container
+- Professor can work from anywhere, just provides service to Department
+
+---
+
+## IS-A vs HAS-A: When to Use?
+
+### Use IS-A When:
+
+**If you want TOTAL functionality of a class automatically.**
+
+```java
+class Person {
+    // 100 methods - all person-related functionality
+}
+
+class Student extends Person {
+    // Total Person functionality required for Student
+    // Use IS-A relationship
+}
+```
+
+**Student IS-A Person** → Total Person functionality needed
+
+---
+
+### Use HAS-A When:
+
+**If you want PART of the functionality only.**
+
+```java
+class Test {
+    // 100 methods available
+}
+
+class Demo {
+    Test t = new Test();
+    // I need only method m1() and m7()
+    // Don't need all 100 methods
+    // Use HAS-A relationship
+    
+    public void someOperation() {
+        t.m1();   // Use only needed method
+        t.m7();   // Use only needed method
+    }
+}
+```
+
+**If total function is required:** Use IS-A relationship
+
+**If you want specific function only (1 or 2 methods):** Use HAS-A relationship
+
+---
+
+## Final Summary
+
+### IS-A Relationship
+1. Also known as **Inheritance**
+2. Implemented using `extends` keyword
+3. Main advantage: **Code reusability**
+4. Parent methods available to child
+5. Child methods NOT available to parent
+6. Parent reference can hold child object
+7. Child reference CANNOT hold parent object
+8. Multiple inheritance NOT allowed in classes (ambiguity problem)
+9. Multiple inheritance allowed in interfaces (no ambiguity - unique implementation)
+10. Cyclic inheritance NOT allowed
+
+### HAS-A Relationship
+1. Also known as **Composition or Aggregation**
+2. No specific keyword (use `new` operator)
+3. Main advantage: **Code reusability**
+4. **Composition:** Strong association (container dies → contained dies)
+5. **Aggregation:** Weak association (container dies → contained may survive)
+6. Container holds contained objects (composition) or references (aggregation)
+
+### When to Use Which?
+- **IS-A:** When total functionality of parent class is required
+- **HAS-A:** When only part of functionality is required
