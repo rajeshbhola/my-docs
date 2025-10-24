@@ -79,7 +79,7 @@ export default function HomePage() {
         </div>
 
         {/* Featured Projects */}
-        <div className="space-y-6">
+        {/* <div className="space-y-6">
           <h2 className="text-3xl font-bold text-center">Featured Projects</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 rounded-lg border border-fd-border bg-fd-card hover:shadow-xl transition-all duration-200">
@@ -178,10 +178,10 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mt-16 text-left">
+        {/* <div className="grid md:grid-cols-3 gap-6 mt-16 text-left">
           <div className="p-6 rounded-lg border border-fd-border bg-fd-card/50 hover:bg-fd-card transition-all duration-200 hover:shadow-lg">
             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mb-4">
               <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,7 +217,7 @@ export default function HomePage() {
               Fast access to commonly used concepts and syntax references
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     </main>
   );
