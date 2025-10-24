@@ -1,0 +1,290 @@
+---
+title: 1.7 Version Enhancements
+---
+## 1.7 Version Enhancements
+
+### 1. try-with-resources
+
+**Problem in 1.6 and earlier:**
+```java
+BufferedReader br = null;
+try {
+    br = new BufferedReader(new FileReader("input.txt"));
+    // Use br
+} catch (IOException e) {
+    // Handle
+} finally {
+    if (br != null) {
+        br.close();  // Programmer must close explicitly
+    }
+}
+```
+
+Problems:
+- Complexity increases (must write finally)
+- Length of code increases
+- Readability decreases
+
+**Solution in 1.7: try-with-resources**
+```java
+try (BufferedReader br = new BufferedReader(new FileReader("input.txt"))) {
+    // Use br
+} catch (IOException e) {
+    // Handle
+}
+// No finally needed - br closes automatically
+```
+
+**Advantages:**
+1. Resources close automatically when try block ends
+2. No need to write finally block
+3. Complexity reduced
+4. Code length reduced
+5. Readability improved
+
+
+### Rules for try-with-resources
+
+**1. Multiple resources allowed (separate with semicolon):**
+```java
+try (FileReader fr = new FileReader("input.txt");
+     PrintWriter pw = new PrintWriter("output.txt")) {
+    // Use fr and pw
+} catch (IOException e) {
+    // Handle
+}
+// Both resources close automatically
+```
+
+**2. All resources must be AutoCloseable:**
+A resource is AutoCloseable if its class implements `java.lang.AutoCloseable` interface.
+
+```java
+public interface AutoCloseable {
+    public void close() throws Exception;
+}
+```
+
+Almost all IO, database, and network resources already implement AutoCloseable:
+- FileReader, FileWriter, BufferedReader, PrintWriter
+- Connection, Statement, ResultSet
+- Socket, ServerSocket
+
+**3. Resource reference variables are implicitly final:**
+Cannot reassign resource variables inside try block:
+
+```java
+try (FileReader fr = new FileReader("input.txt")) {
+    fr = new FileReader("abc.txt");  // COMPILE ERROR: auto-closeable resource may not be assigned
+}
+```
+
+**4. try-with-resources without catch/finally is valid (from 1.7):**
+
+Until 1.6:
+```java
+try {
+}  // INVALID - must have catch or finally
+```
+
+From 1.7 onwards:
+```java
+try (Resource r = new Resource()) {
+}  // VALID - no catch/finally needed
+```
+
+### 1.9 Enhancement to try-with-resources
+
+**1.7 and 1.8:** Must declare resources in try statement
+
+```java
+// 1.7/1.8 - MUST declare in try
+try (FileReader fr = new FileReader("input.txt")) {
+    // Use fr
+}
+```
+
+**From 1.9:** Can use already declared resources
+
+```java
+// 1.9 - Can use already declared
+FileReader fr = new FileReader("input.txt");
+PrintWriter pw = new PrintWriter("output.txt");
+
+try (fr; pw) {  // Just reference them
+    // Use fr and pw
+}
+```
+
+---
+
+## 2. Multi-catch Block (1.7 Version)
+
+### Problem in 1.6 and Earlier
+
+```java
+try {
+    // code
+} catch (ArithmeticException e) {
+    e.printStackTrace();
+} catch (NullPointerException e) {
+    e.printStackTrace();  // Same handling code
+} catch (ClassCastException e) {
+    System.out.println(e.getMessage());
+} catch (IOException e) {
+    System.out.println(e.getMessage());  // Same handling code
+}
+```
+
+Problems:
+- Even with same handling code, need separate catch blocks
+- Code length increases
+- Readability decreases
+
+### Solution: Multi-catch Block (1.7)
+
+```java
+try {
+    // code
+} catch (ArithmeticException | NullPointerException e) {
+    e.printStackTrace();  // Handles both
+} catch (ClassCastException | IOException e) {
+    System.out.println(e.getMessage());  // Handles both
+}
+```
+
+**A single catch block that can handle multiple different types of exceptions.**
+
+### Important Rule
+
+Exceptions in multi-catch block **must NOT have parent-child relationship**:
+
+**Invalid:**
+```java
+try {
+    System.out.println(10/0);
+} catch (ArithmeticException | Exception e) {  // COMPILE ERROR
+    // Exception can already handle ArithmeticException
+}
+```
+
+Compile error:
+```
+Alternatives in a multi-catch statement cannot be related by subclassing
+```
+
+**Valid:**
+```java
+try {
+    System.out.println(10/0);
+} catch (ArithmeticException | NullPointerException e) {  // VALID
+    // No parent-child relationship
+}
+```
+
+### Complete Example
+
+```java
+class Test {
+    public static void main(String[] args) {
+        try {
+            System.out.println(10/0);
+            String s = null;
+            System.out.println(s.length());
+        } catch (ArithmeticException | NullPointerException e) {
+            System.out.println(e);
+        }
+    }
+}
+```
+
+Output (if ArithmeticException occurs first):
+```
+java.lang.ArithmeticException: / by zero
+```
+
+---
+
+## Additional Important Concepts
+
+### Exception Propagation
+
+When an exception occurs in a method and is not handled, it propagates to the caller method.
+
+```java
+public static void main(String[] args) {
+    doStuff();
+}
+
+public static void doStuff() {
+    doMoreStuff();
+}
+
+public static void doMoreStuff() {
+    System.out.println(10/0);  // ArithmeticException occurs
+}
+```
+
+**Flow:**
+1. Exception occurs in `doMoreStuff()`
+2. `doMoreStuff()` doesn't handle → propagates to `doStuff()`
+3. `doStuff()` doesn't handle → propagates to `main()`
+4. `main()` doesn't handle → propagates to JVM
+5. JVM's Default Exception Handler handles it → abnormal termination
+
+### Rethrowing an Exception
+
+Converting one exception type to another exception type.
+
+```java
+try {
+    System.out.println(10/0);  // ArithmeticException
+} catch (ArithmeticException e) {
+    // Handle original exception
+    
+    // Convert to different exception
+    throw new NullPointerException();
+}
+```
+
+**Use case:** To maintain consistent exception types in your API layer, or to add more context to exceptions.
+
+---
+
+## Summary of Key Points
+
+### Exception Handling Keywords (5 total)
+
+1. **try** - To maintain risky code
+2. **catch** - To maintain handling code
+3. **finally** - To maintain cleanup code (always executes)
+4. **throw** - To hand over our created exception object to JVM manually (best for customized exceptions)
+5. **throws** - To delegate exception handling responsibility to caller (required only for checked exceptions)
+
+### Important Rules
+
+1. Every exception is a class, child of Throwable (directly or indirectly)
+2. Checked exceptions: Compiler checks if you handle them
+3. Unchecked exceptions: RuntimeException + its children, Error + its children
+4. Only 2 partially checked exceptions: Throwable and Exception
+5. try must be followed by catch or finally (until 1.6)
+6. From 1.7: try-with-resources can be standalone
+7. Catch block order: child to parent (not parent to child)
+8. throw and throws only work with Throwable types
+9. After throw statement, code is unreachable
+10. finally block dominates return statement
+11. System.exit(0) dominates finally block
+
+### Best Practices
+
+1. Use try-catch when you can handle the exception
+2. Use throws only when you can't handle (but try-catch is preferred)
+3. Keep try block length as small as possible (only risky code)
+4. Use try-with-resources for automatic resource management (1.7+)
+5. Use multi-catch for same handling code (1.7+)
+6. Create customized exceptions extending RuntimeException (unchecked)
+7. Always pass description to super() in custom exceptions
+
+---
+
+This completes the comprehensive Java Exception Handling notes from the lecture transcript.

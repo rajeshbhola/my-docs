@@ -1,0 +1,249 @@
+---
+title: Interviews 001
+---
+
+# Complete Zoho Java Software Developer Interview Questions
+
+## Round 1: Aptitude & Java MCQ Questions
+
+### Aptitude Questions (20 questions, 60 minutes)
+1. **Averages and probability problems** - Calculate mean, probability scenarios
+2. **Time, speed & distance calculations** - Train problems, relative speed
+3. **Profit & loss problems** - Percentage calculations, cost price scenarios  
+4. **Ratio & proportion questions** - Direct/inverse proportions
+5. **HCF & LCM problems** - Greatest common divisor applications
+6. **Permutation and combination** - Arrangement and selection problems
+7. **Simple & compound interest** - Banking and investment calculations
+8. **Geometry & mensuration** - Area, volume, coordinate geometry
+9. **Data sufficiency problems** - Logical reasoning with given data
+10. **Number system questions** - Binary, decimal, hexadecimal conversions
+
+### Java MCQ Topics (10 questions)
+1. **Difference between JDK, JRE, and JVM** - Core Java architecture
+2. **Abstract Class vs Interface in Java** - OOP concepts
+3. **String data type questions** - String immutability, String pool
+4. **Multithreading concepts** - Thread lifecycle, synchronization
+5. **OOP principles** - Encapsulation, inheritance, polymorphism, abstraction  
+6. **Collections framework questions** - List, Set, Map implementations
+7. **Exception handling concepts** - Checked vs unchecked exceptions
+8. **Memory management and garbage collection** - Heap, stack, GC algorithms
+9. **Java 8+ features** - Streams, lambda expressions, functional interfaces
+10. **Concurrency and synchronization** - Executor framework, concurrent collections
+
+## Round 2: Programming Questions (5-7 problems, 3 hours)
+
+### Basic Programming Problems
+1. **Find second largest element in an array** - O(N) single pass approach
+2. **Check if a string is palindrome** - Two-pointer technique
+3. **Find missing number from 0 to n** - Using mathematical formula
+4. **First non-repeating character in string** - HashMap approach
+5. **Longest non-repeating substring** - Sliding window technique
+
+### String Manipulation
+6. **String Pattern Expansion**
+   - Input: `a1b10` → Output: `abbbbbbbbbb`
+   - Input: `b3c6d15` → Output: `bbbccccccdddddddddddddd`
+
+7. **Remove Characters from String**
+   - Input: s1="expErIence", s2="En" → Output: "exprIece"
+
+8. **Find substring index in string**
+   - Input: "test123string", "123" → Output: 4
+   - Input: "testing12", "1234" → Output: -1
+
+### Array Problems
+9. **Adding two large numbers stored as arrays**
+   - Input: [9,2,8,1,3,5,6,7,3,1,1,6] + [7,8,4,6,2,1,9,9,7]
+   - Output: [9,2,8,9,2,0,2,9,5,1,1,3]
+
+10. **Alternate Array Sorting**
+    - Input: {1,2,3,4,5,6,7} → Output: {7,1,6,2,5,3,4}
+    - First max, second min, third second max pattern
+
+11. **Merge two sorted arrays without duplicates**
+    - Input: [2,4,5,6,7,9,10,13] + [2,3,4,5,6,7,8,9,11,15]
+    - Output: [2,3,4,5,6,7,8,9,10,11,13,15]
+
+12. **Sort array elements based on frequency**
+    - Input: [2,2,3,4,5,12,2,3,3,3,12]
+    - Output: [3,3,3,3,2,2,2,12,12,4,5]
+
+### Mathematical Problems
+13. **Check if two numbers sum to given value in sorted array**
+    - Input: Array={1,3,4,8,10}, N=7 → Output: true
+
+14. **Computing sin(x) using series expansion**
+    - Input: x=30, n=10 → Output: 0.5
+    - Formula: sin(x) = x - x³/3! + x⁵/5! - ...
+
+15. **Multiplication using only + operator**
+    - Input: 3, 4 → Output: 12 (with minimum iterations)
+
+### Advanced Array Problems
+16. **Maximum sum contiguous subarray**
+    - Input: {-2,-3,4,-1,-2,1,5,-3} → Output: 7 (elements [4,-1,-2,1,5])
+
+17. **Binary Addition Without Conversion**
+    - Input: a=1010, b=11001 → Output: 100011
+
+18. **Cyclic Number Check**
+    - Input: 142857 → Output: Yes
+    - 142857×1=142857, 142857×2=285714, 142857×3=428571...
+
+### Pattern and Matrix Problems
+19. **Spiral Matrix Printing** - Print elements from outside to inside
+20. **Print specific patterns based on input** - Various formatting challenges
+
+## Round 3: System Design Questions (1 problem, 90 minutes)
+
+### Application Design Problems
+
+1. **Railway Reservation System**
+   - **Modules**: Booking, Availability checking, Cancellation, Waiting list, Print ticket details
+   - **Features**: Station management, seat allocation, PNR generation
+   - **Requirements**: Handle 50 seats initially, add intermediate stations, manage waiting list
+
+2. **Call Taxi Booking Application**
+   - **Setup**: 4 taxis, 6 points (A-F), 15km between adjacent points
+   - **Pricing**: &#8377;100 for first 5km, &#8377;10 for subsequent km
+   - **Logic**: Assign nearest available taxi with lowest earnings
+   - **Input**: Customer ID, Pickup Point, Drop Point, Pickup Time
+   - **Output**: Taxi assignment and journey details
+
+3. **Employee Management Query System**
+   - **Database**: ID, Name, Age, Designation, Department, Reporting To
+   - **Query Engine**: Support comparison operators (&gt;, &lt;, !=, ==)
+   - **String Operations**: startswith, contains, endswith, notcontains
+   - **Features**: Reporting hierarchy, department summary, manager's subordinates
+   - **Example**: "age &gt; 30 AND department contains 'finance'"
+
+4. **Bank Gift Card Management System**
+   - **Authentication**: Customer login with encrypted passwords (A→B, a→b, 0→1)
+   - **Modules**: Create Gift Card, TopUp, Transaction History, Block/Unblock
+   - **Features**: 5-digit card number, 4-digit PIN, reward points (1 point per &#8377;100)
+   - **Security**: Handle multiple gift cards per customer
+
+5. **Toll Payment Processing System**
+   - **Highway System**: Multiple toll points with different charging schemes
+   - **Vehicle Types**: Different rates for car, truck, bus with VIP discounts (20%)
+   - **Features**: Journey tracking, toll-wise revenue, shortest route calculation
+   - **Modules**: Payment processing, toll reports, vehicle journey history
+
+### Game Development Problems
+
+6. **Tic-Tac-Toe Game (n×n grid)**
+   - **Requirements**: Support any grid size, handle edge cases
+   - **Features**: Two-player mode, win detection algorithm
+   - **Implementation**: Object-oriented design with proper classes
+
+7. **Snake and Ladder Game**
+   - **Features**: Board generation, player movement, snake/ladder positions
+   - **Logic**: Handle multiple players, winning conditions
+
+8. **Tetris Blocks Game**
+   - **Implementation**: Matrix operations, block rotations
+   - **Features**: Line clearing, score calculation, game over detection
+
+### Infrastructure Design Problems
+
+9. **Lift Management System**
+   - **Setup**: Multiple lifts (L1-L5), multiple floors
+   - **Algorithm**: Assign nearest available lift
+   - **Display**: Current positions, floor assignments
+   - **Logic**: Optimize lift movement and waiting times
+
+10. **Parking Lot System**
+    - **Features**: Multiple levels, different vehicle sizes
+    - **Pricing**: Dynamic pricing based on vehicle type and duration  
+    - **Logic**: Optimal spot assignment algorithm
+
+11. **Text Editor Application**
+    - **Constraints**: 40 characters per line, word wrapping
+    - **Operations**: Insert, delete, cursor movement
+    - **Features**: Line management, text formatting
+
+### Business Application Problems
+
+12. **Inventory Management System**
+    - **Structure**: Categories containing multiple products
+    - **Features**: Stock tracking, capacity management
+    - **Operations**: Add category/product, check availability
+    - **Reports**: Category-wise product listing, stock alerts
+
+13. **Library Management System**
+    - **Features**: Book catalog, member management, issue/return
+    - **Search**: Multiple criteria search functionality
+    - **Reports**: Overdue books, member statistics
+
+## Technical Interview Topics
+
+### Core Java Concepts
+1. **Java Architecture and JVM Internals** - Memory areas, classloading, bytecode
+2. **Multithreading and Concurrency** - Thread pools, synchronization, deadlocks
+3. **Collections Framework** - Internal implementations, performance characteristics
+4. **Exception Handling** - Best practices, custom exceptions
+5. **Memory Management** - Heap analysis, garbage collection tuning
+
+### Spring Framework & Microservices
+6. **Spring Boot Architecture** - Auto-configuration, embedded servers, actuators
+7. **Microservices Concepts** - Service discovery, load balancing, circuit breakers
+8. **REST API Design** - HTTP methods, status codes, API versioning
+9. **Database Integration** - JPA/Hibernate, connection pooling, transactions
+
+### System Design Principles
+10. **Design Patterns** - Singleton, Factory, Observer, Strategy patterns
+11. **Database Design** - Normalization, indexing, query optimization
+12. **Scalability Concepts** - Horizontal vs vertical scaling, caching strategies
+13. **Software Engineering** - SOLID principles, code quality, testing strategies
+
+### Problem-Solving Skills
+14. **Data Structures & Algorithms** - Time/space complexity analysis
+15. **Logical Reasoning** - Puzzle solving, analytical thinking
+
+## Sample Advanced Programming Questions
+
+### Thread-Safe Programming
+```java
+// Implement custom thread-safe Singleton pattern
+class Singleton {
+    private static volatile Singleton instance;
+    private Singleton() {}
+    
+    public static Singleton getInstance() {
+        if (instance == null) {
+            synchronized (Singleton.class) {
+                if (instance == null) {
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+```
+
+### Dynamic Programming
+- **Longest Increasing Subsequence** - Find LIS using DP approach
+- **Coin Change Problem** - Minimum coins for given amount
+- **Edit Distance** - Transform one string to another
+
+### Advanced Data Structures
+- **LRU Cache Implementation** - Using HashMap and doubly linked list
+- **Trie for String Search** - Prefix-based search operations
+- **Graph Algorithms** - BFS, DFS, shortest path algorithms
+
+## Preparation Strategy
+
+### For 6+ Years Experience
+- Focus on **system design excellence** and **architectural thinking**
+- Demonstrate **leadership experience** and **mentoring capabilities**  
+- Show **deep understanding** of Java ecosystem and **performance optimization**
+- Practice **complex problem-solving** with **multiple constraints**
+- Prepare **detailed project explanations** with **technical trade-offs**
+
+### Key Areas to Master
+1. **Advanced Java Features** (Java 11, 17, 21)
+2. **Spring Boot & Microservices** architecture
+3. **Database Design** and **query optimization**
+4. **System Design** patterns and **scalability**
+5. **Code Quality** practices and **testing strategies**

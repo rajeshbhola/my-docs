@@ -1,0 +1,85 @@
+---
+title: Customized Exceptions
+---
+## Customized/User-Defined Exceptions
+
+### What are Customized Exceptions?
+Exceptions defined by programmer to meet programming requirements (not Java's built-in exceptions).
+
+### When to Create?
+To indicate something went wrong in your business logic.
+
+### Examples
+- InsufficientFundsException (bank withdrawal)
+- TooYoungException (age < 18)
+- TooOldException (age > 60)
+
+### How to Create
+
+**Step 1: Define exception class**
+```java
+class TooYoungException extends RuntimeException {
+    TooYoungException(String message) {
+        super(message);
+    }
+}
+
+class TooOldException extends RuntimeException {
+    TooOldException(String message) {
+        super(message);
+    }
+}
+```
+
+**Step 2: Use in your program**
+```java
+public static void main(String[] args) {
+    int age = Integer.parseInt(args[0]);
+    
+    if (age > 60) {
+        throw new TooYoungException("Please wait some more time, definitely you will get best match");
+    } else if (age < 18) {
+        throw new TooOldException("Your age already crossed marriage age, no chance of getting marriage");
+    } else {
+        System.out.println("Thanks for registration, you will get match details by email");
+    }
+}
+```
+
+### Why extend RuntimeException?
+If you extend Exception (checked), you must handle it:
+```java
+class TooYoungException extends Exception {  // Checked
+}
+
+// Now you must handle
+if (age > 60) {
+    throw new TooYoungException("...");  // COMPILE ERROR - must catch or declare
+}
+```
+
+By extending RuntimeException (unchecked), no need to handle:
+```java
+class TooYoungException extends RuntimeException {  // Unchecked
+}
+
+// No handling required
+if (age > 60) {
+    throw new TooYoungException("...");  // VALID
+}
+```
+
+### Why super(message)?
+To make the description available to the Default Exception Handler.
+
+```java
+class TooYoungException extends RuntimeException {
+    TooYoungException(String message) {
+        super(message);  // Passes message to Throwable class
+    }
+}
+```
+
+Without `super(message)`, the exception description won't be displayed.
+
+---

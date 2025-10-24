@@ -1,6 +1,15 @@
 {
   "title": "Exception Handling",
   "pages": [
-    "1-exception-handling"
+    "1-introduction-to-exception-handling",
+    "2-checked-vs-unchecked-exceptions",
+    "3-try-catch-block",
+    "4-finally-block",
+    "5-control-flow-in-try-catch-finally",
+    "6-throw-and-throws-keyword",
+    "7-final-vs-finally-vs-finalize",
+    "8-customized-exceptions",
+    "9-commonly-raised-exceptions",
+    "10-1.7v-enhancements"
   ]
 }

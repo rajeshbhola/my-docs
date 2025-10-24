@@ -1,0 +1,126 @@
+---
+title: Finally Block
+---
+## finally Block
+
+### Purpose
+To maintain **cleanup code** or **resource deallocation code** (like closing database connections, files, network connections).
+
+### Speciality
+finally block will **always be executed**, whether:
+- Exception is raised or not raised
+- Exception is handled or not handled
+- Even in case of abnormal termination
+
+### Example 1: No Exception
+```java
+try {
+    System.out.println("try");
+} catch (Exception e) {
+    System.out.println("catch");
+} finally {
+    System.out.println("finally");
+}
+```
+
+Output:
+```
+try
+finally
+```
+
+### Example 2: Exception Raised and Handled
+```java
+try {
+    System.out.println("try");
+    System.out.println(10/0);
+} catch (ArithmeticException e) {
+    System.out.println("catch");
+} finally {
+    System.out.println("finally");
+}
+```
+
+Output:
+```
+try
+catch
+finally
+```
+
+### Example 3: Exception Raised but NOT Handled (Abnormal Termination)
+```java
+try {
+    System.out.println("try");
+    System.out.println(10/0);
+} catch (NullPointerException e) {  // Wrong exception type
+    System.out.println("catch");
+} finally {
+    System.out.println("finally");
+}
+```
+
+Output:
+```
+try
+finally
+Exception in thread "main" java.lang.ArithmeticException: / by zero
+```
+
+**Note:** Even in abnormal termination, finally block executes before termination.
+
+### Practical Use Case
+```java
+BufferedReader br = null;
+try {
+    br = new BufferedReader(new FileReader("input.txt"));
+    // Use br to read data
+} catch (IOException e) {
+    // Handle exception
+} finally {
+    if (br != null) {
+        br.close();  // Always close the resource
+    }
+}
+```
+
+---
+
+## finally vs return Statement
+
+### finally Block Dominates return Statement
+
+**Example:**
+```java
+public static int m1() {
+    try {
+        return 7;
+    } finally {
+        return 9;
+    }
+}
+
+public static void main(String[] args) {
+    System.out.println(m1());
+}
+```
+
+Output:
+```
+9
+```
+
+**Explanation:** When JVM sees return statement in try block, it waits for finally block to execute first. If finally also has return, only finally's return value is considered.
+
+### System.exit() Dominates finally Block
+
+**Only case where finally doesn't execute:**
+```java
+try {
+    System.exit(0);  // JVM shuts down
+} finally {
+    System.out.println("finally");  // Never executes
+}
+```
+
+---

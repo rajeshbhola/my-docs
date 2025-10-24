@@ -1,0 +1,173 @@
+---
+title: Introduction
+---
+
+### What is an Exception?
+An **exception** is an unwanted, unexpected event that disturbs the normal flow of a program.
+
+**Examples:**
+- **File not found exception**: Trying to read data from a remote file in London, but at runtime the file is not available
+- **Tire puncture exception**: On your way to office, your bike tire gets punctured
+- **Sleeping exception**: During a class, you fall asleep and can't learn the material
+
+### Purpose of Exception Handling
+The main purpose is **graceful termination** of the program. If something goes wrong, we should not miss anything or lose any resources.
+
+**Example without exception handling:**
+```
+Open DB connection
+Read data from database  // Problem occurs here
+Close DB connection      // This never executes - connection wasted
+```
+
+If an exception occurs while reading data and we don't handle it, the program terminates abnormally and the database connection is never closed. This wastes resources.
+
+### Meaning of Exception Handling
+Exception handling means defining an **alternative way to continue the rest of the program normally**.
+
+**Example:**
+```java
+try {
+    // Read data from remote file in London
+} catch (FileNotFoundException e) {
+    // Use local file instead
+    // Continue rest of program normally
+}
+```
+
+---
+
+## Runtime Stack Mechanism
+
+For every thread, JVM creates one **runtime stack**. Every method call performed by that thread creates one entry in the stack called a **stack frame** or **activation record**.
+
+**Example:**
+```java
+class Test {
+    public static void main(String[] args) {
+        doStuff();
+    }
+    
+    public static void doStuff() {
+        doMoreStuff();
+    }
+    
+    public static void doMoreStuff() {
+        System.out.println("hello");
+    }
+}
+```
+
+**Stack execution:**
+1. Main thread calls `main()` → Entry added to stack
+2. `main()` calls `doStuff()` → Entry added to stack
+3. `doStuff()` calls `doMoreStuff()` → Entry added to stack
+4. `doMoreStuff()` prints "hello" → Completes, entry removed
+5. Control returns to `doStuff()` → Completes, entry removed
+6. Control returns to `main()` → Completes, entry removed
+7. Stack becomes empty → JVM destroys the stack before terminating the thread
+
+---
+
+## Default Exception Handling in Java
+
+When an exception is raised and not handled:
+
+1. The method where the exception occurred creates an exception object containing:
+   - Name of the exception
+   - Description of the exception
+   - Stack trace (location where problem occurred)
+
+2. This object is handed over to the JVM
+
+3. JVM checks if the method has handling code:
+   - If NO → JVM terminates the method abnormally and removes it from the stack
+   - JVM asks the caller method to handle
+   - This continues until `main()` method
+   
+4. If no method handles it, JVM hands it to the **Default Exception Handler**
+
+5. Default Exception Handler prints exception information in this format:
+   ```
+   Exception in thread "main" java.lang.ArithmeticException: / by zero
+       at Test.doMoreStuff(Test.java:line)
+       at Test.doStuff(Test.java:line)
+       at Test.main(Test.java:line)
+   ```
+
+6. Program terminates abnormally
+
+**Example:**
+```java
+class Test {
+    public static void main(String[] args) {
+        doStuff();
+    }
+    
+    public static void doStuff() {
+        doMoreStuff();
+    }
+    
+    public static void doMoreStuff() {
+        System.out.println(10/0);  // ArithmeticException
+    }
+}
+```
+
+Output:
+```
+Exception in thread "main" java.lang.ArithmeticException: / by zero
+    at Test.doMoreStuff
+    at Test.doStuff
+    at Test.main
+```
+
+---
+
+## Exception Hierarchy
+
+**Throwable** is the root class for all exceptions and errors in Java.
+
+```
+Throwable
+├── Exception
+│   ├── RuntimeException (unchecked)
+│   │   ├── ArithmeticException
+│   │   ├── NullPointerException
+│   │   ├── ClassCastException
+│   │   ├── IndexOutOfBoundsException
+│   │   │   ├── ArrayIndexOutOfBoundsException
+│   │   │   └── StringIndexOutOfBoundsException
+│   │   ├── IllegalArgumentException
+│   │   │   └── NumberFormatException
+│   │   └── IllegalStateException
+│   ├── IOException (checked)
+│   │   ├── EOFException
+│   │   └── FileNotFoundException
+│   ├── InterruptedException (checked)
+│   ├── SQLException (checked)
+│   └── RemoteException (checked)
+└── Error (unchecked)
+    ├── VirtualMachineError
+    │   ├── StackOverflowError
+    │   └── OutOfMemoryError
+    ├── LinkageError
+    │   └── NoClassDefFoundError
+    ├── AssertionError
+    └── ExceptionInInitializerError
+```
+
+### Exception vs Error
+
+**Exception:**
+- Caused by our program
+- Recoverable
+- Programmer is responsible to handle
+
+**Error:**
+- NOT caused by our program
+- Due to lack of system resources
+- Non-recoverable
+- Examples: OutOfMemoryError, StackOverflowError, VirtualMachineError
+
+---

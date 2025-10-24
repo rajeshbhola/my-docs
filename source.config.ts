@@ -22,5 +22,10 @@ export const docs = defineDocs({
 export default defineConfig({
   mdxOptions: {
     // MDX options
+    rehypePlugins: [],
+    remarkPlugins: [],
+    jsx: true,
+    // Allow all unicode characters in text content
+    development: process.env.NODE_ENV === 'development',
   },
 });

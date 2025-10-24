@@ -1,0 +1,44 @@
+---
+title: Checked vs Unchecked exceptions
+---
+
+### Checked Exceptions
+Exceptions that are **checked by compiler** whether programmer is handling them or not, for smooth execution at runtime.
+
+**Important:** Checked exceptions occur at **runtime**, NOT compile time. The compiler just checks if you've written handling code.
+
+**Examples:**
+- FileNotFoundException
+- IOException
+- InterruptedException
+- SQLException
+
+**Compiler error if not handled:**
+```
+unreported exception FileNotFoundException; must be caught or declared to be thrown
+```
+
+### Unchecked Exceptions
+Exceptions that compiler does NOT check whether you're handling them or not.
+
+**All unchecked exceptions:**
+- RuntimeException and all its child classes
+- Error and all its child classes
+
+**Examples:**
+- ArithmeticException
+- NullPointerException
+- ArrayIndexOutOfBoundsException
+- All errors (StackOverflowError, OutOfMemoryError, etc.)
+
+### Fully Checked vs Partially Checked
+
+**Fully Checked:** Exception is checked AND all its child classes are also checked
+- Examples: IOException, InterruptedException, SQLException
+
+**Partially Checked:** Exception is checked BUT some child classes are unchecked
+- Only TWO partially checked exceptions in Java:
+  - **Throwable** (has Error as unchecked child)
+  - **Exception** (has RuntimeException as unchecked child)
+
+---

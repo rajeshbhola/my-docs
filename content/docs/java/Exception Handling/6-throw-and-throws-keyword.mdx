@@ -1,0 +1,220 @@
+---
+title: Throw and Throws Keyword
+---
+## throw Keyword
+
+### Purpose
+To hand over our created exception object to the JVM manually.
+
+### Syntax
+```java
+throw new ExceptionType("description");
+```
+
+### When to Use
+Best used for **customized (user-defined) exceptions** to indicate something went wrong in our program logic.
+
+### Example: Internal Handling
+```java
+System.out.println(10/0);
+```
+- JVM internally creates ArithmeticException object
+- JVM hands it to itself
+- Everything happens internally
+
+### Example: Explicit Handling
+```java
+throw new ArithmeticException("/ by zero explicitly by Durga");
+```
+
+Output:
+```
+Exception in thread "main" java.lang.ArithmeticException: / by zero explicitly by Durga
+    at Test.main
+```
+
+**Result is the same, but here we explicitly created and threw the exception.**
+
+### Important Rules
+
+**1. throw with null reference:**
+```java
+ArithmeticException e = null;
+throw e;
+```
+Result: `NullPointerException` (not ArithmeticException)
+
+**2. After throw, unreachable code:**
+```java
+System.out.println("statement1");
+throw new ArithmeticException();
+System.out.println("statement2");  // COMPILE ERROR: unreachable statement
+```
+
+**3. throw only works with Throwable types:**
+```java
+throw new Test();  // INVALID if Test doesn't extend Throwable
+```
+
+Compile error: `incompatible types: Test cannot be converted to Throwable`
+
+**Valid:**
+```java
+class Test extends RuntimeException {
+}
+
+throw new Test();  // VALID
+```
+
+---
+
+## throws Keyword
+
+### Purpose
+To delegate responsibility of exception handling to the caller method.
+
+### When Required
+Required **only for checked exceptions**. Unchecked exceptions don't need throws.
+
+### Two Ways to Handle Checked Exceptions
+
+**Method 1: Using try-catch**
+```java
+public static void main(String[] args) {
+    try {
+        Thread.sleep(1000);
+    } catch (InterruptedException e) {
+        // Handle
+    }
+}
+```
+
+**Method 2: Using throws (delegation)**
+```java
+public static void main(String[] args) throws InterruptedException {
+    Thread.sleep(1000);
+}
+```
+
+### Example: Delegation Chain
+```java
+public static void main(String[] args) throws InterruptedException {
+    doStuff();
+}
+
+public static void doStuff() throws InterruptedException {
+    doMoreStuff();
+}
+
+public static void doMoreStuff() throws InterruptedException {
+    Thread.sleep(1000);
+}
+```
+
+**Flow:**
+1. `doMoreStuff()` delegates to `doStuff()`
+2. `doStuff()` delegates to `main()`
+3. `main()` delegates to JVM
+4. JVM handles (if exception actually occurs, abnormal termination)
+
+### Important Points
+
+**1. try-catch is recommended over throws:**
+- throws does NOT prevent abnormal termination
+- throws only convinces the compiler
+
+**2. throws required only for checked exceptions:**
+```java
+// VALID (checked exception)
+public static void m1() throws FileNotFoundException {
+    PrintWriter pw = new PrintWriter("abc.txt");
+}
+
+// VALID but meaningless (unchecked exception)
+public static void m1() throws ArithmeticException {
+    System.out.println(10/0);
+}
+```
+
+**3. All throws keywords must be present in delegation chain:**
+```java
+// INVALID - middle method missing throws
+public static void main(String[] args) throws InterruptedException {
+    doStuff();  // COMPILE ERROR
+}
+
+public static void doStuff() {  // Missing throws
+    doMoreStuff();  // COMPILE ERROR
+}
+
+public static void doMoreStuff() throws InterruptedException {
+    Thread.sleep(1000);
+}
+```
+
+---
+
+## Various Possible Compile Time Errors
+
+### 1. try without catch or finally
+```java
+try {
+}
+```
+Error: `try without catch or finally`
+
+### 2. catch without try
+```java
+catch (Exception e) {
+}
+```
+Error: `catch without try`
+
+### 3. finally without try
+```java
+finally {
+}
+```
+Error: `finally without try`
+
+### 4. Unreported checked exception
+```java
+Thread.sleep(1000);  // No try-catch or throws
+```
+Error: `unreported exception InterruptedException; must be caught or declared to be thrown`
+
+### 5. Exception never thrown in try block (fully checked only)
+```java
+try {
+    System.out.println("hello");
+} catch (IOException e) {  // No IO operation in try
+}
+```
+Error: `exception IOException is never thrown in body of corresponding try statement`
+
+**Note:** This rule applies only to **fully checked exceptions**. For unchecked and partially checked, no error.
+
+### 6. Wrong order of catch blocks
+```java
+try {
+    System.out.println(10/0);
+} catch (Exception e) {         // Parent first
+} catch (ArithmeticException e) {  // Child second - ERROR
+}
+```
+Error: `exception ArithmeticException has already been caught`
+
+### 7. throw only for Throwable types
+```java
+throw new Test();  // Test doesn't extend Throwable
+```
+Error: `incompatible types: Test cannot be converted to Throwable`
+
+### 8. Unreachable statement after throw
+```java
+throw new Exception();
+System.out.println("hello");  // ERROR
+```
+Error: `unreachable statement`
+
+---

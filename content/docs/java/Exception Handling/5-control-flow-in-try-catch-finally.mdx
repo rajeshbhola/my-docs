@@ -1,0 +1,160 @@
+---
+title: Control Flow in try-catch-finally
+---
+## Control Flow in try-catch-finally
+
+```java
+try {
+    statement1;
+    statement2;
+    statement3;
+} catch (Exception e) {
+    statement4;
+} finally {
+    statement5;
+}
+statement6;
+```
+
+### Case 1: No Exception
+Executes: 1, 2, 3, 5, 6 (normal termination)
+
+### Case 2: Exception at statement2, catch matched
+Executes: 1, 4, 5, 6 (normal termination)
+
+### Case 3: Exception at statement2, catch NOT matched
+Executes: 1, 5, then abnormal termination
+
+### Case 4: Exception at statement4
+Executes: 1, 2, 3, 4 (partially), 5, then abnormal termination
+
+### Case 5: Exception at statement5 or statement6
+Abnormal termination
+
+**Remember:** Catch block is only responsible for exceptions in try block. Exceptions in catch or finally are always abnormal termination.
+
+---
+
+## Nested try-catch-finally
+
+You can write try-catch-finally inside:
+- try block
+- catch block
+- finally block
+
+### Example
+```java
+try {
+    // Outer try
+    System.out.println("outer try");
+    
+    try {
+        // Inner try
+        System.out.println("inner try");
+        System.out.println(10/0);
+    } catch (ArithmeticException e) {
+        System.out.println("inner catch");
+    }
+    
+    System.out.println("after inner try-catch");
+} catch (Exception e) {
+    System.out.println("outer catch");
+} finally {
+    System.out.println("outer finally");
+}
+```
+
+Output:
+```
+outer try
+inner try
+inner catch
+after inner try-catch
+outer finally
+```
+
+---
+
+## Various Possible Combinations of try-catch-finally
+
+### Valid Combinations
+1. `try { } catch { }`
+2. `try { } catch { } catch { }`
+3. `try { } catch { } finally { }`
+4. `try { } finally { }`
+5. Nested try-catch-finally inside try/catch/finally blocks
+
+### Invalid Combinations
+
+**1. try without catch or finally:**
+```java
+try {
+    // code
+}
+```
+Compile error: `try without catch or finally`
+
+**2. catch without try:**
+```java
+catch (Exception e) {
+    // code
+}
+```
+Compile error: `catch without try`
+
+**3. finally without try:**
+```java
+finally {
+    // code
+}
+```
+Compile error: `finally without try`
+
+**4. Wrong order (try-finally-catch):**
+```java
+try {
+} finally {
+} catch (Exception e) {  // INVALID
+}
+```
+Compile error: `catch without try`
+
+**5. Multiple finally blocks:**
+```java
+try {
+} catch (Exception e) {
+} finally {
+} finally {  // INVALID
+}
+```
+Compile error: `finally without try`
+
+**6. Statements between try and catch:**
+```java
+try {
+}
+System.out.println("hello");
+catch (Exception e) {  // INVALID
+}
+```
+
+**7. Curly braces are mandatory:**
+```java
+// INVALID - even for single statement
+try
+    System.out.println("try");
+catch (Exception e)
+    System.out.println("catch");
+```
+
+Must use curly braces:
+```java
+// VALID
+try {
+    System.out.println("try");
+} catch (Exception e) {
+    System.out.println("catch");
+}
+```
+
+---

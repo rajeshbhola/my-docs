@@ -1,0 +1,64 @@
+---
+title: Final vs Finally vs Finalize
+---
+## final vs finally vs finalize
+
+### final (Modifier)
+A modifier applicable to classes, methods, and variables.
+
+**final class:**
+```java
+final class Test {
+}
+class Demo extends Test {  // COMPILE ERROR - cannot extend final class
+}
+```
+
+**final method:**
+```java
+class Parent {
+    final void m1() { }
+}
+class Child extends Parent {
+    void m1() { }  // COMPILE ERROR - cannot override final method
+}
+```
+
+**final variable:**
+```java
+final int x = 10;
+x = 20;  // COMPILE ERROR - cannot change final variable
+```
+
+### finally (Block)
+A block associated with try-catch to maintain cleanup code.
+
+```java
+try {
+    // Risky code
+} catch (Exception e) {
+    // Handling code
+} finally {
+    // Cleanup code - always executes
+}
+```
+
+**Speciality:** Executes always, whether exception raised or not, handled or not.
+
+### finalize (Method)
+A method called by Garbage Collector just before destroying an object.
+
+**Purpose:** To perform cleanup activities (close resources associated with the object).
+
+```java
+// Called by GC before destroying object
+protected void finalize() throws Throwable {
+    // Close resources associated with this object
+}
+```
+
+**Difference in cleanup:**
+- **finally cleanup:** Closes resources opened in try block
+- **finalize cleanup:** Closes resources associated with an object before GC destroys it
+
+---

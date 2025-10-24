@@ -1,0 +1,160 @@
+---
+title: Commonly Raised Exceptions
+---
+## Top 10 Commonly Raised Exceptions
+
+### 1. ArrayIndexOutOfBoundsException (Unchecked)
+**When:** Accessing array element with out-of-range index
+
+```java
+int[] a = new int[10];  // Valid indices: 0 to 9
+System.out.println(a[0]);    // Valid
+System.out.println(a[9]);    // Valid
+System.out.println(a[100]);  // ArrayIndexOutOfBoundsException
+System.out.println(a[-100]); // ArrayIndexOutOfBoundsException
+```
+
+### 2. NullPointerException (Unchecked)
+**When:** Performing any operation on null reference
+
+```java
+String s = null;
+System.out.println(s.length());  // NullPointerException
+```
+
+### 3. StackOverflowError (Unchecked)
+**When:** Recursive method call without proper termination
+
+```java
+public static void m1() {
+    m2();
+}
+
+public static void m2() {
+    m1();  // Infinite recursion -> StackOverflowError
+}
+```
+
+### 4. ClassCastException (Unchecked)
+**When:** Invalid type casting
+
+```java
+String s = new String("Durga");
+Object o = s;  // Valid - child to parent
+
+Object o = new Object();
+String s = (String) o;  // ClassCastException - parent to child
+```
+
+**Valid case:**
+```java
+Object o = new String("Durga");  // Object reference, String object
+String s = (String) o;  // Valid - actually String object
+```
+
+### 5. NoClassDefFoundError (Unchecked)
+**When:** JVM cannot find required .class file at runtime
+
+```java
+// Raju.java
+class Raju {
+    public static void main(String[] args) {
+        Rani r = new Rani();
+    }
+}
+
+// Rani.java
+class Rani {
+}
+```
+
+If you delete `Rani.class` and run `java Raju`:
+```
+Exception in thread "main" java.lang.NoClassDefFoundError: Rani
+```
+
+### 6. ExceptionInInitializerError (Unchecked)
+**When:** Exception occurs during static variable initialization or static block execution
+
+```java
+class Test {
+    static int x = 10/0;  // ArithmeticException during initialization
+    
+    public static void main(String[] args) {
+    }
+}
+```
+
+Output:
+```
+Exception in thread "main" java.lang.ExceptionInInitializerError
+Caused by: java.lang.ArithmeticException: / by zero
+```
+
+**Another example:**
+```java
+class Test {
+    static {
+        String s = null;
+        System.out.println(s.length());  // NullPointerException in static block
+    }
+}
+```
+
+### 7. IllegalArgumentException (Unchecked)
+**When:** Calling a method with inappropriate argument
+
+```java
+Thread t = new Thread();
+t.setPriority(10);    // Valid - range is 1 to 10
+t.setPriority(100);   // IllegalArgumentException - out of valid range
+```
+
+### 8. NumberFormatException (Unchecked)
+**Child of IllegalArgumentException**
+
+**When:** Converting string to number, but string not properly formatted
+
+```java
+int i = Integer.parseInt("10");   // Valid
+int j = Integer.parseInt("ten");  // NumberFormatException
+```
+
+### 9. IllegalStateException (Unchecked)
+**When:** Calling a method at inappropriate time (wrong state)
+
+```java
+Thread t = new Thread();
+t.start();  // Valid - starts thread
+t.start();  // IllegalThreadStateException - already started
+```
+
+**Iterator example:**
+```java
+List<String> list = new ArrayList<>();
+list.add("A");
+list.add("B");
+
+Iterator<String> it = list.iterator();
+it.remove();  // IllegalStateException - must call next() first
+
+while (it.hasNext()) {
+    String obj = it.next();
+    it.remove();  // Valid - called after next()
+}
+```
+
+### 10. AssertionError (Unchecked)
+**When:** Assert statement fails during debugging
+
+```java
+int x = 10;
+assert x > 10;  // Assert statement fails -> AssertionError
+```
+
+**Note:** Assertions are disabled by default. Enable with `-ea` flag:
+```
+java -ea Test
+```
+
+---

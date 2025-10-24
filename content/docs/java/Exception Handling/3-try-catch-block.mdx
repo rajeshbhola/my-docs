@@ -1,0 +1,215 @@
+---
+title: Try-Catch Block
+---
+## Customized Exception Handling with try-catch
+
+### Basic Syntax
+```java
+try {
+    // Risky code - code that may raise an exception
+} catch (ExceptionType e) {
+    // Handling code - alternative flow
+}
+```
+
+**Inside try block:** Write risky code (code which may raise an exception)
+
+**Inside catch block:** Write handling code (what to do if exception occurs)
+
+### Example Without Exception Handling
+```java
+class Test {
+    public static void main(String[] args) {
+        System.out.println("statement 1");
+        System.out.println(10/0);  // ArithmeticException - abnormal termination
+        System.out.println("statement 3");  // Never executes
+    }
+}
+```
+
+Output:
+```
+statement 1
+Exception in thread "main" java.lang.ArithmeticException: / by zero
+```
+
+### Example With Exception Handling
+```java
+class Test {
+    public static void main(String[] args) {
+        System.out.println("statement 1");
+        try {
+            System.out.println(10/0);
+        } catch (ArithmeticException e) {
+            System.out.println(10/2);  // Alternative: 5
+        }
+        System.out.println("statement 3");
+    }
+}
+```
+
+Output:
+```
+statement 1
+5
+statement 3
+```
+
+This is **normal termination** - we handled the exception and continued normally.
+
+---
+
+## Control Flow in try-catch
+
+```java
+try {
+    statement1;
+    statement2;
+    statement3;
+} catch (Exception e) {
+    statement4;
+}
+statement5;
+```
+
+### Case 1: No Exception
+- Executes: 1, 2, 3, 5
+- Does NOT execute: 4
+- Result: Normal termination
+
+### Case 2: Exception at statement2, catch block matched
+- Executes: 1, 4, 5
+- Does NOT execute: 2 (partially), 3
+- Result: Normal termination
+
+**Important:** If exception occurs inside try block, the rest of the try block won't execute even if we handle the exception.
+
+### Case 3: Exception at statement2, catch block NOT matched
+- Executes: 1
+- Does NOT execute: 2 (partially), 3, 4, 5
+- Result: Abnormal termination
+
+### Case 4: Exception at statement4 or statement5
+Result: Always abnormal termination
+
+**Reason:** Catch block is only responsible for exceptions inside the try block. Exceptions outside try block are not handled.
+
+---
+
+## Methods to Print Exception Information
+
+All three methods are present in **Throwable** class:
+
+### 1. printStackTrace()
+Prints: Name + Description + Stack trace
+
+```java
+try {
+    System.out.println(10/0);
+} catch (ArithmeticException e) {
+    e.printStackTrace();
+}
+```
+
+Output:
+```
+java.lang.ArithmeticException: / by zero
+    at Test.main(Test.java:5)
+```
+
+### 2. toString()
+Prints: Name + Description (no stack trace)
+
+```java
+try {
+    System.out.println(10/0);
+} catch (ArithmeticException e) {
+    System.out.println(e);  // or e.toString()
+}
+```
+
+Output:
+```
+java.lang.ArithmeticException: / by zero
+```
+
+### 3. getMessage()
+Prints: Description only
+
+```java
+try {
+    System.out.println(10/0);
+} catch (ArithmeticException e) {
+    System.out.println(e.getMessage());
+}
+```
+
+Output:
+```
+/ by zero
+```
+
+**Default Exception Handler always uses `printStackTrace()`.**
+
+---
+
+## try with Multiple catch Blocks
+
+### Why Multiple catch Blocks?
+The way of handling an exception varies from exception to exception. Different exceptions need different handling code.
+
+**NOT Recommended (same handling for all):**
+```java
+try {
+    // risky code
+} catch (Exception e) {
+    // Same handling for all exceptions
+}
+```
+
+**Recommended (different handling for each):**
+```java
+try {
+    // risky code
+} catch (ArithmeticException e) {
+    // Perform alternative arithmetic operation
+} catch (FileNotFoundException e) {
+    // Use local file instead of remote file
+} catch (SQLException e) {
+    // Use Oracle database instead of MySQL
+} catch (Exception e) {
+    // Default handling code for other exceptions
+}
+```
+
+### Order of catch Blocks is Important
+**Rule:** Child exception first, then parent exception
+
+**Invalid (parent first):**
+```java
+try {
+    System.out.println(10/0);
+} catch (Exception e) {          // Parent
+    System.out.println("Exception");
+} catch (ArithmeticException e) {  // Child - COMPILE ERROR
+    System.out.println("ArithmeticException");
+}
+```
+
+Compile error:
+```
+exception java.lang.ArithmeticException has already been caught
+```
+
+**Valid (child first):**
+```java
+try {
+    System.out.println(10/0);
+} catch (ArithmeticException e) {  // Child
+    System.out.println("ArithmeticException");
+} catch (Exception e) {            // Parent
+    System.out.println("Exception");
+}
+```
+
+---
