@@ -1,0 +1,455 @@
+---
+title: Java Design Patterns
+---
+
+Absolutely. Design patterns in Java are **time-tested, reusable solutions** to common software design problems. However, in **production systems**, simply knowing patterns isn’t enough—you must apply them **judiciously**, **idiomatically**, and **in alignment with modern best practices** (SOLID, clean architecture, testability, performance, maintainability, and concurrency safety).
+
+Below is a **comprehensive, deeply researched, and production-focused** guide to **Java design patterns**, categorized by type, with:
+- **Core intent**
+- **When to use (and when NOT to)**
+- **Production-grade implementation tips**
+- **Common anti-patterns**
+- **Integration with Spring Boot / modern Java (17+)**
+
+---
+
+## 🧠 **Foundational Principles for Production Use**
+
+Before diving into patterns, adhere to these **non-negotiables**:
+1. **Favor composition over inheritance**
+2. **Program to interfaces, not implementations**
+3. **Ensure thread-safety in concurrent environments**
+4. **Make patterns testable** (avoid hidden dependencies)
+5. **Avoid premature abstraction**—YAGNI applies
+6. **Prefer immutability** where possible
+7. **Use records, sealed classes, and pattern matching (Java 17–21)**
+
+---
+
+# 🔷 **I. Creational Patterns**
+
+### 1. **Singleton**
+- **Intent**: Ensure a class has only one instance.
+- **Production Best Practices**:
+  - **Avoid** unless absolutely necessary (e.g., legacy driver, metrics registry).
+  - If used:
+    - Use **enum-based singleton** (thread-safe, serialization-safe):
+      ```java
+      public enum DatabaseConnectionPool {
+          INSTANCE;
+          // methods
+      }
+      ```
+    - Never use lazy-initialization with double-checked locking unless you understand memory models.
+  - **Better Alternative**: Use **dependency injection (Spring `@Component` with singleton scope)**.
+- **Anti-Pattern**: Global state that hinders testing.
+
+---
+
+### 2. **Factory Method**
+- **Intent**: Define an interface for creating objects, but let subclasses decide which class to instantiate.
+- **Production Use**:
+  - Common in frameworks (e.g., `DocumentBuilderFactory.newInstance()`).
+  - Use when you need **polymorphic object creation**.
+- **Best Practice**:
+  - Return **interfaces**, not concrete classes.
+  - Combine with **strategy** or **template method**.
+  ```java
+  public interface PaymentProcessorFactory {
+      PaymentProcessor createProcessor(PaymentType type);
+  }
+  ```
+- **Spring Integration**: Use `@Configuration` + `@Bean` methods instead of manual factories.
+
+---
+
+### 3. **Abstract Factory**
+- **Intent**: Create families of related objects without specifying their concrete classes.
+- **Production Use**:
+  - UI toolkits (e.g., Windows vs. Mac widgets).
+  - Database dialects (e.g., MySQL vs. PostgreSQL query builders).
+- **Best Practice**:
+  - Keep factory interfaces small and focused.
+  - Avoid deep hierarchies.
+
+---
+
+### 4. **Builder**
+- **Intent**: Construct complex objects step-by-step.
+- **Production Best Practices**:
+  - **Essential for immutable objects with many fields**.
+  - Use **Joshua Bloch’s Builder pattern**:
+    ```java
+    public class User {
+        private final String name;
+        private final int age;
+
+        private User(Builder builder) {
+            this.name = builder.name;
+            this.age = builder.age;
+        }
+
+        public static class Builder {
+            private String name;
+            private int age;
+
+            public Builder name(String name) { this.name = name; return this; }
+            public Builder age(int age) { this.age = age; return this; }
+            public User build() { return new User(this); }
+        }
+    }
+    ```
+  - **Modern Alternative**: Use **Lombok `@Builder`** (but verify immutability).
+  - **Java 14+**: Consider **records + static factory methods** for simple cases.
+- **Anti-Pattern**: Over-engineering for 2-field objects.
+
+---
+
+### 5. **Prototype**
+- **Intent**: Clone existing objects instead of creating new ones.
+- **Production Use**:
+  - Rare in Java due to GC efficiency.
+  - Only useful for **expensive-to-construct, frequently duplicated objects**.
+- **Best Practice**:
+  - Prefer **copy constructors** or **static factory methods** over `Cloneable` (which is broken).
+  ```java
+  public User copy() {
+      return new User(this.name, this.age);
+  }
+  ```
+- **Avoid**: `Object.clone()` — it’s shallow, throws `CloneNotSupportedException`, and bypasses constructors.
+
+---
+
+# 🔷 **II. Structural Patterns**
+
+### 6. **Adapter**
+- **Intent**: Convert interface of a class into another interface clients expect.
+- **Production Use**:
+  - Integrating third-party libraries (e.g., legacy payment gateway).
+  - Legacy → modern system migration.
+- **Best Practice**:
+  - Create an **interface representing your domain’s needs**.
+  - Implement adapter that wraps external API.
+  ```java
+  public interface NotificationService {
+      void send(String message);
+  }
+
+  public class TwilioAdapter implements NotificationService {
+      private final TwilioClient client;
+      public void send(String msg) { client.sms(msg); }
+  }
+  ```
+- **Spring**: Use `@Primary` or `@Qualifier` to inject the right adapter.
+
+---
+
+### 7. **Decorator**
+- **Intent**: Add behavior dynamically without subclassing.
+- **Production Use**:
+  - I/O streams (`BufferedInputStream` wraps `FileInputStream`)
+  - Caching, logging, validation wrappers.
+- **Best Practice**:
+  - Decorators **must implement the same interface** as the wrapped object.
+  - Chain decorators for layered behavior:
+    ```java
+    DataSource ds = new CachingDataSource(
+                      new LoggingDataSource(
+                        new JdbcDataSource()));
+    ```
+- **Spring**: Use **AOP (`@Around` advice)** for cross-cutting concerns instead of manual decorators.
+
+---
+
+### 8. **Facade**
+- **Intent**: Provide a simplified interface to a complex subsystem.
+- **Production Use**:
+  - Expose clean APIs over messy legacy code.
+  - Microservice internal orchestration layer.
+- **Best Practice**:
+  - **Do not add business logic** in facade—delegate only.
+  - Keep it **thin and stateless**.
+  ```java
+  @Service
+  public class OrderFacade {
+      public OrderSummary placeOrder(OrderRequest req) {
+          validate(req);
+          reserveInventory(req);
+          chargePayment(req);
+          return buildSummary();
+      }
+  }
+  ```
+
+---
+
+### 9. **Proxy**
+- **Intent**: Control access to an object.
+- **Types**:
+  - **Remote Proxy**: RMI, gRPC stubs.
+  - **Virtual Proxy**: Lazy initialization (e.g., Hibernate lazy loading).
+  - **Protection Proxy**: Access control.
+  - **Smart Proxy**: Logging, caching, reference counting.
+- **Production Best Practice**:
+  - **Use Spring AOP or JDK Dynamic Proxies** instead of hand-rolling.
+  - For remote calls, prefer **Feign Client** or **gRPC stubs**.
+- **Caution**: Proxying can hide performance costs (e.g., N+1 in Hibernate).
+
+---
+
+### 10. **Composite**
+- **Intent**: Treat individual and composite objects uniformly.
+- **Production Use**:
+  - UI components (e.g., `Component` → `Button` or `Panel`)
+  - File systems (`File` and `Directory`)
+- **Best Practice**:
+  - Define clear **leaf vs. composite** behavior.
+  - Avoid deep nesting that causes stack overflow.
+- **Java Example**: `javax.swing` uses this heavily.
+
+---
+
+### 11. **Bridge**
+- **Intent**: Decouple abstraction from implementation so both can vary independently.
+- **Production Use**:
+  - When you have **orthogonal dimensions of change** (e.g., shape + rendering engine).
+- **Best Practice**:
+  - Prefer over deep inheritance trees.
+  - Use **dependency injection** to wire implementation at runtime.
+
+---
+
+### 12. **Flyweight**
+- **Intent**: Share objects to support large numbers of fine-grained objects efficiently.
+- **Production Use**:
+  - **Rare in modern Java** due to cheap object allocation.
+  - Still useful for **immutable, frequently repeated objects** (e.g., `String` interning, font glyphs).
+- **Best Practice**:
+  - Use **`ConcurrentHashMap` as a registry**.
+  - Ensure **immutability** of shared objects.
+  ```java
+  private static final Map<String, Font> fontCache = new ConcurrentHashMap<>();
+  public static Font getFont(String name) {
+      return fontCache.computeIfAbsent(name, Font::new);
+  }
+  ```
+
+---
+
+# 🔷 **III. Behavioral Patterns**
+
+### 13. **Strategy**
+- **Intent**: Define a family of algorithms, encapsulate each, and make them interchangeable.
+- **Production Best Practices**:
+  - **One of the most useful patterns in enterprise Java**.
+  - Use with **Spring’s `@Qualifier` or Map-based injection**:
+    ```java
+    @Component
+    public class PaymentService {
+        private final Map<String, PaymentStrategy> strategies;
+
+        public PaymentService(List<PaymentStrategy> strategyList) {
+            this.strategies = strategyList.stream()
+                .collect(Collectors.toMap(s -> s.type(), s -> s));
+        }
+    }
+    ```
+  - Strategies should be **stateless** (or thread-safe).
+- **Anti-Pattern**: Using `if-else` chains for algorithm selection.
+
+---
+
+### 14. **Observer**
+- **Intent**: Define a one-to-many dependency so objects are notified of state changes.
+- **Production Use**:
+  - Event-driven architectures.
+  - GUI listeners (legacy).
+- **Best Practice**:
+  - **Prefer Java’s `java.util.Observer` (deprecated)** → use **Spring Application Events** or **Reactor’s `Flux`/`Mono`**.
+  ```java
+  @Service
+  public class OrderService {
+      @EventListener
+      public void handle(OrderPlacedEvent event) {
+          // react
+      }
+  }
+  ```
+  - For reactive streams: use **Project Reactor** or **RxJava**.
+
+---
+
+### 15. **Command**
+- **Intent**: Encapsulate a request as an object.
+- **Production Use**:
+  - Undo/redo functionality.
+  - Task queues, scheduled jobs.
+  - CQRS command handlers.
+- **Best Practice**:
+  - Make commands **immutable**.
+  - Use **Spring `@CommandHandler`** (Axon) or simple `Runnable`/`Supplier`.
+  ```java
+  public record CreateUserCommand(String email, String name) implements Command<User> {}
+  ```
+
+---
+
+### 16. **Template Method**
+- **Intent**: Define skeleton of an algorithm, deferring steps to subclasses.
+- **Production Use**:
+  - Frameworks (e.g., Spring `JdbcTemplate`, `RestTemplate`).
+  - Batch processing pipelines.
+- **Best Practice**:
+  - Keep **hooks minimal**.
+  - Prefer **composition + strategy** over deep inheritance.
+- **Modern Alternative**: Use **functional interfaces**:
+  ```java
+  public void process(Consumer<Data> customStep) {
+      load();
+      validate();
+      customStep.accept(data);
+      save();
+  }
+  ```
+
+---
+
+### 17. **State**
+- **Intent**: Alter object behavior when its internal state changes.
+- **Production Use**:
+  - Order lifecycle (`CREATED` → `PAID` → `SHIPPED`)
+  - Workflow engines.
+- **Best Practice**:
+  - Represent states as **enums** or **sealed classes (Java 17+)**.
+  - Avoid conditional logic in main class—delegate to state objects.
+  ```java
+  public sealed interface OrderState permits Created, Paid, Shipped {
+      void process(Order order);
+  }
+  ```
+
+---
+
+### 18. **Chain of Responsibility**
+- **Intent**: Pass request along a chain of handlers.
+- **Production Use**:
+  - Logging levels (`DEBUG` → `INFO` → `ERROR`)
+  - Authentication filters
+  - Validation pipelines
+- **Best Practice**:
+  - Use **Spring WebFilter chain** or **Servlet Filter** for HTTP.
+  - For business logic, use **`List<Handler>` and iterate**.
+  ```java
+  handlers.stream().filter(h -> h.canHandle(request)).findFirst().ifPresent(h -> h.handle(request));
+  ```
+
+---
+
+### 19. **Visitor**
+- **Intent**: Add operations to object structures without modifying them.
+- **Production Use**:
+  - AST processing (compilers, JSON parsers)
+  - Reporting across heterogeneous objects
+- **Best Practice**:
+  - **Rarely needed** in business apps.
+  - Use **pattern matching with `instanceof` (Java 17+)** as simpler alternative:
+    ```java
+    void visit(Object obj) {
+        switch (obj) {
+            case User u -> processUser(u);
+            case Order o -> processOrder(o);
+        }
+    }
+    ```
+
+---
+
+### 20. **Iterator**
+- **Intent**: Provide uniform way to traverse collections.
+- **Production Use**:
+  - Built into Java (`Iterable`, `Stream`)
+- **Best Practice**:
+  - **Never implement manually**—use `Collection`, `Stream`, or `Spliterator`.
+  - For custom data sources, implement `Iterable<T>`.
+
+---
+
+### 21. **Mediator**
+- **Intent**: Reduce chaotic dependencies between objects by centralizing communication.
+- **Production Use**:
+  - Chat rooms, air traffic control
+  - **Event Bus** or **Message Broker** in microservices
+- **Best Practice**:
+  - In Spring: use **ApplicationEventPublisher** as mediator.
+  - Avoid god-object mediators.
+
+---
+
+### 22. **Memento**
+- **Intent**: Capture and restore object state.
+- **Production Use**:
+  - Undo functionality
+  - Workflow checkpoints
+- **Best Practice**:
+  - Store mementos **externally** (e.g., database, Redis).
+  - Use **immutable snapshots**.
+
+---
+
+### 23. **Null Object**
+- **Intent**: Provide default behavior instead of `null`.
+- **Production Best Practice**:
+  - **Highly recommended** to avoid `NullPointerException`.
+  - Use **`Optional`** for returns, but **Null Object** for behavior:
+    ```java
+    public class NullLogger implements Logger {
+        public void log(String msg) { /* do nothing */ }
+    }
+    ```
+  - Spring: Use `@Nullable` + static analysis (SpotBugs, ErrorProne).
+
+---
+
+# 🛠️ **IV. Modern Java & Spring Enhancements**
+
+| Pattern          | Modern Java (17–21) Enhancement        |
+|------------------|----------------------------------------|
+| Strategy         | `Map<String, Function<...>>`           |
+| State            | Sealed classes + pattern matching      |
+| Visitor          | `switch` with pattern matching         |
+| Builder          | Records + `with` methods (Java 16+)    |
+| Singleton        | `enum` or Spring `@Component`          |
+| Observer         | Project Reactor (`Flux`)               |
+
+---
+
+# 🚫 **Common Anti-Patterns in Production**
+
+1. **Overusing Singleton** → global state, untestable code.
+2. **God Objects** → violate Single Responsibility.
+3. **Anemic Domain Model** → logic in services, not entities.
+4. **Premature Optimization with Flyweight** → premature abstraction.
+5. **Deep Inheritance Hierarchies** → prefer composition.
+6. **Hidden Dependencies in Factories** → breaks testability.
+
+---
+
+# ✅ **Production Checklist: Applying Patterns Wisely**
+
+| Question                                  | Yes? |
+|-------------------------------------------|------|
+| Is the pattern solving a real problem?    | ✅    |
+| Is it making code more testable?          | ✅    |
+| Is it increasing or reducing complexity?  | ✅    |
+| Can it be replaced by a language feature? | ✅    |
+| Is it documented or obvious in intent?    | ✅    |
+
+---
+
+## 🔚 Final Thought
+
+> **“Patterns are not prescriptions—they are vocabulary.”**  
+> Use them to **communicate intent**, not to **decorate code**. In production Java systems, **simplicity, testability, and maintainability** trump pattern purity.
+
+The best pattern is often **no pattern**—just clean, idiomatic Java with clear boundaries and minimal dependencies.

@@ -1,0 +1,234 @@
+---
+title: REST API
+---
+
+Building a production-grade Spring Boot REST API involves much more than just exposing endpoints. It requires adherence to industry best practices across architecture, security, performance, observability, maintainability, and operational resilience. Below is a comprehensive, detailed list of features and practices that a production-ready Spring Boot REST API should incorporate.
+
+---
+
+## 🔧 **1. Project Structure & Modularity**
+- **Layered Architecture**: Use clean separation of concerns:
+  - Controller (REST endpoints)
+  - Service (business logic)
+  - Repository (data access)
+  - DTOs (Data Transfer Objects) for request/response
+  - Exception handling layer
+  - Configuration layer
+- **Modular Design**: Split into modules (e.g., `api`, `core`, `persistence`, `security`) if the application grows.
+- **Domain-Driven Design (DDD)**: Align code with business domains for scalability.
+
+---
+
+## 🌐 **2. RESTful API Design Principles**
+- **Resource-Oriented URLs**: Use nouns, not verbs (`/users`, `/orders/{id}`).
+- **HTTP Methods**: Use appropriate verbs:
+  - `GET` – retrieve
+  - `POST` – create
+  - `PUT` / `PATCH` – update
+  - `DELETE` – remove
+- **Status Codes**: Return correct HTTP status codes:
+  - `200 OK`, `201 Created`, `204 No Content`
+  - `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`
+  - `500 Internal Server Error`, `503 Service Unavailable`
+- **HATEOAS (Optional but recommended)**: Enable discoverability via links.
+- **Versioning**: API versioning via:
+  - URI (`/v1/users`)
+  - Header (`Accept: application/vnd.myapi.v1+json`)
+  - Query param (less preferred)
+
+---
+
+## 📦 **3. Request/Response Handling**
+- **DTOs Instead of Entities**: Never expose JPA entities directly.
+- **Validation**:
+  - Use `javax.validation` / `jakarta.validation` (`@Valid`, `@NotNull`, etc.)
+  - Custom validators for complex logic.
+- **Consistent Response Format**:
+  ```json
+  {
+    "success": true,
+    "data": { ... },
+    "message": "User created",
+    "timestamp": "2025-10-25T10:00:00Z"
+  }
+  ```
+- **Error Response Standardization**:
+  ```json
+  {
+    "success": false,
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "Email is invalid",
+      "details": [ ... ]
+    }
+  }
+  ```
+
+---
+
+## ⚙️ **4. Exception Handling**
+- **Global Exception Handler**: `@ControllerAdvice` with `@ExceptionHandler`.
+- **Custom Exceptions**: e.g., `UserNotFoundException`, `InvalidInputException`.
+- **Log Exceptions**: Include trace IDs for debugging.
+- **Avoid Leaking Internal Details**: Never expose stack traces to clients.
+
+---
+
+## 🔒 **5. Security**
+- **Authentication**:
+  - JWT (stateless) or OAuth2 (with Spring Security + Spring Authorization Server or Keycloak).
+  - Secure token storage (HttpOnly, Secure cookies if using sessions).
+- **Authorization**:
+  - Role/permission-based access control (`@PreAuthorize("hasRole('ADMIN')")`).
+  - Method-level security.
+- **HTTPS Enforcement**: Redirect HTTP → HTTPS in production.
+- **CORS Configuration**: Explicitly define allowed origins/methods.
+- **CSRF Protection**: Disabled for stateless APIs (but ensure JWT is secure).
+- **Rate Limiting**: Prevent abuse (e.g., via Bucket4j or API Gateway).
+- **Input Sanitization**: Prevent injection attacks (SQL, XSS).
+- **Dependency Scanning**: Use OWASP Dependency-Check or Snyk.
+
+---
+
+## 🗃️ **6. Data Access & Persistence**
+- **JPA/Hibernate Best Practices**:
+  - Use `@Entity`, `@Repository`, `JpaRepository`.
+  - Avoid N+1 queries (use `@EntityGraph`, `JOIN FETCH`).
+  - Use DTO projections for read-heavy operations.
+- **Database Migrations**: Use Flyway or Liquibase.
+- **Connection Pooling**: Use HikariCP (default in Spring Boot).
+- **Read-Only Transactions**: Mark read operations with `@Transactional(readOnly = true)`.
+- **Pagination & Sorting**: Use `Pageable` for large datasets.
+- **Caching**: Integrate Redis or Caffeine for frequently accessed data (`@Cacheable`).
+
+---
+
+## 📈 **7. Performance & Scalability**
+- **Asynchronous Processing**: Use `@Async`, `CompletableFuture`, or reactive programming (WebFlux) if needed.
+- **Connection Timeouts**: Configure `server.tomcat.connection-timeout`, `rest-template` timeouts.
+- **Lazy Loading Avoidance**: Prefer eager fetching or DTOs.
+- **Bulk Operations**: Support batch endpoints (`POST /users/bulk`).
+- **Database Indexing**: Ensure proper DB indexes on query fields.
+- **Stateless Design**: Enables horizontal scaling.
+
+---
+
+## 👁️ **8. Observability & Monitoring**
+- **Logging**:
+  - Structured JSON logs (via Logback + Logstash encoder).
+  - Correlation IDs for tracing requests across services.
+  - Avoid logging PII/sensitive data.
+- **Metrics**:
+  - Micrometer + Prometheus for metrics (`/actuator/prometheus`).
+  - Track request rates, error rates, latency (RED metrics).
+- **Health Checks**: `/actuator/health` with custom indicators (DB, external services).
+- **Distributed Tracing**: Integrate with OpenTelemetry or Spring Cloud Sleuth + Zipkin/Jaeger.
+- **Audit Logging**: Log critical operations (e.g., user deletion).
+
+---
+
+## 🧪 **9. Testing**
+- **Unit Tests**: `@SpringBootTest`, `@DataJpaTest`, `@WebMvcTest`.
+- **Integration Tests**: Test full request/response flow.
+- **Contract Tests**: Use Spring Cloud Contract for consumer-driven contracts.
+- **Test Containers**: Use real DBs in Docker for integration tests.
+- **Performance Tests**: Use Gatling or JMeter.
+- **Mutation Testing**: Use PITest to validate test quality.
+
+---
+
+## 🛠️ **10. Configuration & Environment Management**
+- **Externalized Configuration**: `application-{profile}.yml`, environment variables.
+- **Profiles**: `dev`, `staging`, `prod`.
+- **Secrets Management**: Never hardcode secrets. Use:
+  - HashiCorp Vault
+  - AWS Secrets Manager
+  - Kubernetes Secrets
+- **Configuration Validation**: `@ConfigurationProperties` with `@Validated`.
+
+---
+
+## 🚀 **11. Deployment & DevOps**
+- **Containerization**: Dockerize the app with multi-stage builds.
+- **Health Probes**: Kubernetes `liveness` and `readiness` probes using Actuator.
+- **Graceful Shutdown**: Enable `server.shutdown=graceful`.
+- **Immutable Artifacts**: Build once, deploy everywhere.
+- **CI/CD Pipeline**: Automated testing, building, and deployment (GitHub Actions, GitLab CI, Jenkins).
+- **Blue/Green or Canary Deployments**: Minimize downtime.
+
+---
+
+## 📡 **12. API Documentation**
+- **OpenAPI 3 (Swagger)**: Use `springdoc-openapi-starter-webmvc-ui`.
+  - Auto-generated docs at `/swagger-ui.html`.
+  - Annotate with `@Operation`, `@ApiResponse`, etc.
+- **API Specification**: Maintain `openapi.yaml` as source of truth.
+
+---
+
+## 🔄 **13. Resilience & Fault Tolerance**
+- **Circuit Breaker**: Use Resilience4j or Spring Retry.
+- **Timeouts & Retries**: Configure for external service calls.
+- **Bulkheads**: Isolate failures (e.g., via thread pools).
+- **Fallback Mechanisms**: Return cached or default data during outages.
+
+---
+
+## 🌍 **14. Internationalization (i18n)**
+- Support multiple languages via `messages.properties`.
+- Accept `Accept-Language` header.
+- Use `MessageSource` for dynamic messages.
+
+---
+
+## 📅 **15. Scheduling & Background Jobs**
+- Use `@Scheduled` for periodic tasks.
+- Prefer external job schedulers (Quartz, Temporal) for complex workflows.
+- Ensure idempotency in scheduled jobs.
+
+---
+
+## 🧹 **16. Maintenance & Clean Code**
+- **Code Quality**: SonarQube, Checkstyle, PMD.
+- **Documentation**: README, architecture decision records (ADRs).
+- **Deprecation Policy**: Mark deprecated endpoints with `@Deprecated` and sunset dates.
+- **Automated Code Formatting**: Use Spotless or Google Java Format.
+
+---
+
+## ✅ **Bonus: Spring Boot Actuator Endpoints (Production-Tuned)**
+Enable selectively in production:
+- `/actuator/health` – health status
+- `/actuator/info` – app info (Git, build)
+- `/actuator/metrics` – metrics
+- `/actuator/loggers` – adjust log levels dynamically (secure!)
+- `/actuator/threaddump`, `/actuator/heapdump` – diagnostics (restrict access!)
+
+> 🔐 **Important**: Secure all Actuator endpoints with Spring Security.
+
+---
+
+## 📌 Summary Checklist for Production Readiness
+
+| Category               | Implemented? |
+|------------------------|--------------|
+| RESTful design         | ✅            |
+| Input validation       | ✅            |
+| Global exception handling | ✅         |
+| JWT/OAuth2 security    | ✅            |
+| HTTPS enforced         | ✅            |
+| Structured logging     | ✅            |
+| Metrics & tracing      | ✅            |
+| Health checks          | ✅            |
+| Database migrations    | ✅            |
+| Caching                | ✅            |
+| Rate limiting          | ✅            |
+| OpenAPI docs           | ✅            |
+| Unit & integration tests | ✅          |
+| Containerized deploy   | ✅            |
+| Graceful shutdown      | ✅            |
+| Secrets management     | ✅            |
+
+---
+
+By implementing these features and practices, your Spring Boot REST API will be secure, maintainable, observable, and ready for enterprise-scale production use.

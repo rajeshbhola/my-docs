@@ -1,0 +1,10 @@
+{
+  "title": "Best Practices",
+  "pages": [
+    "01-rest-api-best-practices",
+    "02-springboot-microservices",
+    "03-microservices-design-pattern",
+    "04-java-design-patterns",
+    "05-software-principles"
+  ]
+}

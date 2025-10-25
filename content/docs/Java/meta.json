@@ -3,6 +3,7 @@
   "pages": [
     "Basics",
     "OOPs",
-    "Exception Handling"
+    "Exception Handling",
+    "Best Practices"
   ]
 }
